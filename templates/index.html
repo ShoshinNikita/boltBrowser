@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>boltDB web-browser</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" media="screen" href="/static/main.css" />
+	<script src="/static/main.js"></script>
+</head>
+<body>
+	<div class="db_list">
+		<div style="font-size: 30px; text-align: center;">List of databases</div>
+		<div id="list">
+			<input type="button" value="Add db" onclick="AddDB();">
+		</div>
+	</div>
+	
+	<div class="db">
+		<div class="db_info"> 
+			<div id="dbName">Name: ?</div>
+			<div style="font-size: 20px;">
+				<div id="dbSize">Size: ?</div>
+				<div id="dbPath">Path: ?</div>
+			</div>
+		</div>
+		<div>
+			<div class="db_tree" id="db_tree">
+				<input class="record" type="button" value="...">
+				<br>
+				<input class="bucket" type="button" value="123">
+			</div>
+			<div class="record_data" id="record_data">
+
+			</div>
+		</div>
+	</div>
+</body>
+</html>

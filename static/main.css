@@ -1,0 +1,37 @@
+html * {
+	font-family: Arial !important;
+	/*color: #17a2b8;*/
+}
+div {
+	border: 1px solid black;
+}
+.db_list {
+	float: left;
+	height: 95vh;
+	width: 25vw;
+}
+.db {
+	float: right;
+	height: 95vh;
+	width: 70vw;
+}
+.db_data {
+
+}
+.db_info {
+	font-size: 30px;
+}
+.db_tree {
+	margin-left: 1vw;;
+	width: 20vw;;
+	float: left;
+}
+.record_data {
+	float: right;
+}
+.record {
+	width: 100px;
+}
+.bucket {
+	width: 100px;
+}
