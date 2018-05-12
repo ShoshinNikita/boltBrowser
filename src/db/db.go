@@ -1,7 +1,6 @@
 package db
 
 import (
-	"errors"
 	"path/filepath"
 	"os"
 
@@ -58,8 +57,9 @@ func (db *DBApi) Close() error {
 	return db.db.Close()
 }
 
-// GetCMD return records from ROOt of db
-func (db *DBApi) GetCMD() ([]Element, error) {
+// GetCMD returns records from root of db
+// Also return bool, which shows can user move back (true – bucket, false – root of db)
+func (db *DBApi) GetCMD() ([]Element, bool, error) {
 	var elements []Element
 
 	err := db.db.View(func(tx *bolt.Tx) error {
@@ -80,10 +80,12 @@ func (db *DBApi) GetCMD() ([]Element, error) {
 		return nil
 	})
 
-	return elements, err
+	return elements, false, err
 }
 
-func (db *DBApi) GetCurrent() ([]Element, error) {
+// GetCurrent returns records from current bucket
+// Also return bool, which shows can user move back (true – bucket, false – root of db)
+func (db *DBApi) GetCurrent() ([]Element, bool, error) {
 	var elements []Element
 	if len(db.currentBucket) == 0 {
 		return db.GetCMD()
@@ -111,16 +113,13 @@ func (db *DBApi) GetCurrent() ([]Element, error) {
 		return nil
 	})
 
-	return elements, err
+	return elements, true, err
 }
 
 // Back return records from previous bucket
-func (db *DBApi) Back() ([]Element, error) {
+// Also return bool, which shows can user move back (true – bucket, false – root of db)
+func (db *DBApi) Back() ([]Element, bool, error) {
 	var elements []Element
-	if len(db.currentBucket) == 0 {
-		return []Element{}, errors.New("There is no previous bucket")
-	}
-	
 	db.currentBucket = db.currentBucket[:len(db.currentBucket)-1]
 	if len(db.currentBucket) == 0 {
 		return db.GetCMD()
@@ -149,7 +148,7 @@ func (db *DBApi) Back() ([]Element, error) {
 		return nil
 	})
 
-	return elements, err
+	return elements, true, err
 }
 
 // Next return records from next bucket with according name

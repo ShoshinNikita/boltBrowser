@@ -35,7 +35,7 @@ function OpenDB() {
 		},
 		success: function(result){
 			result = JSON.parse(result);
-			showDBList()
+			ShowDBList()
 		},
 		error: function(result) {
 			console.log(result.responseText)
@@ -43,7 +43,7 @@ function OpenDB() {
 	})
 }
 
-function showDBList() {
+function ShowDBList() {
 	$.ajax({
 		url: "/api/databases",
 		type: "GET",
@@ -71,7 +71,7 @@ function CloseDB(path) {
 		},
 		success: function(result){
 			console.log(result.responseText)
-			showDBList()
+			ShowDBList()
 		},
 		error: function(result) {
 			console.log(result.responseText)
@@ -79,8 +79,13 @@ function CloseDB(path) {
 	})
 }
 
-function ShowTree(records) {
-	var result = backButton
+function ShowTree(data) {
+	var result = ""
+	if (data.canBack) {
+		result = backButton
+	}
+	
+	var records = data.records
 	for (i in records) {
 		if (records[i].type == "bucket") {
 			result += bucketTemplate.format(records[i].key)
@@ -139,13 +144,14 @@ function ChooseDB(path) {
 			$("#dbName").html("Name: " + result.name)
 			$("#dbPath").html("Path: " + result.path)
 			$("#dbSize").html("Size: " + result.size + " Kb")
-			ShowTree(result.records)
+			ShowTree(result)
 		},
 		error: function(result) {
 			console.log(result.responseText)
 		}
 	})
 }
+
 
 String.prototype.format = function () {
 	var a = this;
