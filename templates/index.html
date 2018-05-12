@@ -2,26 +2,32 @@
 <html>
 <head>
 	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>boltDB web-browser</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Custom css and js -->
 	<link rel="stylesheet" type="text/css" media="screen" href="/static/main.css" />
 	<script src="/static/main.js"></script>
+	<!-- jQuery -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<!-- Icons -->
+	<link rel="stylesheet" type="text/css" media="screen" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
-<body>
+<body onload="showDBList();">
 	<div class="db_list">
-		<div style="font-size: 30px; text-align: center;">List of databases</div>
-		<div id="list">
-			<input type="button" value="Add db" onclick="AddDB();">
+		<div style="font-size: 25px; text-align: center; margin: auto;">
+			List of databases
+			<i class="material-icons btn icon" style="float: right; color: rgb(11, 168, 11);" onclick="OpenDB();">add</i>
 		</div>
+		<br>
+		<div id="list"></div>
 	</div>
 	
 	<div class="db">
 		<div class="db_info"> 
 			<div id="dbName">Name: ?</div>
 			<div style="font-size: 20px;">
-				<div id="dbSize">Size: ?</div>
 				<div id="dbPath">Path: ?</div>
+				<div id="dbSize">Size: ?</div>
 			</div>
 		</div>
 		<div>

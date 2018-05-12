@@ -1,14 +1,26 @@
 html * {
-	font-family: Arial !important;
+	font-family: Arial;
 	/*color: #17a2b8;*/
 }
 div {
 	border: 1px solid black;
 }
+.btn {
+	cursor: pointer;
+}
+.icon {
+	font-size: 30px !important;
+}
 .db_list {
 	float: left;
 	height: 95vh;
 	width: 25vw;
+}
+.db_button {
+	float: left;
+	height: 4vh;
+	width: 70%;
+	margin-left: 1vw;
 }
 .db {
 	float: right;
