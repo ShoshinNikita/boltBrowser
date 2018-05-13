@@ -1,30 +1,25 @@
-const buttonTemplate = `
-<div>
+const buttonTemplate = `<div>
 	<input type="button" class="db_button" value="{0}" onclick="ChooseDB('{1}')" title="Choose">
 	<i class="material-icons btn" style="float: right; margin-right: 1vw; font-size: 30px !important;" title="Close" onclick="CloseDB('{1}')">close<\/i>
 	<br>
 	<br>
 <\/div>`
 
-const recordTemplate = `
-<div>
+const recordTemplate = `<div>
 	<i class="material-icons" icon>assignment<\/i>
 	<span class="record" onclick="ShowFullRecord({0});"><b>{1}<\/b>:<\/span> {2}
 <\/div>`
 
-const bucketTemplate = `
-<div>
+const bucketTemplate = `<div>
 	<i class="material-icons" icon>folder<\/i>
 	<span class="bucket" onclick="Next(currentDBPath, '{0}');"><b>{0}<\/b><\/span>
 <\/div>`
 
-const backButton = `
-<div>
+const backButton = `<div>
 	<i class="material-icons btn" icon onclick="Back(currentDBPath);" title="Back">more_horiz<\/i>
 <\/div>`
 
-const fullRecordTemplate = `
-<div>
+const fullRecordTemplate = `<div>
 	<b>Key:<\/b> {0}
 <\/div>
 <br>
@@ -42,17 +37,27 @@ function getError(result) {
 	return errorMessageTemplate.format(result.status, result.responseText);
 }
 
+function getCurrentPath(path) {
+	var result = ""
+	for (i in path) {
+		result += "/" + path[i]
+	}
+	if (result == "") {
+		result = "/"
+	}
+	return result
+}
+
 
 function OpenDB() {
-	var path = prompt("Please, enter the path to the database")
+	var filePath = prompt("Please, enter the path to the database")
 	$.ajax({
 		url: "/api/openDB",
 		type: "POST",
 		data: {
-			"path": path
+			"filePath": filePath
 		},
 		success: function(result){
-			result = JSON.parse(result);
 			ShowDBList()
 		},
 		error: function(result) {
@@ -61,19 +66,20 @@ function OpenDB() {
 	})
 }
 
-function CloseDB(path) {
+function CloseDB(filePath) {
 	$.ajax({
 		url: "/api/closeDB",
 		type: "POST",
 		data: {
-			"path": path,
+			"filePath": filePath,
 		},
 		success: function(result){
-			if (path == currentDBPath) {
+			if (filePath == currentDBPath) {
 				$("#dbName").html("<i>Name:<\/i> ?")
 				$("#dbPath").html("<i>Path:<\/i> ?")
 				$("#dbSize").html("<i>Size:<\/i> ?")
 				$("#db_tree").html("")
+				$("#currentPath").html("")
 				$("#record_data").html("")
 				currentDBPath = ""
 			}
@@ -94,7 +100,7 @@ function ShowDBList() {
 			console.log(allDB)
 			var result = ""
 			for (i in allDB) {
-				result += buttonTemplate.format(allDB[i].name, allDB[i].path)
+				result += buttonTemplate.format(allDB[i].name, allDB[i].filePath)
 			}
 			$("#list").html(result)
 		},
@@ -104,19 +110,20 @@ function ShowDBList() {
 	})
 }
 
-function ChooseDB(path) {
-	currentDBPath = path
+function ChooseDB(filePath) {
+	currentDBPath = filePath
 	$.ajax({
 		url: "/api/current",
 		type: "GET",
 		data: {
-			"path": path,
+			"filePath": filePath,
 		},
 		success: function(result){
 			result = JSON.parse(result)
 			$("#dbName").html("<i>Name:<\/i> " + result.name)
-			$("#dbPath").html("<i>Path:<\/i> " + result.path)
+			$("#dbPath").html("<i>Path:<\/i> " + result.filePath)
 			$("#dbSize").html("<i>Size:<\/i> " + result.size + " Kb")
+			$("#currentPath").html("<i>" + getCurrentPath(result.path) + "<\/i> ")
 			$("#record_data").html("")
 			ShowTree(result)
 		},
@@ -149,16 +156,17 @@ function ShowTree(data) {
 	$("#db_tree").html(result);
 }
 
-function Next(path, bucket) {
+function Next(filePath, bucket) {
 	$.ajax({
 		url: "/api/next",
 		type: "GET",
 		data: {
-			"path": path,
+			"filePath": filePath,
 			"bucket": bucket
 		},
 		success: function(result){
 			result = JSON.parse(result)
+			$("#currentPath").html("<i>" + getCurrentPath(result.path) + "<\/i> ")
 			$("#record_data").html("")
 			ShowTree(result)
 		},
@@ -168,15 +176,16 @@ function Next(path, bucket) {
 	})
 }
 
-function Back(path) {
+function Back(filePath) {
 	$.ajax({
 		url: "/api/back",
 		type: "GET",
 		data: {
-			"path": path,
+			"filePath": filePath,
 		},
 		success: function(result){
 			result = JSON.parse(result)
+			$("#currentPath").html("<i>" + getCurrentPath(result.path) + "<\/i> ")
 			$("#record_data").html("")
 			ShowTree(result)
 		},

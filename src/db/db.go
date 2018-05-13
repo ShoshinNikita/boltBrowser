@@ -1,8 +1,8 @@
 package db
 
 import (
-	"path/filepath"
 	"os"
+	"path/filepath"
 
 	"github.com/boltdb/bolt"
 )
@@ -14,18 +14,18 @@ const (
 
 // DBApi is a warrep for *bolt.DB
 type DBApi struct {
-	db            	*bolt.DB
-	currentBucket 	[]string
-	Name 			string	`json:"name"`
-	Path 			string `json:"path"`
-	Size 			int64  `json:"size"`
+	db            *bolt.DB
+	currentBucket []string
+	Name          string `json:"name"`
+	FilePath      string `json:"filePath"`
+	Size          int64  `json:"size"`
 }
 
 // TODO func sort for Elements
 
 // Element consists information about record in the db
 type Element struct {
-	T	  string `json:"type"`
+	T     string `json:"type"`
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
@@ -42,9 +42,9 @@ func Open(path string) (*DBApi, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Getting info about the file
-	db.Path = path
+	db.FilePath = path
 	db.Name = filepath.Base(path)
 	file, _ := os.Stat(path)
 	db.Size = file.Size()
@@ -58,8 +58,7 @@ func (db *DBApi) Close() error {
 }
 
 // GetCMD returns records from root of db
-// Also return bool, which shows can user move back (true – bucket, false – root of db)
-func (db *DBApi) GetCMD() ([]Element, bool, error) {
+func (db *DBApi) GetCMD() ([]Element, []string, error) {
 	var elements []Element
 
 	err := db.db.View(func(tx *bolt.Tx) error {
@@ -80,12 +79,11 @@ func (db *DBApi) GetCMD() ([]Element, bool, error) {
 		return nil
 	})
 
-	return elements, false, err
+	return elements, []string{}, err
 }
 
 // GetCurrent returns records from current bucket
-// Also return bool, which shows can user move back (true – bucket, false – root of db)
-func (db *DBApi) GetCurrent() ([]Element, bool, error) {
+func (db *DBApi) GetCurrent() ([]Element, []string, error) {
 	var elements []Element
 	if len(db.currentBucket) == 0 {
 		return db.GetCMD()
@@ -113,12 +111,11 @@ func (db *DBApi) GetCurrent() ([]Element, bool, error) {
 		return nil
 	})
 
-	return elements, true, err
+	return elements, db.currentBucket, err
 }
 
 // Back return records from previous bucket
-// Also return bool, which shows can user move back (true – bucket, false – root of db)
-func (db *DBApi) Back() ([]Element, bool, error) {
+func (db *DBApi) Back() ([]Element, []string, error) {
 	var elements []Element
 	db.currentBucket = db.currentBucket[:len(db.currentBucket)-1]
 	if len(db.currentBucket) == 0 {
@@ -148,11 +145,11 @@ func (db *DBApi) Back() ([]Element, bool, error) {
 		return nil
 	})
 
-	return elements, true, err
+	return elements, db.currentBucket, err
 }
 
 // Next return records from next bucket with according name
-func (db *DBApi) Next(name string) ([]Element, error) {
+func (db *DBApi) Next(name string) ([]Element, []string, error) {
 	var elements []Element
 
 	db.currentBucket = append(db.currentBucket, name)
@@ -179,5 +176,5 @@ func (db *DBApi) Next(name string) ([]Element, error) {
 		return nil
 	})
 
-	return elements, err
+	return elements, db.currentBucket, err
 }

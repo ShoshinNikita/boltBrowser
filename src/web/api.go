@@ -1,9 +1,9 @@
 package web
 
 import (
-	"net/http"
 	"db"
 	"encoding/json"
+	"net/http"
 	"regexp"
 )
 
@@ -13,17 +13,9 @@ var allDB map[string]*db.DBApi
 // openDB return json with information about a database
 // It also adds db.DBApi to allDB
 //
-// Params: path
-// Return:
-// {
-// 		"name": "",
-// 		"path": "",
-// 		"size": 0
-// }
-//
 func openDB(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	path := r.Form.Get("path")
+	path := r.Form.Get("filePath")
 
 	// From C:\\users\\help (or C:\users\help) to C:/users/help
 	reg := regexp.MustCompile(`\\\\|\\`)
@@ -42,15 +34,15 @@ func openDB(w http.ResponseWriter, r *http.Request) {
 	}
 
 	allDB[path] = newDB
-	json.NewEncoder(w).Encode(newDB)
+	w.WriteHeader(http.StatusOK)
 }
 
-// Params: path
+// Params: filePath
 // Return: -
-// 
+//
 func closeDB(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	dbPath := r.Form.Get("path")
+	dbPath := r.Form.Get("filePath")
 	if _, ok := allDB[dbPath]; ok {
 		allDB[dbPath].Close()
 		delete(allDB, dbPath)
@@ -60,10 +52,11 @@ func closeDB(w http.ResponseWriter, r *http.Request) {
 
 // next returns records from bucket with according to the name
 //
-// Params: path, bucket
+// Params: filePath, bucket
 // Return:
 // {
 // 	"canBack": bool,
+//  "path": [],
 // 	"records": [
 // 		{
 // 			"type": "",
@@ -75,19 +68,21 @@ func closeDB(w http.ResponseWriter, r *http.Request) {
 //
 func next(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	dbPath := r.Form.Get("path")
+	dbPath := r.Form.Get("filePath")
 	nextBucket := r.Form.Get("bucket")
 	if _, ok := allDB[dbPath]; ok {
-		elements, err := allDB[dbPath].Next(nextBucket)
+		elements, path, err := allDB[dbPath].Next(nextBucket)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		response := struct {
-			CanBack	bool `json:"canBack"`
+			CanBack bool         `json:"canBack"`
+			Path    []string     `json:"path"`
 			Records []db.Element `json:"records"`
-		} {
+		}{
 			true,
+			path,
 			elements,
 		}
 		json.NewEncoder(w).Encode(response)
@@ -98,10 +93,11 @@ func next(w http.ResponseWriter, r *http.Request) {
 
 // back returns records from previous directory
 //
-// Params: path
+// Params: filePath
 // Return:
 // {
 // 	"canBack": bool,
+//  "path": [],
 // 	"records": [
 // 		{
 // 			"type": "",
@@ -113,18 +109,20 @@ func next(w http.ResponseWriter, r *http.Request) {
 //
 func back(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	dbPath := r.Form.Get("path")
+	dbPath := r.Form.Get("filePath")
 	if _, ok := allDB[dbPath]; ok {
-		elements, canBack, err := allDB[dbPath].Back()
+		elements, path, err := allDB[dbPath].Back()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		response := struct {
-			CanBack	bool `json:"canBack"`
+			CanBack bool         `json:"canBack"`
+			Path    []string     `json:"path"`
 			Records []db.Element `json:"records"`
-		} {
-			canBack,
+		}{
+			func() bool { return len(path) != 0 }(),
+			path,
 			elements,
 		}
 		json.NewEncoder(w).Encode(response)
@@ -135,9 +133,10 @@ func back(w http.ResponseWriter, r *http.Request) {
 
 // cmd returns records from root of db
 //
-// Params: path
+// Params: filePath
 // {
 // 	"canBack": bool,
+//  "path": [],
 // 	"records": [
 // 		{
 // 			"type": "",
@@ -149,18 +148,20 @@ func back(w http.ResponseWriter, r *http.Request) {
 //
 func cmd(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	dbPath := r.Form.Get("path")
+	dbPath := r.Form.Get("filePath")
 	if _, ok := allDB[dbPath]; ok {
-		elements, canBack, err := allDB[dbPath].GetCMD()
+		elements, _, err := allDB[dbPath].GetCMD()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		response := struct {
-			CanBack	bool `json:"canBack"`
+			CanBack bool         `json:"canBack"`
+			Path    []string     `json:"path"`
 			Records []db.Element `json:"records"`
-		} {
-			canBack,
+		}{
+			false,
+			[]string{},
 			elements,
 		}
 		json.NewEncoder(w).Encode(response)
@@ -169,7 +170,7 @@ func cmd(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Params: 
+// Params: -
 // Return:
 // [
 //	{
@@ -189,13 +190,14 @@ func databasesList(w http.ResponseWriter, r *http.Request) {
 
 // current returns records in current bucket
 //
-// Params: path
+// Params: filePath
 // Return:
 // {
 // 	"name": "",
-// 	"path": "",
+// 	"filePath": "",
 // 	"size": 0,
 //	"canBack": bool,
+//  "path": [],
 // 	"records": [
 // 		{
 // 			"type": "",
@@ -207,20 +209,23 @@ func databasesList(w http.ResponseWriter, r *http.Request) {
 //
 func current(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	dbPath := r.Form.Get("path")
+	dbPath := r.Form.Get("filePath")
+
 	if _, ok := allDB[dbPath]; ok {
-		elements, canBack, err := allDB[dbPath].GetCurrent()
+		elements, path, err := allDB[dbPath].GetCurrent()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		response := struct {
 			*db.DBApi
-			CanBack bool `json:"canBack"`
+			CanBack  bool         `json:"canBack"`
+			Path     []string     `json:"path"`
 			Elements []db.Element `json:"records"`
-		} {
+		}{
 			allDB[dbPath],
-			canBack,
+			func() bool { return len(path) != 0 }(),
+			path,
 			elements,
 		}
 		json.NewEncoder(w).Encode(response)
