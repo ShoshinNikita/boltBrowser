@@ -42,14 +42,14 @@ input[type=button] {
 }
 .db_tree {
 	margin-left: 1vw;
-	width: 30vw;
+	width: 32vw;
 	float: left;
 }
 .record_data {
 	border-left: 1px solid black;
 	float: right;
 	width: 35vw;
-	height: 84vh;
+	height: 85vh;
 	overflow-y: auto;
 }
 .record {
@@ -57,4 +57,50 @@ input[type=button] {
 }
 .bucket {
 	cursor: pointer;
+}
+
+.popup {
+	position: absolute;
+	bottom: 0.5vh;
+	left: 0.5vw;
+	width: 300px;
+	height: 100px;
+	visibility: hidden;
+
+	cursor: pointer;
+	background-color: white;
+	border: 1px solid black;
+	border-radius: 6px;
+}
+
+.popup_animation {
+	visibility: visible;
+	animation-name: movePopup;
+	animation-iteration-count: 1;
+	animation-duration: 2s;
+}
+
+@keyframes movePopup {
+	0% {margin-left: -300px;}
+	100% {margin-left: 0px;}
+}
+
+/* width */
+::-webkit-scrollbar {
+	width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background:#555; 
 }

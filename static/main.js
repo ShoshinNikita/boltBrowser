@@ -10,20 +10,18 @@ const recordTemplate = `
 <div>
 	<i class="material-icons" icon>assignment<\/i>
 	<span class="record" onclick="ShowFullRecord({0});"><b>{1}<\/b>:<\/span> {2}
-<\/div>
-`
+<\/div>`
+
 const bucketTemplate = `
 <div>
 	<i class="material-icons" icon>folder<\/i>
 	<span class="bucket" onclick="Next(currentDBPath, '{0}');"><b>{0}<\/b><\/span>
-<\/div>
-`
+<\/div>`
 
 const backButton = `
 <div>
 	<i class="material-icons btn" icon onclick="Back(currentDBPath);" title="Back">more_horiz<\/i>
-<\/div>
-`
+<\/div>`
 
 const fullRecordTemplate = `
 <div>
@@ -33,10 +31,17 @@ const fullRecordTemplate = `
 <div>
 	<b>Value:<\/b> {1}
 <\/div>
-`
+<br>`
+
+const errorMessageTemplate = `<b>Code:<\/b> {0}<br><b>Message:<\/b> {1}`
 
 var currentDBPath = ""
 var currentData = null
+
+function getError(result) {
+	return errorMessageTemplate.format(result.status, result.responseText);
+}
+
 
 function OpenDB() {
 	var path = prompt("Please, enter the path to the database")
@@ -51,7 +56,7 @@ function OpenDB() {
 			ShowDBList()
 		},
 		error: function(result) {
-			console.log(result.responseText)
+			ShowPopup(getError(result))
 		}
 	})
 }
@@ -75,7 +80,7 @@ function CloseDB(path) {
 			ShowDBList()
 		},
 		error: function(result) {
-			console.log(result.responseText)
+			ShowPopup(getError(result))
 		}
 	})
 }
@@ -94,7 +99,7 @@ function ShowDBList() {
 			$("#list").html(result)
 		},
 		error: function(result) {
-			console.log(result.responseText)
+			ShowPopup(getError(result))
 		}
 	})
 }
@@ -116,7 +121,7 @@ function ChooseDB(path) {
 			ShowTree(result)
 		},
 		error: function(result) {
-			console.log(result.responseText)
+			ShowPopup(getError(result))
 		}
 	})
 }
@@ -158,7 +163,7 @@ function Next(path, bucket) {
 			ShowTree(result)
 		},
 		error: function(result) {
-			console.log(result.responseText)
+			ShowPopup(getError(result))
 		}
 	})
 }
@@ -176,7 +181,7 @@ function Back(path) {
 			ShowTree(result)
 		},
 		error: function(result) {
-			console.log(result.responseText)
+			ShowPopup(getError(result))
 		}
 	})
 }
@@ -186,6 +191,7 @@ function ShowFullRecord(number) {
 	var result = fullRecordTemplate.format(currentData[number].key, currentData[number].value)
 	$("#record_data").html(result)
 }
+
 
 String.prototype.format = function () {
 	var a = this;

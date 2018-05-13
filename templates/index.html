@@ -24,7 +24,7 @@
 	
 	<div class="db">
 		<div class="db_info">
-			<div style="margin: 5px 5px 5px 5px;">
+			<div style="margin: 0px 5px 5px 5px;">
 				<div id="dbName"><i>Name:</i> ?</div>
 				<div style="font-size: 17px;">
 					<div id="dbPath"><i>Path:</i> ?</div>
@@ -32,8 +32,8 @@
 				</div>
 			</div>
 		</div>
-		<div style="height: 83vh;">
-			<div style="overflow: auto; float: left; height: 83vh;">
+		<div style="height: 85vh;">
+			<div style="overflow: auto; float: left; height: 85vh;">
 				<div class="db_tree" id="db_tree"></div>
 			</div>
 			<div class="record_data">
@@ -41,5 +41,18 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="popup" id="popup" onclick="HidePopup();">
+		<div style="padding: 5px 5px 5px 5px;" id="popupMessage"></div>
+	</div>
+	<script>
+		function ShowPopup(message) {
+			$("#popupMessage").html(message);	
+			$("#popup").addClass("popup_animation")
+		}
+		function HidePopup() {
+			$("#popup").removeClass("popup_animation")
+		}
+	</script>
 </body>
 </html>
