@@ -20,3 +20,11 @@ boltBrowser is a web-browser for BoltDB.
 + You can change mode of converting slice of byte. Just change functions ConvertKey() or ConvertValue() in [src/converters/converter.go](src/converters/converters.go)
 	__Note__: function will be used for converting all keys (or values). So, if your keys (or values) were converted from both `string` and `uint` program will crash.
 + You can change port by flag `-port`
+
+## Additional info
+
+Initial work was undertaken on [Bitbucket](https://bitbucket.org/ShoshinNikita/boltbrowser).
+
+## License
+
+[MIT License](LICENSE)
