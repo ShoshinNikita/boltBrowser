@@ -21,7 +21,7 @@ func Initialize() {
 }
 
 // Start runs website
-func Start() {
+func Start(port string, debug bool) {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Path("/favicon.ico").Methods("GET").Handler(http.FileServer(http.Dir("./static/")))
 	router.Path("/").Methods("GET").HandlerFunc(index)
@@ -36,5 +36,12 @@ func Start() {
 	// For static files
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))	
 
-	log.Fatal(http.ListenAndServe(":500", handlers.LoggingHandler(os.Stdout, router)))
+	var handler http.Handler
+	if debug {
+		handler = handlers.LoggingHandler(os.Stdout, router)
+	} else {
+		handler = router
+	}
+
+	log.Fatal(http.ListenAndServe(port, handler))
 }
