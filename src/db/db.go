@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 
 	"github.com/boltdb/bolt"
+
+	"converters"
 )
 
 const (
@@ -67,11 +69,11 @@ func (db *DBApi) GetCMD() ([]Element, []string, error) {
 			var elem Element
 			if v == nil {
 				elem.T = bucket
-				elem.Key = string(k)
+				elem.Key = converters.ConvertKey(k)
 			} else {
 				elem.T = record
-				elem.Key = string(k)
-				elem.Value = string(v)
+				elem.Key = converters.ConvertKey(k)
+				elem.Value = converters.ConvertValue(v)
 			}
 			elements = append(elements, elem)
 		}
@@ -100,11 +102,11 @@ func (db *DBApi) GetCurrent() ([]Element, []string, error) {
 			var elem Element
 			if v == nil {
 				elem.T = bucket
-				elem.Key = string(k)
+				elem.Key = converters.ConvertKey(k)
 			} else {
 				elem.T = record
-				elem.Key = string(k)
-				elem.Value = string(v)
+				elem.Key = converters.ConvertKey(k)
+				elem.Value= converters.ConvertValue(v)
 			}
 			elements = append(elements, elem)
 		}
@@ -133,11 +135,11 @@ func (db *DBApi) Back() ([]Element, []string, error) {
 			var elem Element
 			if v == nil {
 				elem.T = bucket
-				elem.Key = string(k)
+				elem.Key = converters.ConvertKey(k)
 			} else {
 				elem.T = record
-				elem.Key = string(k)
-				elem.Value = string(v)
+				elem.Key = converters.ConvertKey(k)
+				elem.Value= converters.ConvertValue(v)
 			}
 			elements = append(elements, elem)
 		}
@@ -164,11 +166,11 @@ func (db *DBApi) Next(name string) ([]Element, []string, error) {
 			var elem Element
 			if v == nil {
 				elem.T = bucket
-				elem.Key = string(k)
+				elem.Key = converters.ConvertKey(k)
 			} else {
 				elem.T = record
-				elem.Key = string(k)
-				elem.Value = string(v)
+				elem.Key = converters.ConvertKey(k)
+				elem.Value= converters.ConvertValue(v)
 			}
 			elements = append(elements, elem)
 		}
