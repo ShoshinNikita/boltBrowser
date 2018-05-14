@@ -3,7 +3,8 @@ package web
 import (
 	"os"
 	"net/http"
-	"log"
+	"context"
+	"fmt"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/handlers"
@@ -20,8 +21,17 @@ func Initialize() {
 	allDB = make(map[string]*db.DBApi)
 }
 
+// CloseDBs closes all databases
+func CloseDBs() {
+	for k := range allDB {
+		allDB[k].Close()
+		delete(allDB, k)
+	}
+	fmt.Println("[INFO] All databases were closed")
+}
+
 // Start runs website
-func Start(port string, debug bool) {
+func Start(port string, debug bool, stopChan chan struct{}) {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Path("/favicon.ico").Methods("GET").Handler(http.FileServer(http.Dir("./static/")))
 	router.Path("/").Methods("GET").HandlerFunc(index)
@@ -42,6 +52,11 @@ func Start(port string, debug bool) {
 	} else {
 		handler = router
 	}
+	srv := http.Server{Addr: port, Handler: handler}
+	go srv.ListenAndServe()
 
-	log.Fatal(http.ListenAndServe(port, handler))
+	// Wait signal
+	<-stopChan
+	srv.Shutdown(context.Background())
+	fmt.Println("[INFO] Website was stopped")
 }

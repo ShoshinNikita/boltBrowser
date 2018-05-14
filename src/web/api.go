@@ -35,7 +35,7 @@ func openDB(w http.ResponseWriter, r *http.Request) {
 	}
 
 	allDB[path] = newDB
-	fmt.Printf("[INFO] DB \"%s\" was opened\n", newDB.Name)
+	fmt.Printf("[INFO] DB \"%s\" (%s) was opened\n", newDB.Name, newDB.FilePath)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -49,7 +49,7 @@ func closeDB(w http.ResponseWriter, r *http.Request) {
 		dbName := allDB[dbPath].Name
 		allDB[dbPath].Close()
 		delete(allDB, dbPath)
-		fmt.Printf("[INFO] DB \"%s\" was closed\n", dbName)
+		fmt.Printf("[INFO] DB \"%s\" (%s) was closed\n", dbName, dbPath)
 	}
 	w.WriteHeader(http.StatusOK)
 }
