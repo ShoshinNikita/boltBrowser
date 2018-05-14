@@ -12,34 +12,52 @@
 	<!-- Icons -->
 	<link rel="stylesheet" type="text/css" media="screen" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
-<body onload="showDBList();">
+<body onload="ShowDBList();">
 	<div class="db_list">
-		<div style="font-size: 25px; text-align: center; margin: auto;">
-			List of databases
-			<i class="material-icons btn icon" style="float: right; color: rgb(11, 168, 11);" onclick="OpenDB();">add</i>
+		<div style="font-size: 25px; text-align: center; margin: auto; position: relative; border-bottom: 1px solid black;">
+				Databases
+			<i class="material-icons btn icon" style="font-size: 30px !important; position: absolute; top: 0px; right: 1vw;" onclick="OpenDB();" title="Open new db">add</i>
 		</div>
 		<br>
-		<div id="list"></div>
+		<div id="list" style="overflow-y: auto;"></div>
 	</div>
 	
 	<div class="db">
-		<div class="db_info"> 
-			<div id="dbName">Name: ?</div>
-			<div style="font-size: 20px;">
-				<div id="dbPath">Path: ?</div>
-				<div id="dbSize">Size: ?</div>
+		<div class="db_info">
+			<div style="margin: 0px 5px 5px 5px;">
+				<div id="dbName"><i>Name:</i> ?</div>
+				<div style="font-size: 17px;">
+					<div id="dbPath"><i>Path:</i> ?</div>
+					<div id="dbSize"><i>Size:</i> ?</div>
+				</div>
 			</div>
 		</div>
-		<div>
-			<div class="db_tree" id="db_tree">
-				<input class="record" type="button" value="...">
-				<br>
-				<input class="bucket" type="button" value="123">
-			</div>
-			<div class="record_data" id="record_data">
+		
+		<div style="height: 3vh;">
+			<i><div id="currentPath" style="margin: 1px 5px 1px 5px;"></div></i>
+		</div>
 
+		<div style="height: 81.7vh; border-top: 1px solid black;">
+			<div style="overflow: auto; float: left; height: 81.7vh;">
+				<div class="db_tree" id="db_tree"></div>
+			</div>
+			<div class="record_data">
+				<div style="margin: 5px 5px 0px 5px;"id="record_data"></div>	
 			</div>
 		</div>
 	</div>
+
+	<div class="popup" id="popup" onclick="HidePopup();">
+		<div style="padding: 5px 5px 5px 5px;" id="popupMessage"></div>
+	</div>
+	<script>
+		function ShowPopup(message) {
+			$("#popupMessage").html(message);	
+			$("#popup").addClass("popup_animation")
+		}
+		function HidePopup() {
+			$("#popup").removeClass("popup_animation")
+		}
+	</script>
 </body>
 </html>

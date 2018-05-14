@@ -1,11 +1,13 @@
 package db
 
 import (
-	"errors"
-	"path/filepath"
+	"sort"
 	"os"
+	"path/filepath"
 
 	"github.com/boltdb/bolt"
+
+	"converters"
 )
 
 const (
@@ -15,18 +17,16 @@ const (
 
 // DBApi is a warrep for *bolt.DB
 type DBApi struct {
-	db            	*bolt.DB
-	currentBucket 	[]string
-	Name 			string	`json:"name"`
-	Path 			string `json:"path"`
-	Size 			int64  `json:"size"`
+	db            *bolt.DB
+	currentBucket []string
+	Name          string `json:"name"`
+	FilePath      string `json:"filePath"`
+	Size          int64  `json:"size"`
 }
-
-// TODO func sort for Elements
 
 // Element consists information about record in the db
 type Element struct {
-	T	  string `json:"type"`
+	T     string `json:"type"`
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
@@ -43,9 +43,9 @@ func Open(path string) (*DBApi, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Getting info about the file
-	db.Path = path
+	db.FilePath = path
 	db.Name = filepath.Base(path)
 	file, _ := os.Stat(path)
 	db.Size = file.Size()
@@ -58,8 +58,8 @@ func (db *DBApi) Close() error {
 	return db.db.Close()
 }
 
-// GetCMD return records from ROOt of db
-func (db *DBApi) GetCMD() ([]Element, error) {
+// GetCMD returns records from root of db
+func (db *DBApi) GetCMD() ([]Element, []string, error) {
 	var elements []Element
 
 	err := db.db.View(func(tx *bolt.Tx) error {
@@ -68,11 +68,11 @@ func (db *DBApi) GetCMD() ([]Element, error) {
 			var elem Element
 			if v == nil {
 				elem.T = bucket
-				elem.Key = string(k)
+				elem.Key = converters.ConvertKey(k)
 			} else {
 				elem.T = record
-				elem.Key = string(k)
-				elem.Value = string(v)
+				elem.Key = converters.ConvertKey(k)
+				elem.Value = converters.ConvertValue(v)
 			}
 			elements = append(elements, elem)
 		}
@@ -80,10 +80,12 @@ func (db *DBApi) GetCMD() ([]Element, error) {
 		return nil
 	})
 
-	return elements, err
+	sortElements(elements)
+	return elements, []string{}, err
 }
 
-func (db *DBApi) GetCurrent() ([]Element, error) {
+// GetCurrent returns records from current bucket
+func (db *DBApi) GetCurrent() ([]Element, []string, error) {
 	var elements []Element
 	if len(db.currentBucket) == 0 {
 		return db.GetCMD()
@@ -100,27 +102,24 @@ func (db *DBApi) GetCurrent() ([]Element, error) {
 			var elem Element
 			if v == nil {
 				elem.T = bucket
-				elem.Key = string(k)
+				elem.Key = converters.ConvertKey(k)
 			} else {
 				elem.T = record
-				elem.Key = string(k)
-				elem.Value = string(v)
+				elem.Key = converters.ConvertKey(k)
+				elem.Value= converters.ConvertValue(v)
 			}
 			elements = append(elements, elem)
 		}
 		return nil
 	})
 
-	return elements, err
+	sortElements(elements)
+	return elements, db.currentBucket, err
 }
 
 // Back return records from previous bucket
-func (db *DBApi) Back() ([]Element, error) {
+func (db *DBApi) Back() ([]Element, []string, error) {
 	var elements []Element
-	if len(db.currentBucket) == 0 {
-		return []Element{}, errors.New("There is no previous bucket")
-	}
-	
 	db.currentBucket = db.currentBucket[:len(db.currentBucket)-1]
 	if len(db.currentBucket) == 0 {
 		return db.GetCMD()
@@ -137,11 +136,11 @@ func (db *DBApi) Back() ([]Element, error) {
 			var elem Element
 			if v == nil {
 				elem.T = bucket
-				elem.Key = string(k)
+				elem.Key = converters.ConvertKey(k)
 			} else {
 				elem.T = record
-				elem.Key = string(k)
-				elem.Value = string(v)
+				elem.Key = converters.ConvertKey(k)
+				elem.Value= converters.ConvertValue(v)
 			}
 			elements = append(elements, elem)
 		}
@@ -149,11 +148,12 @@ func (db *DBApi) Back() ([]Element, error) {
 		return nil
 	})
 
-	return elements, err
+	sortElements(elements)
+	return elements, db.currentBucket, err
 }
 
 // Next return records from next bucket with according name
-func (db *DBApi) Next(name string) ([]Element, error) {
+func (db *DBApi) Next(name string) ([]Element, []string, error) {
 	var elements []Element
 
 	db.currentBucket = append(db.currentBucket, name)
@@ -168,11 +168,11 @@ func (db *DBApi) Next(name string) ([]Element, error) {
 			var elem Element
 			if v == nil {
 				elem.T = bucket
-				elem.Key = string(k)
+				elem.Key = converters.ConvertKey(k)
 			} else {
 				elem.T = record
-				elem.Key = string(k)
-				elem.Value = string(v)
+				elem.Key = converters.ConvertKey(k)
+				elem.Value= converters.ConvertValue(v)
 			}
 			elements = append(elements, elem)
 		}
@@ -180,5 +180,17 @@ func (db *DBApi) Next(name string) ([]Element, error) {
 		return nil
 	})
 
-	return elements, err
+	sortElements(elements)
+	return elements, db.currentBucket, err
+}
+
+func sortElements(elements []Element) {
+	sort.Slice(elements, func (i, j int) bool {
+		if elements[i].T == elements[j].T {
+			// compare keys
+			return elements[i].Key < elements[j].Key
+		}
+		// compare type ("bucket" and "record")
+		return elements[i].T < elements[j].T
+	})
 }
