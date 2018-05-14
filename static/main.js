@@ -33,6 +33,7 @@ const errorMessageTemplate = `<b>Code:<\/b> {0}<br><b>Message:<\/b> {1}`
 var currentDBPath = ""
 var currentData = null
 
+
 function getError(result) {
 	return errorMessageTemplate.format(result.status, result.responseText);
 }
