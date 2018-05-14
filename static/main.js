@@ -28,8 +28,6 @@ const fullRecordTemplate = `<div>
 <\/div>
 <br>`
 
-const errorMessageTemplate = `<b>Code:<\/b> {0}<br><b>Message:<\/b> {1}`
-
 var currentDBPath = ""
 var currentData = null
 
@@ -62,7 +60,7 @@ function OpenDB() {
 			ShowDBList()
 		},
 		error: function(result) {
-			ShowPopup(getError(result))
+			ShowPopup(result.responseText)
 		}
 	})
 }
@@ -87,7 +85,7 @@ function CloseDB(filePath) {
 			ShowDBList()
 		},
 		error: function(result) {
-			ShowPopup(getError(result))
+			ShowPopup(result.responseText)
 		}
 	})
 }
@@ -106,7 +104,7 @@ function ShowDBList() {
 			$("#list").html(result)
 		},
 		error: function(result) {
-			ShowPopup(getError(result))
+			ShowPopup(result.responseText)
 		}
 	})
 }
@@ -129,7 +127,7 @@ function ChooseDB(filePath) {
 			ShowTree(result)
 		},
 		error: function(result) {
-			ShowPopup(getError(result))
+			ShowPopup(result.responseText)
 		}
 	})
 }
@@ -172,7 +170,7 @@ function Next(filePath, bucket) {
 			ShowTree(result)
 		},
 		error: function(result) {
-			ShowPopup(getError(result))
+			ShowPopup(result.responseText)
 		}
 	})
 }
@@ -191,7 +189,7 @@ function Back(filePath) {
 			ShowTree(result)
 		},
 		error: function(result) {
-			ShowPopup(getError(result))
+			ShowPopup(result.responseText)
 		}
 	})
 }
