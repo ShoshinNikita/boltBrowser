@@ -1,6 +1,7 @@
 package db
 
 import (
+	"sort"
 	"os"
 	"path/filepath"
 
@@ -22,8 +23,6 @@ type DBApi struct {
 	FilePath      string `json:"filePath"`
 	Size          int64  `json:"size"`
 }
-
-// TODO func sort for Elements
 
 // Element consists information about record in the db
 type Element struct {
@@ -81,6 +80,7 @@ func (db *DBApi) GetCMD() ([]Element, []string, error) {
 		return nil
 	})
 
+	sortElements(elements)
 	return elements, []string{}, err
 }
 
@@ -113,6 +113,7 @@ func (db *DBApi) GetCurrent() ([]Element, []string, error) {
 		return nil
 	})
 
+	sortElements(elements)
 	return elements, db.currentBucket, err
 }
 
@@ -147,6 +148,7 @@ func (db *DBApi) Back() ([]Element, []string, error) {
 		return nil
 	})
 
+	sortElements(elements)
 	return elements, db.currentBucket, err
 }
 
@@ -178,5 +180,17 @@ func (db *DBApi) Next(name string) ([]Element, []string, error) {
 		return nil
 	})
 
+	sortElements(elements)
 	return elements, db.currentBucket, err
+}
+
+func sortElements(elements []Element) {
+	sort.Slice(elements, func (i, j int) bool {
+		if elements[i].T == elements[j].T {
+			// compare keys
+			return elements[i].Key < elements[j].Key
+		}
+		// compare type ("bucket" and "record")
+		return elements[i].T < elements[j].T
+	})
 }
