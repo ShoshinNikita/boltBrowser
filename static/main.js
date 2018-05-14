@@ -122,7 +122,7 @@ function ChooseDB(filePath) {
 			result = JSON.parse(result)
 			$("#dbName").html("<i>Name:<\/i> " + result.name)
 			$("#dbPath").html("<i>Path:<\/i> " + result.filePath)
-			$("#dbSize").html("<i>Size:<\/i> " + result.size + " Kb")
+			$("#dbSize").html("<i>Size:<\/i> " + result.size / 1024 + " Kb")
 			$("#currentPath").html("<i>" + getCurrentPath(result.path) + "<\/i> ")
 			$("#record_data").html("")
 			ShowTree(result)
