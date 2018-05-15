@@ -64,7 +64,9 @@ func closeDB(w http.ResponseWriter, r *http.Request) {
 // Return:
 // {
 // 	"prevBucket": bool,
-//  "path": [],
+//  "prevRecords": bool,
+//  "nextRecords": bool,
+//  "bucketsPath": [],
 // 	"records": [
 // 		{
 // 			"type": "",
@@ -106,7 +108,9 @@ func next(w http.ResponseWriter, r *http.Request) {
 // Return:
 // {
 // 	"prevBucket": bool,
-//  "path": [],
+//  "prevRecords": bool,
+//  "nextRecords": bool,
+//  "bucketsPath": [],
 // 	"records": [
 // 		{
 // 			"type": "",
@@ -147,7 +151,9 @@ func back(w http.ResponseWriter, r *http.Request) {
 // Return:
 // {
 // 	"prevBucket": bool,
-//  "path": [],
+//  "prevRecords": bool,
+//  "nextRecords": bool,
+//  "bucketsPath": [],
 // 	"records": [
 // 		{
 // 			"type": "",
@@ -208,8 +214,10 @@ func databasesList(w http.ResponseWriter, r *http.Request) {
 // 	"name": "",
 // 	"dbPath": "",
 // 	"size": 0,
-//	"canBack": bool,
-//  "path": [],
+//  "prevBucket": bool,
+//  "prevRecords": bool,
+//  "nextRecords": bool,
+//  "bucketsPath": [],
 // 	"records": [
 // 		{
 // 			"type": "",
