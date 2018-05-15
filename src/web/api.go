@@ -255,3 +255,44 @@ func returnError(w http.ResponseWriter, err error, message string, code int) {
 
 	http.Error(w, text, code)
 }
+
+
+func nextElements(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	dbPath := r.Form.Get("filePath")
+	if _, ok := allDB[dbPath]; ok {
+		elements, canMove, err := allDB[dbPath].NextRecords()
+		if err != nil {
+			returnError(w, err, "", http.StatusInternalServerError)
+			return
+		}
+
+		response := struct {
+			CanMove bool `json:"canMoveBack"`
+			Records []db.Element `json:"records"`
+		}{canMove, elements}
+		json.NewEncoder(w).Encode(response)
+	} else {
+		returnError(w, nil, "Bad path of db " + dbPath, http.StatusBadRequest)
+	}
+}
+
+func prevElements(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	dbPath := r.Form.Get("filePath")
+	if _, ok := allDB[dbPath]; ok {
+		elements, canMove, err := allDB[dbPath].PrevRecords()
+		if err != nil {
+			returnError(w, err, "", http.StatusInternalServerError)
+			return
+		}
+
+		response := struct {
+			CanMove bool `json:"canMoveBack"`
+			Records []db.Element `json:"records"`
+		}{canMove, elements}
+		json.NewEncoder(w).Encode(response)
+	} else {
+		returnError(w, nil, "Bad path of db " + dbPath, http.StatusBadRequest)
+	}
+}

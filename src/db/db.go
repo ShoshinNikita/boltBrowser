@@ -20,7 +20,8 @@ const (
 type DBApi struct {
 	db            *bolt.DB
 	currentBucket []string
-	offset        int		// not in records, but in pages (1 page == maxOffset)
+	offset        int // not in records, but in pages (1 page == maxOffset). Starts from 0
+	recordsAmount int // number of records in current bucket
 	Name          string `json:"name"`
 	FilePath      string `json:"filePath"`
 	Size          int64  `json:"size"`
@@ -138,16 +139,81 @@ func (db *DBApi) Next(name string) ([]Element, []string, error) {
 	return elements, db.currentBucket, err
 }
 
+// NextRecords return next part of records and bool, which shows is there next elements
+func (db *DBApi) NextRecords() (elements []Element, canMoveNext bool, err error) {
+	err = db.db.View(func(tx *bolt.Tx) error {
+		var c *bolt.Cursor
+		if len(db.currentBucket) == 0 {
+			c = tx.Cursor()
+		} else {
+			b := tx.Bucket([]byte(db.currentBucket[0]))
+			for i := 1; i < len(db.currentBucket); i++ {
+				b = b.Bucket([]byte(db.currentBucket[i]))
+			}
+			c = b.Cursor()
+		}
+
+		elements, canMoveNext = db.getNextElements(c)
+		return nil
+	})
+
+	return elements, canMoveNext, err
+}
+
+// PrevRecords return prev part of records and bool, which shows is there previous elements
+func (db *DBApi) PrevRecords() (elements []Element, canMoveBack bool, err error) {
+	err = db.db.View(func(tx *bolt.Tx) error {
+		var c *bolt.Cursor
+		if len(db.currentBucket) == 0 {
+			c = tx.Cursor()
+		} else {
+			b := tx.Bucket([]byte(db.currentBucket[0]))
+			for i := 1; i < len(db.currentBucket); i++ {
+				b = b.Bucket([]byte(db.currentBucket[i]))
+			}
+			c = b.Cursor()
+		}
+
+		elements, canMoveBack = db.getPrevElements(c)
+		return nil
+	})
+
+	return elements, canMoveBack, err
+}
+
+
 func (db *DBApi) getFirstElements(c *bolt.Cursor) []Element {
 	db.offset = 0
-	elements := db.getNextElements(c)
-	sortElements(elements)
+	var (
+		elements []Element
+		counter = 0
+		i = 0
+	) 
+	
+	for k, v := c.First(); k != nil; k, v = c.Next() {
+		if i < maxOffset {
+			var elem Element
+			if v == nil {
+				elem.T = bucket
+				elem.Key = converters.ConvertKey(k)
+			} else {
+				elem.T = record
+				elem.Key = converters.ConvertKey(k)
+				elem.Value= converters.ConvertValue(v)
+			}
+			elements = append(elements, elem)
+		}
+		counter++
+		i++
+	}
+	// Updating number of records
+	db.recordsAmount = counter
 
+	sortElements(elements)
 	return elements
 }
 
-func (db *DBApi) getNextElements(c *bolt.Cursor) []Element {
-	var elements []Element
+func (db *DBApi) getNextElements(c *bolt.Cursor) (elements []Element, canMoveNext bool) {
 	var i = 0
 	// [ maxOffset * db.offset; maxOffset * (db.offset + 1) )
 	for k, v := c.First(); k != nil && i < maxOffset * (db.offset + 1); k, v = c.Next() {
@@ -162,17 +228,18 @@ func (db *DBApi) getNextElements(c *bolt.Cursor) []Element {
 				elem.Value= converters.ConvertValue(v)
 			}
 			elements = append(elements, elem)
-			i++
 		}
+		i++
 	}
 	db.offset++
+	
+	canMoveNext = (db.offset * maxOffset < db.recordsAmount)
 
 	sortElements(elements)
-	return elements
+	return elements, canMoveNext
 }
 
-func (db *DBApi) getPrevElements(c *bolt.Cursor) []Element {
-	var elements []Element
+func (db *DBApi) getPrevElements(c *bolt.Cursor) (elements []Element, canMoveBack bool) {
 	var i = 0
 	// [ maxOffset * (db.offset - 1); maxOffset * db.offset )
 	for k, v := c.First(); k != nil && i < maxOffset * db.offset; k, v = c.Next() {
@@ -187,13 +254,15 @@ func (db *DBApi) getPrevElements(c *bolt.Cursor) []Element {
 				elem.Value= converters.ConvertValue(v)
 			}
 			elements = append(elements, elem)
-			i++
 		}
+		i++
 	}
 	db.offset--
 
+	canMoveBack = (db.offset > 0)
+
 	sortElements(elements)
-	return elements
+	return elements, canMoveBack
 }
 
 func sortElements(elements []Element) {

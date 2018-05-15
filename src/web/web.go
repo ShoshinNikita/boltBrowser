@@ -42,6 +42,8 @@ func Start(port string, debug bool, stopChan chan struct{}) {
 	router.Path("/api/cmd").Methods("GET").HandlerFunc(cmd)
 	router.Path("/api/back").Methods("GET").HandlerFunc(back)
 	router.Path("/api/next").Methods("GET").HandlerFunc(next)
+	router.Path("/api/nextElements").Methods("GET").HandlerFunc(nextElements)
+	router.Path("/api/prevElements").Methods("GET").HandlerFunc(prevElements)
 
 	// For static files
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))	
