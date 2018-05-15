@@ -1,5 +1,5 @@
 @ECHO off
-set GOPATH=E:\\Desktop\\Repository\\boltbrowser
+set GOPATH=E:\\Desktop\\Repository\\boltbrowser-github
 ECHO Errors:
 C:\\Users\\Admin\\go\\bin\\megacheck converters db web
 go vet converters db web
