@@ -14,8 +14,8 @@ import (
 const (
 	bucketTemplate = "bucket"
 	recordTemplate = "record"
-	maxOffset      = 100
 )
+var maxOffset int
 
 // BoltAPI is a warrep for *bolt.DB
 //
@@ -48,6 +48,11 @@ type Data struct {
 	PrevRecords bool
 	NextRecords bool
 	Path        string
+}
+
+// SetOffset change value of maxOffset
+func SetOffset(offset int) {
+	maxOffset = offset
 }
 
 // Open returns info about the file of db, wrapper for *bolt.DB
