@@ -13,12 +13,14 @@ import (
 const (
 	bucket = "bucket"
 	record = "record"
+	maxOffset = 100
 )
 
 // DBApi is a warrep for *bolt.DB
 type DBApi struct {
 	db            *bolt.DB
 	currentBucket []string
+	offset        int		// not in records, but in pages (1 page == maxOffset)
 	Name          string `json:"name"`
 	FilePath      string `json:"filePath"`
 	Size          int64  `json:"size"`
@@ -61,26 +63,13 @@ func (db *DBApi) Close() error {
 // GetCMD returns records from root of db
 func (db *DBApi) GetCMD() ([]Element, []string, error) {
 	var elements []Element
-
 	err := db.db.View(func(tx *bolt.Tx) error {
 		c := tx.Cursor()
-		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var elem Element
-			if v == nil {
-				elem.T = bucket
-				elem.Key = converters.ConvertKey(k)
-			} else {
-				elem.T = record
-				elem.Key = converters.ConvertKey(k)
-				elem.Value = converters.ConvertValue(v)
-			}
-			elements = append(elements, elem)
-		}
+		elements = db.getFirstElements(c)
 
 		return nil
 	})
 
-	sortElements(elements)
 	return elements, []string{}, err
 }
 
@@ -98,22 +87,11 @@ func (db *DBApi) GetCurrent() ([]Element, []string, error) {
 		}
 
 		c := b.Cursor()
-		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var elem Element
-			if v == nil {
-				elem.T = bucket
-				elem.Key = converters.ConvertKey(k)
-			} else {
-				elem.T = record
-				elem.Key = converters.ConvertKey(k)
-				elem.Value= converters.ConvertValue(v)
-			}
-			elements = append(elements, elem)
-		}
+		elements = db.getFirstElements(c)
+
 		return nil
 	})
 
-	sortElements(elements)
 	return elements, db.currentBucket, err
 }
 
@@ -132,23 +110,11 @@ func (db *DBApi) Back() ([]Element, []string, error) {
 		}
 
 		c := b.Cursor()
-		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var elem Element
-			if v == nil {
-				elem.T = bucket
-				elem.Key = converters.ConvertKey(k)
-			} else {
-				elem.T = record
-				elem.Key = converters.ConvertKey(k)
-				elem.Value= converters.ConvertValue(v)
-			}
-			elements = append(elements, elem)
-		}
+		elements = db.getFirstElements(c)
 
 		return nil
 	})
 
-	sortElements(elements)
 	return elements, db.currentBucket, err
 }
 
@@ -164,7 +130,28 @@ func (db *DBApi) Next(name string) ([]Element, []string, error) {
 		}
 
 		c := b.Cursor()
-		for k, v := c.First(); k != nil; k, v = c.Next() {
+		elements = db.getFirstElements(c)
+
+		return nil
+	})
+
+	return elements, db.currentBucket, err
+}
+
+func (db *DBApi) getFirstElements(c *bolt.Cursor) []Element {
+	db.offset = 0
+	elements := db.getNextElements(c)
+	sortElements(elements)
+
+	return elements
+}
+
+func (db *DBApi) getNextElements(c *bolt.Cursor) []Element {
+	var elements []Element
+	var i = 0
+	// [ maxOffset * db.offset; maxOffset * (db.offset + 1) )
+	for k, v := c.First(); k != nil && i < maxOffset * (db.offset + 1); k, v = c.Next() {
+		if maxOffset * db.offset <= i {
 			var elem Element
 			if v == nil {
 				elem.T = bucket
@@ -175,13 +162,38 @@ func (db *DBApi) Next(name string) ([]Element, []string, error) {
 				elem.Value= converters.ConvertValue(v)
 			}
 			elements = append(elements, elem)
+			i++
 		}
-
-		return nil
-	})
+	}
+	db.offset++
 
 	sortElements(elements)
-	return elements, db.currentBucket, err
+	return elements
+}
+
+func (db *DBApi) getPrevElements(c *bolt.Cursor) []Element {
+	var elements []Element
+	var i = 0
+	// [ maxOffset * (db.offset - 1); maxOffset * db.offset )
+	for k, v := c.First(); k != nil && i < maxOffset * db.offset; k, v = c.Next() {
+		if  maxOffset * (db.offset - 1) <= i {
+			var elem Element
+			if v == nil {
+				elem.T = bucket
+				elem.Key = converters.ConvertKey(k)
+			} else {
+				elem.T = record
+				elem.Key = converters.ConvertKey(k)
+				elem.Value= converters.ConvertValue(v)
+			}
+			elements = append(elements, elem)
+			i++
+		}
+	}
+	db.offset--
+
+	sortElements(elements)
+	return elements
 }
 
 func sortElements(elements []Element) {
