@@ -7,7 +7,7 @@ import (
 // Test db in testdata/test.db
 //
 // Structure (is such order!):
-// cmd
+// root
 // 	  |-> "anotherUsers"
 // 						|-> "1"
 //							| "age" - "99"
@@ -16,44 +16,42 @@ import (
 // 							| "name" – "Hi!!!!"
 // 							| "prof" - "tester"
 //						| "testData" - "15"
-//    |-> "user"
+//	  |-> "user"
 // 				| "age" - "15"
 // 				| "name" - "TestUser"
 
-var cmd = []Element{Element{T: bucket, Key: "anotherUsers", Value: ""}, Element{T: bucket, Key: "user", Value: ""}}
-var anotherUsers = []Element{Element{T: bucket, Key: "1", Value: ""}, Element{T: bucket, Key: "2", Value: ""}, 
-Element{T: record, Key: "testData", Value: "15"}}
-var bucket1 = []Element{Element{T: record, Key: "age", Value: "99"}, Element{T: record, Key: "name", Value: "Admin"}}
-var bucket2 = []Element{Element{T: record, Key: "name", Value: "hi!!!!"}, Element{T: record, Key: "prof", Value: "tester"}}
-var user = []Element{Element{T: record, Key: "age", Value: "15"}, Element{T: record, Key: "name", Value: "TestUser"}}
+var root = []Record{Record{T: bucketTemplate, Key: "anotherUsers", Value: ""}, Record{T: bucketTemplate, Key: "user", Value: ""}}
+var anotherUsers = []Record{Record{T: bucketTemplate, Key: "1", Value: ""}, Record{T: bucketTemplate, Key: "2", Value: ""},
+	Record{T: recordTemplate, Key: "testData", Value: "15"}}
+var bucket1 = []Record{Record{T: recordTemplate, Key: "age", Value: "99"}, Record{T: recordTemplate, Key: "name", Value: "Admin"}}
+var bucket2 = []Record{Record{T: recordTemplate, Key: "name", Value: "hi!!!!"}, Record{T: recordTemplate, Key: "prof", Value: "tester"}}
+var user = []Record{Record{T: recordTemplate, Key: "age", Value: "15"}, Record{T: recordTemplate, Key: "name", Value: "TestUser"}}
 
-
-func TestSortElements(t *testing.T) {
-	tests := []struct{
-		slice 	[]Element
-		result 	[]Element
+func TestSortRecords(t *testing.T) {
+	tests := []struct {
+		slice  []Record
+		result []Record
 	}{
 		{
-			[]Element{Element{Key: "a", T: record}, Element{Key: "b", T: bucket}},
-			[]Element{Element{Key: "b", T: bucket}, Element{Key: "a", T: record}},
+			[]Record{Record{Key: "a", T: recordTemplate}, Record{Key: "b", T: bucketTemplate}},
+			[]Record{Record{Key: "b", T: bucketTemplate}, Record{Key: "a", T: recordTemplate}},
 		},
 		{
-			[]Element{Element{Key: "abc", T: bucket}, Element{Key: "acd", T: bucket}},
-			[]Element{Element{Key: "abc", T: bucket}, Element{Key: "acd", T: bucket}},
+			[]Record{Record{Key: "abc", T: bucketTemplate}, Record{Key: "acd", T: bucketTemplate}},
+			[]Record{Record{Key: "abc", T: bucketTemplate}, Record{Key: "acd", T: bucketTemplate}},
 		},
 		{
-			[]Element{Element{Key: "abc", T: record}, Element{Key: "acd", T: bucket}, Element{Key: "hello", T: bucket}},
-			[]Element{Element{Key: "acd", T: bucket}, Element{Key: "hello", T: bucket}, Element{Key: "abc", T: record}},
+			[]Record{Record{Key: "abc", T: recordTemplate}, Record{Key: "acd", T: bucketTemplate}, Record{Key: "hello", T: bucketTemplate}},
+			[]Record{Record{Key: "acd", T: bucketTemplate}, Record{Key: "hello", T: bucketTemplate}, Record{Key: "abc", T: recordTemplate}},
 		},
 		{
-			[]Element{Element{Key: "abc", T: record}, Element{Key: "t", T: record}, Element{Key: "acd", T: bucket}, Element{Key: "hello", T: bucket}},
-			[]Element{Element{Key: "acd", T: bucket}, Element{Key: "hello", T: bucket}, Element{Key: "abc", T: record}, Element{Key: "t", T: record}},
+			[]Record{Record{Key: "abc", T: recordTemplate}, Record{Key: "t", T: recordTemplate}, Record{Key: "acd", T: bucketTemplate}, Record{Key: "hello", T: bucketTemplate}},
+			[]Record{Record{Key: "acd", T: bucketTemplate}, Record{Key: "hello", T: bucketTemplate}, Record{Key: "abc", T: recordTemplate}, Record{Key: "t", T: recordTemplate}},
 		},
 	}
 
-
 	for i, test := range tests {
-		sortElements(test.slice)
+		sortRecords(test.slice)
 		for j := range test.slice {
 			if test.slice[j] != test.result[j] {
 				t.Errorf("Test #%d Want: %v Got: %v", i, test.result, test.slice)
@@ -77,8 +75,8 @@ func TestOpen(t *testing.T) {
 		t.Errorf("Wrong Name Want: test.db Got: %s", testDB.Name)
 	}
 	// in Kv
-	if testDB.Size / 1024 != 32 {
-		t.Errorf("Wrong Size Want: 32 Got: %d", testDB.Size / 1024)
+	if testDB.Size/1024 != 32 {
+		t.Errorf("Wrong Size Want: 32 Got: %d", testDB.Size/1024)
 	}
 
 	// Try to open wrong db
@@ -90,14 +88,14 @@ func TestOpen(t *testing.T) {
 	}
 }
 
-func TestGetCMD(t *testing.T) {
+func TestGetRoot(t *testing.T) {
 	testDB, err := Open("testdata/test.db")
 	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
-	elements, path, err := testDB.GetCMD()
-	checkCMD(t, elements, path, err)
+	records, path, err := testDB.GetRoot()
+	checkRoot(t, records, path, err)
 }
 
 func TestNext(t *testing.T) {
@@ -108,12 +106,12 @@ func TestNext(t *testing.T) {
 	}
 
 	// Bucket "anotherUsers"
-	elements, path, err := testDB.Next("anotherUsers")
-	checkAnotherUsers(t, elements, path, err)
+	records, path, err := testDB.Next("anotherUsers")
+	checkAnotherUsers(t, records, path, err)
 
 	// Next bucket "1"
-	elements, path, err = testDB.Next("1")
-	checkBucket1(t, elements, path, err)
+	records, path, err = testDB.Next("1")
+	checkBucket1(t, records, path, err)
 }
 
 func TestBack(t *testing.T) {
@@ -124,17 +122,17 @@ func TestBack(t *testing.T) {
 	}
 
 	testDB.Next("user")
-	// Back to cmd
-	elements, path, err := testDB.Back()
-	checkCMD(t, elements, path, err)
+	// Back to root
+	records, path, err := testDB.Back()
+	checkRoot(t, records, path, err)
 
 	// Next to anotherUsers
 	testDB.Next("anotherUsers")
 	// Next to 1
 	testDB.Next("1")
 	// Back to anotherUsers
-	elements, path, err = testDB.Back()
-	checkAnotherUsers(t, elements, path, err)
+	records, path, err = testDB.Back()
+	checkAnotherUsers(t, records, path, err)
 }
 
 func TestGetCurrent(t *testing.T) {
@@ -150,73 +148,72 @@ func TestGetCurrent(t *testing.T) {
 	testDB.Next("1")
 
 	// Get bucket "1"
-	elements, path, err := testDB.GetCurrent()
-	checkBucket1(t, elements, path, err)
+	records, path, err := testDB.GetCurrent()
+	checkBucket1(t, records, path, err)
 
 	testDB.Back()
 	testDB.Back()
 
-	// Get cmd
-	elements, path, err = testDB.GetCurrent()
-	checkCMD(t, elements, path, err)
+	// Get root
+	records, path, err = testDB.GetCurrent()
+	checkRoot(t, records, path, err)
 }
-
 
 // Functions for testring buckets
 
-func checkCMD(t *testing.T, elements []Element, path []string, err error) {
+func checkRoot(t *testing.T, records []Record, path []string, err error) {
 	if err != nil {
 		t.Error(err)
 	}
 	if len(path) != 0 {
 		t.Errorf("Wrong currentBucket Want: [] Got: %v", path)
 	}
-	
-	if len(elements) != 2 {
-		t.Fatalf("Wrong elements Want: %v Got: %v", cmd, elements)
+
+	if len(records) != 2 {
+		t.Fatalf("Wrong records Want: %v Got: %v", root, records)
 	}
-	for i, e := range elements {
-		if e != cmd[i] {
-			t.Errorf("Wrong element Want: %v Got: %v", e, cmd[i])
+	for i, e := range records {
+		if e != root[i] {
+			t.Errorf("Wrong record Want: %v Got: %v", e, root[i])
 		}
 	}
 }
 
-func checkUser(t *testing.T, elements []Element, path []string, err error) {
+func checkUser(t *testing.T, records []Record, path []string, err error) {
 	// Nothing
 }
 
-func checkBucket1(t *testing.T, elements []Element, path []string, err error) {
+func checkBucket1(t *testing.T, records []Record, path []string, err error) {
 	if err != nil {
 		t.Error(err)
 	}
 	if len(path) != 2 || path[0] != "anotherUsers" || path[1] != "1" {
 		t.Errorf("Wrong currentBucket Want: [anotherUsers 1] Got: %v", path)
 	}
-	
-	if len(elements) != 2 {
-		t.Fatalf("Wrong elements Want: %v Got: %v", bucket1, elements)
+
+	if len(records) != 2 {
+		t.Fatalf("Wrong records Want: %v Got: %v", bucket1, records)
 	}
-	for i, e := range elements {
+	for i, e := range records {
 		if e != bucket1[i] {
-			t.Errorf("Wrong element Want: %v Got: %v", e, bucket1[i])
+			t.Errorf("Wrong record Want: %v Got: %v", e, bucket1[i])
 		}
 	}
 }
 
-func checkAnotherUsers(t *testing.T, elements []Element, path []string, err error) {
+func checkAnotherUsers(t *testing.T, records []Record, path []string, err error) {
 	if err != nil {
 		t.Error(err)
 	}
 	if len(path) != 1 || path[0] != "anotherUsers" {
 		t.Errorf("Wrong currentBucket Want: [anotherUsers] Got: %v", path)
 	}
-	if len(elements) != 3 {
-		t.Fatalf("Wrong elements Want: %v Got: %v", anotherUsers, elements)
+	if len(records) != 3 {
+		t.Fatalf("Wrong records Want: %v Got: %v", anotherUsers, records)
 	}
-	for i, e := range elements {
+	for i, e := range records {
 		if e != anotherUsers[i] {
-			t.Errorf("Wrong element Want: %v Got: %v", e, anotherUsers[i])
+			t.Errorf("Wrong record Want: %v Got: %v", e, anotherUsers[i])
 		}
 	}
 }

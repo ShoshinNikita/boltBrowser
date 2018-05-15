@@ -1,20 +1,19 @@
 package main
 
 import (
-	"time"
-	"syscall"
-	"os"
 	"flag"
 	"fmt"
+	"os"
 	"os/signal"
+	"syscall"
+	"time"
 
 	"web"
 )
 
-
 type opts struct {
-	port	string
-	debug	bool
+	port  string
+	debug bool
 }
 
 func main() {
@@ -30,7 +29,7 @@ func main() {
 
 	web.Initialize()
 	go web.Start(flags.port, flags.debug, stopSite)
-	
+
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 	<-stop
 	close(stopSite)

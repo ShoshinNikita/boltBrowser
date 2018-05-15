@@ -49,12 +49,12 @@ function getCurrentPath(path) {
 
 
 function OpenDB() {
-	var filePath = prompt("Please, enter the path to the database")
+	var dbPath = prompt("Please, enter the path to the database")
 	$.ajax({
 		url: "/api/openDB",
 		type: "POST",
 		data: {
-			"filePath": filePath
+			"dbPath": dbPath
 		},
 		success: function(result){
 			ShowDBList()
@@ -65,15 +65,15 @@ function OpenDB() {
 	})
 }
 
-function CloseDB(filePath) {
+function CloseDB(dbPath) {
 	$.ajax({
 		url: "/api/closeDB",
 		type: "POST",
 		data: {
-			"filePath": filePath,
+			"dbPath": dbPath,
 		},
 		success: function(result){
-			if (filePath == currentDBPath) {
+			if (dbPath == currentDBPath) {
 				$("#dbName").html("<i>Name:<\/i> ?")
 				$("#dbPath").html("<i>Path:<\/i> ?")
 				$("#dbSize").html("<i>Size:<\/i> ?")
@@ -99,7 +99,7 @@ function ShowDBList() {
 			console.log(allDB)
 			var result = ""
 			for (i in allDB) {
-				result += buttonTemplate.format(allDB[i].name, allDB[i].filePath)
+				result += buttonTemplate.format(allDB[i].name, allDB[i].dbPath)
 			}
 			$("#list").html(result)
 		},
@@ -109,18 +109,18 @@ function ShowDBList() {
 	})
 }
 
-function ChooseDB(filePath) {
-	currentDBPath = filePath
+function ChooseDB(dbPath) {
+	currentDBPath = dbPath
 	$.ajax({
 		url: "/api/current",
 		type: "GET",
 		data: {
-			"filePath": filePath,
+			"dbPath": dbPath,
 		},
 		success: function(result){
 			result = JSON.parse(result)
 			$("#dbName").html("<i>Name:<\/i> " + result.name)
-			$("#dbPath").html("<i>Path:<\/i> " + result.filePath)
+			$("#dbPath").html("<i>Path:<\/i> " + result.dbPath)
 			$("#dbSize").html("<i>Size:<\/i> " + result.size / 1024 + " Kb")
 			$("#currentPath").html("<i>" + getCurrentPath(result.path) + "<\/i> ")
 			$("#record_data").html("")
@@ -155,12 +155,12 @@ function ShowTree(data) {
 	$("#db_tree").html(result);
 }
 
-function Next(filePath, bucket) {
+function Next(dbPath, bucket) {
 	$.ajax({
 		url: "/api/next",
 		type: "GET",
 		data: {
-			"filePath": filePath,
+			"dbPath": dbPath,
 			"bucket": bucket
 		},
 		success: function(result){
@@ -175,12 +175,12 @@ function Next(filePath, bucket) {
 	})
 }
 
-function Back(filePath) {
+function Back(dbPath) {
 	$.ajax({
 		url: "/api/back",
 		type: "GET",
 		data: {
-			"filePath": filePath,
+			"dbPath": dbPath,
 		},
 		success: function(result){
 			result = JSON.parse(result)

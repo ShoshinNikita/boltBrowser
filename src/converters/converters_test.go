@@ -7,8 +7,8 @@ import (
 
 func TestFromString(t *testing.T) {
 	tests := []struct {
-		b 		[]byte
-		result	string
+		b      []byte
+		result string
 	}{
 		{[]byte("Hello"), "Hello"},
 		{[]byte("30.03.2001"), "30.03.2001"},
@@ -25,8 +25,8 @@ func TestFromString(t *testing.T) {
 
 func TestFromBigEndianUint64(t *testing.T) {
 	type testStruct struct {
-		b 		[]byte
-		result	string
+		b      []byte
+		result string
 	}
 	var tests []testStruct
 
@@ -49,8 +49,8 @@ func TestFromBigEndianUint64(t *testing.T) {
 
 func TestFromLittleEndianUint64(t *testing.T) {
 	type testStruct struct {
-		b 		[]byte
-		result	string
+		b      []byte
+		result string
 	}
 	var tests []testStruct
 
