@@ -35,7 +35,7 @@ func Start(port string, debug bool, stopChan chan struct{}) {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Path("/favicon.ico").Methods("GET").Handler(http.FileServer(http.Dir("./static/")))
 	router.Path("/").Methods("GET").HandlerFunc(index)
-	router.Path("/api/openDB").Methods("POST").HandlerFunc(openDB)
+	router.Path("/api/databases").Methods("POST").HandlerFunc(openDB)
 	router.Path("/api/closeDB").Methods("POST").HandlerFunc(closeDB)
 	router.Path("/api/databases").Methods("GET").HandlerFunc(databasesList)
 	router.Path("/api/current").Methods("GET").HandlerFunc(current)
