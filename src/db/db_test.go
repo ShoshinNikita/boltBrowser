@@ -184,10 +184,6 @@ func TestNext(t *testing.T) {
 }
 
 func TestBack(t *testing.T) {
-	type next struct {
-	}
-	type back struct {
-	}
 	tests := []struct {
 		offset int
 		next   []string
