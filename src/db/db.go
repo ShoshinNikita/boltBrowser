@@ -20,19 +20,19 @@ var maxOffset = 100
 
 // BoltAPI is a warrep for *bolt.DB
 //
-// offset is a number of pages (1 page = maxOffset). offset points at end of page, for example,
-// 1 – [0, 100)
-// 2 – [100, 200)
-// 3 – [200, 300)
+// pages is a number of pages (1 page = maxOffset)
+// 1 – [0, maxOffset)
+// 2 – [maxOffset, 2*maxOffset)
+// 3 – [2*maxOffset, 3*maxOffset)
 // etc.
 type BoltAPI struct {
 	db            *bolt.DB
 	currentBucket []string
-	offset        offsetStack // not in records, but in pages (1 page == maxOffset). Page points on the n * maxOffset
-	recordsAmount int         // number of records in current bucket
-	Name          string      `json:"name"`
-	DBPath        string      `json:"dbPath"`
-	Size          int64       `json:"size"`
+	pages         pagesStack
+	recordsAmount int    // number of records in current bucket
+	Name          string `json:"name"`
+	DBPath        string `json:"dbPath"`
+	Size          int64  `json:"size"`
 }
 
 // Record consists information about record in the db
@@ -70,7 +70,7 @@ func Open(path string) (*BoltAPI, error) {
 	}
 
 	// For root
-	db.offset.add()
+	db.pages.add()
 
 	// Getting info about the file
 	db.DBPath = path
@@ -120,8 +120,8 @@ func (db *BoltAPI) GetCurrent() (data Data, err error) {
 		return nil
 	})
 	data.PrevBucket = true
-	data.PrevRecords = (db.offset.top() > 1)
-	data.NextRecords = (db.recordsAmount > maxOffset*db.offset.top())
+	data.PrevRecords = (db.pages.top() > 1)
+	data.NextRecords = (db.recordsAmount > maxOffset*db.pages.top())
 	data.Path = "/" + strings.Join(db.currentBucket, "/")
 
 	return data, err
@@ -130,7 +130,7 @@ func (db *BoltAPI) GetCurrent() (data Data, err error) {
 // Back return records from previous bucket
 func (db *BoltAPI) Back() (data Data, err error) {
 	db.currentBucket = db.currentBucket[:len(db.currentBucket)-1]
-	db.offset.del()
+	db.pages.del()
 
 	if len(db.currentBucket) == 0 {
 		return db.GetRoot()
@@ -149,8 +149,8 @@ func (db *BoltAPI) Back() (data Data, err error) {
 	})
 
 	data.PrevBucket = true // if there is no previous bucket will be called GetRoot()
-	data.PrevRecords = (db.offset.top() > 1)
-	data.NextRecords = (db.recordsAmount > maxOffset*db.offset.top())
+	data.PrevRecords = (db.pages.top() > 1)
+	data.NextRecords = (db.recordsAmount > maxOffset*db.pages.top())
 	data.Path = "/" + strings.Join(db.currentBucket, "/")
 
 	return data, err
@@ -159,7 +159,7 @@ func (db *BoltAPI) Back() (data Data, err error) {
 // Next return records from next bucket with according name
 func (db *BoltAPI) Next(name string) (data Data, err error) {
 	db.currentBucket = append(db.currentBucket, name)
-	db.offset.add()
+	db.pages.add()
 
 	err = db.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(db.currentBucket[0]))
@@ -237,7 +237,7 @@ func (db *BoltAPI) getRecords(c *bolt.Cursor) (records []Record) {
 
 	// [ maxOffset * (db.offset - 1); maxOffset * db.offset )
 	for k, v := c.First(); k != nil; k, v = c.Next() {
-		if maxOffset*(db.offset.top()-1) <= i && i < maxOffset*db.offset.top() {
+		if maxOffset*(db.pages.top()-1) <= i && i < maxOffset*db.pages.top() {
 			var r Record
 			if v == nil {
 				r.T = bucketTemplate
@@ -263,8 +263,8 @@ func (db *BoltAPI) getRecords(c *bolt.Cursor) (records []Record) {
 func (db *BoltAPI) getNextRecords(c *bolt.Cursor) (records []Record, canMoveNext bool) {
 	var i = 0
 	// [ maxOffset * db.offset; maxOffset * (db.offset + 1) )
-	for k, v := c.First(); k != nil && i < maxOffset*(db.offset.top()+1); k, v = c.Next() {
-		if maxOffset*db.offset.top() <= i {
+	for k, v := c.First(); k != nil && i < maxOffset*(db.pages.top()+1); k, v = c.Next() {
+		if maxOffset*db.pages.top() <= i {
 			var r Record
 			if v == nil {
 				r.T = bucketTemplate
@@ -278,21 +278,21 @@ func (db *BoltAPI) getNextRecords(c *bolt.Cursor) (records []Record, canMoveNext
 		}
 		i++
 	}
-	db.offset.inc()
+	db.pages.inc()
 
-	canMoveNext = (db.offset.top()*maxOffset < db.recordsAmount)
+	canMoveNext = (db.pages.top()*maxOffset < db.recordsAmount)
 
 	sortRecords(records)
 	return records, canMoveNext
 }
 
 func (db *BoltAPI) getPrevRecords(c *bolt.Cursor) (records []Record, canMoveBack bool) {
-	db.offset.dec()
+	db.pages.dec()
 
 	var i = 0
 	// [ maxOffset * (db.offset - 1); maxOffset * db.offset )
-	for k, v := c.First(); k != nil && i < maxOffset*db.offset.top(); k, v = c.Next() {
-		if maxOffset*(db.offset.top()-1) <= i {
+	for k, v := c.First(); k != nil && i < maxOffset*db.pages.top(); k, v = c.Next() {
+		if maxOffset*(db.pages.top()-1) <= i {
 			var r Record
 			if v == nil {
 				r.T = bucketTemplate
@@ -307,7 +307,7 @@ func (db *BoltAPI) getPrevRecords(c *bolt.Cursor) (records []Record, canMoveBack
 		i++
 	}
 
-	canMoveBack = (db.offset.top() > 1)
+	canMoveBack = (db.pages.top() > 1)
 
 	sortRecords(records)
 	return records, canMoveBack
