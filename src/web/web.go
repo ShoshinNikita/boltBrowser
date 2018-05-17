@@ -1,13 +1,13 @@
 package web
 
 import (
-	"os"
-	"net/http"
 	"context"
 	"fmt"
+	"net/http"
+	"os"
 
-	"github.com/gorilla/mux"
 	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 
 	"db"
 )
@@ -18,7 +18,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 // Initialize – make(map[string]*db.DBApi)
 func Initialize() {
-	allDB = make(map[string]*db.DBApi)
+	allDB = make(map[string]*db.BoltAPI)
 }
 
 // CloseDBs closes all databases
@@ -35,16 +35,18 @@ func Start(port string, debug bool, stopChan chan struct{}) {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Path("/favicon.ico").Methods("GET").Handler(http.FileServer(http.Dir("./static/")))
 	router.Path("/").Methods("GET").HandlerFunc(index)
-	router.Path("/api/openDB").Methods("POST").HandlerFunc(openDB)
+	router.Path("/api/databases").Methods("POST").HandlerFunc(openDB)
 	router.Path("/api/closeDB").Methods("POST").HandlerFunc(closeDB)
 	router.Path("/api/databases").Methods("GET").HandlerFunc(databasesList)
 	router.Path("/api/current").Methods("GET").HandlerFunc(current)
-	router.Path("/api/cmd").Methods("GET").HandlerFunc(cmd)
+	router.Path("/api/root").Methods("GET").HandlerFunc(root)
 	router.Path("/api/back").Methods("GET").HandlerFunc(back)
 	router.Path("/api/next").Methods("GET").HandlerFunc(next)
+	router.Path("/api/nextRecords").Methods("GET").HandlerFunc(nextRecords)
+	router.Path("/api/prevRecords").Methods("GET").HandlerFunc(prevRecords)
 
 	// For static files
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))	
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	var handler http.Handler
 	if debug {

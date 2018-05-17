@@ -28,6 +28,16 @@ const fullRecordTemplate = `<div>
 <\/div>
 <br>`
 
+const nextRecordersButtonTemplate = `<div>
+<i class="material-icons" icon>arrow_forward_ios<\/i>
+<span style="cursor: pointer;" onclick="NextRecords(currentDBPath);"><b>Next page<\/b><\/span>
+<\/div>`
+
+const prevRecordersButtonTemplate = `<div>
+<i class="material-icons" icon>arrow_back_ios<\/i>
+<span style="cursor: pointer;" onclick="PrevRecords(currentDBPath);"><b>Previous page<\/b><\/span>
+<\/div>`
+
 var currentDBPath = ""
 var currentData = null
 
@@ -36,25 +46,44 @@ function getError(result) {
 	return errorMessageTemplate.format(result.status, result.responseText);
 }
 
-function getCurrentPath(path) {
+function ShowTree(data) {
 	var result = ""
-	for (i in path) {
-		result += "/" + path[i]
+	if (data.prevRecords) {
+		result += prevRecordersButtonTemplate
+	} else if (data.prevBucket) {
+		result = backButton;
 	}
-	if (result == "") {
-		result = "/"
+
+	var records = data.records;
+	currentData = records;
+	for (i in records) {
+		if (records[i].type == "bucket") {
+			result += bucketTemplate.format(records[i].key);
+		} else if (records[i].type == "record") {
+			var value = records[i].value;
+			if (value.length > 40) {
+				value = value.substring(0, 60);
+				value += "..."
+			}
+			result += recordTemplate.format(i, records[i].key, value);
+		}
 	}
-	return result
+
+	if (data.nextRecords) {
+		result += nextRecordersButtonTemplate
+	}
+	$("#db_tree").html(result);
+
+	document.getElementById("db_tree_wrapper").scrollTop = 0;
 }
 
-
 function OpenDB() {
-	var filePath = prompt("Please, enter the path to the database")
+	var dbPath = prompt("Please, enter the path to the database")
 	$.ajax({
-		url: "/api/openDB",
+		url: "/api/databases",
 		type: "POST",
 		data: {
-			"filePath": filePath
+			"dbPath": dbPath
 		},
 		success: function(result){
 			ShowDBList()
@@ -65,15 +94,15 @@ function OpenDB() {
 	})
 }
 
-function CloseDB(filePath) {
+function CloseDB(dbPath) {
 	$.ajax({
 		url: "/api/closeDB",
 		type: "POST",
 		data: {
-			"filePath": filePath,
+			"dbPath": dbPath,
 		},
 		success: function(result){
-			if (filePath == currentDBPath) {
+			if (dbPath == currentDBPath) {
 				$("#dbName").html("<i>Name:<\/i> ?")
 				$("#dbPath").html("<i>Path:<\/i> ?")
 				$("#dbSize").html("<i>Size:<\/i> ?")
@@ -99,7 +128,7 @@ function ShowDBList() {
 			console.log(allDB)
 			var result = ""
 			for (i in allDB) {
-				result += buttonTemplate.format(allDB[i].name, allDB[i].filePath)
+				result += buttonTemplate.format(allDB[i].name, allDB[i].dbPath)
 			}
 			$("#list").html(result)
 		},
@@ -109,20 +138,20 @@ function ShowDBList() {
 	})
 }
 
-function ChooseDB(filePath) {
-	currentDBPath = filePath
+function ChooseDB(dbPath) {
+	currentDBPath = dbPath
 	$.ajax({
 		url: "/api/current",
 		type: "GET",
 		data: {
-			"filePath": filePath,
+			"dbPath": dbPath,
 		},
 		success: function(result){
 			result = JSON.parse(result)
-			$("#dbName").html("<i>Name:<\/i> " + result.name)
-			$("#dbPath").html("<i>Path:<\/i> " + result.filePath)
-			$("#dbSize").html("<i>Size:<\/i> " + result.size / 1024 + " Kb")
-			$("#currentPath").html("<i>" + getCurrentPath(result.path) + "<\/i> ")
+			$("#dbName").html("<i>Name:<\/i> " + result.db.name)
+			$("#dbPath").html("<i>Path:<\/i> " + result.db.dbPath)
+			$("#dbSize").html("<i>Size:<\/i> " + result.db.size / 1024 + " Kb")
+			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
 			$("#record_data").html("")
 			ShowTree(result)
 		},
@@ -132,40 +161,17 @@ function ChooseDB(filePath) {
 	})
 }
 
-function ShowTree(data) {
-	var result = ""
-	if (data.canBack) {
-		result = backButton;
-	}
-	
-	var records = data.records;
-	currentData = records;
-	for (i in records) {
-		if (records[i].type == "bucket") {
-			result += bucketTemplate.format(records[i].key);
-		} else if (records[i].type == "record") {
-			var value = records[i].value;
-			if (value.length > 40) {
-				value = value.substring(0, 60);
-				value += "..."
-			}
-			result += recordTemplate.format(i, records[i].key, value);
-		}
-	}
-	$("#db_tree").html(result);
-}
-
-function Next(filePath, bucket) {
+function Next(dbPath, bucket) {
 	$.ajax({
 		url: "/api/next",
 		type: "GET",
 		data: {
-			"filePath": filePath,
+			"dbPath": dbPath,
 			"bucket": bucket
 		},
 		success: function(result){
 			result = JSON.parse(result)
-			$("#currentPath").html("<i>" + getCurrentPath(result.path) + "<\/i> ")
+			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
 			$("#record_data").html("")
 			ShowTree(result)
 		},
@@ -175,17 +181,57 @@ function Next(filePath, bucket) {
 	})
 }
 
-function Back(filePath) {
+function Back(dbPath) {
 	$.ajax({
 		url: "/api/back",
 		type: "GET",
 		data: {
-			"filePath": filePath,
+			"dbPath": dbPath,
 		},
 		success: function(result){
 			result = JSON.parse(result)
-			$("#currentPath").html("<i>" + getCurrentPath(result.path) + "<\/i> ")
+			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
 			$("#record_data").html("")
+			ShowTree(result)
+		},
+		error: function(result) {
+			ShowPopup(result.responseText)
+		}
+	})
+}
+
+function NextRecords(dbPath) {
+	console.log("nextRecords")
+	$.ajax({
+		url: "/api/nextRecords",
+		type: "GET",
+		data: {
+			"dbPath": dbPath,
+		},
+		success: function(result){
+			result = JSON.parse(result)
+			$("#record_data").html("")
+
+			ShowTree(result)
+		},
+		error: function(result) {
+			ShowPopup(result.responseText)
+		}
+	})
+}
+
+function PrevRecords(dbPath) {
+	console.log("prevRecords")
+	$.ajax({
+		url: "/api/prevRecords",
+		type: "GET",
+		data: {
+			"dbPath": dbPath,
+		},
+		success: function(result){
+			result = JSON.parse(result)
+			$("#record_data").html("")
+
 			ShowTree(result)
 		},
 		error: function(result) {
