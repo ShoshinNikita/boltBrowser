@@ -20,12 +20,30 @@ import (
 // 				| "age" - "15"
 // 				| "name" - "TestUser"
 
-var root = []Record{Record{T: bucketTemplate, Key: "anotherUsers", Value: ""}, Record{T: bucketTemplate, Key: "user", Value: ""}}
-var anotherUsers = []Record{Record{T: bucketTemplate, Key: "1", Value: ""}, Record{T: bucketTemplate, Key: "2", Value: ""},
-	Record{T: recordTemplate, Key: "testData", Value: "15"}}
-var bucket1 = []Record{Record{T: recordTemplate, Key: "age", Value: "99"}, Record{T: recordTemplate, Key: "name", Value: "Admin"}}
-var bucket2 = []Record{Record{T: recordTemplate, Key: "name", Value: "hi!!!!"}, Record{T: recordTemplate, Key: "prof", Value: "tester"}}
-var user = []Record{Record{T: recordTemplate, Key: "age", Value: "15"}, Record{T: recordTemplate, Key: "name", Value: "TestUser"}}
+// check are slices equal
+func equal(want, got []Record) bool {
+	if len(want) != len(got) {
+		return false
+	}
+
+	for i := range want {
+		if want[i] != got[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+// return Record{T: "bucket"}
+func bckt(key string) Record {
+	return Record{T: bucketTemplate, Key: key, Value: ""}
+}
+
+// return Record{T: "record"}
+func rcrd(key, value string) Record {
+	return Record{T: recordTemplate, Key: key, Value: value}
+}
 
 func TestSortRecords(t *testing.T) {
 	tests := []struct {
@@ -89,131 +107,262 @@ func TestOpen(t *testing.T) {
 }
 
 func TestGetRoot(t *testing.T) {
+	tests := []struct {
+		offset int
+		answer []Record
+	}{
+		{100, []Record{Record{T: bucketTemplate, Key: "anotherUsers", Value: ""}, Record{T: bucketTemplate, Key: "user", Value: ""}}},
+		{2, []Record{Record{T: bucketTemplate, Key: "anotherUsers", Value: ""}, Record{T: bucketTemplate, Key: "user", Value: ""}}},
+		{1, []Record{Record{T: bucketTemplate, Key: "anotherUsers", Value: ""}}},
+	}
+
 	testDB, err := Open("testdata/test.db")
 	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
-	records, path, err := testDB.GetRoot()
-	checkRoot(t, records, path, err)
+
+	for i, test := range tests {
+		SetOffset(test.offset)
+		data, err := testDB.GetRoot()
+		if err != nil {
+			t.Error(err)
+			continue
+		}
+		if !equal(test.answer, data.Records) {
+			t.Errorf("Test #%d Not equal. Want: %v Got: %v", i, test.answer, data.Records)
+		}
+	}
 }
 
 func TestNext(t *testing.T) {
+	type T struct {
+		next   string
+		answer []Record
+	}
+	tests := []struct {
+		offset int
+		data   []T
+	}{
+		{100, []T{
+			T{"anotherUsers", []Record{bckt("1"), bckt("2"), rcrd("testData", "15")}},
+			T{"1", []Record{rcrd("age", "99"), rcrd("name", "Admin")}}}},
+		{1, []T{
+			T{"anotherUsers", []Record{bckt("1")}},
+			T{"1", []Record{rcrd("age", "99")}}}},
+		{2, []T{
+			T{"anotherUsers", []Record{bckt("1"), bckt("2")}},
+			T{"2", []Record{rcrd("name", "hi!!!!"), rcrd("prof", "tester")}}}},
+		{1, []T{
+			T{"user", []Record{rcrd("age", "15")}}}},
+	}
+
 	testDB, err := Open("testdata/test.db")
 	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Bucket "anotherUsers"
-	records, path, err := testDB.Next("anotherUsers")
-	checkAnotherUsers(t, records, path, err)
+	for i, test := range tests {
+		SetOffset(test.offset)
+		for _, d := range test.data {
+			data, err := testDB.Next(d.next)
+			if err != nil {
+				t.Error(err)
+				break
+			}
 
-	// Next bucket "1"
-	records, path, err = testDB.Next("1")
-	checkBucket1(t, records, path, err)
+			if !equal(d.answer, data.Records) {
+				t.Errorf("Test #%d Not equal. Want: %v Got: %v", i, d.answer, data.Records)
+				break
+			}
+		}
+
+		testDB.clearPath()
+	}
+
 }
 
 func TestBack(t *testing.T) {
+	type next struct {
+	}
+	type back struct {
+	}
+	tests := []struct {
+		offset int
+		next   []string
+		answer [][]Record
+	}{
+		{100, []string{"anotherUsers", "1"}, [][]Record{
+			[]Record{bckt("1"), bckt("2"), rcrd("testData", "15")},
+			[]Record{bckt("anotherUsers"), bckt("user")}}},
+		{1, []string{"anotherUsers", "1"}, [][]Record{
+			[]Record{bckt("1")},
+			[]Record{bckt("anotherUsers")}}},
+		{2, []string{"anotherUsers", "2"}, [][]Record{
+			[]Record{bckt("1"), bckt("2")},
+			[]Record{bckt("anotherUsers"), bckt("user")}}},
+	}
+
 	testDB, err := Open("testdata/test.db")
 	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testDB.Next("user")
-	// Back to root
-	records, path, err := testDB.Back()
-	checkRoot(t, records, path, err)
+	for i, test := range tests {
+		SetOffset(test.offset)
 
-	// Next to anotherUsers
-	testDB.Next("anotherUsers")
-	// Next to 1
-	testDB.Next("1")
-	// Back to anotherUsers
-	records, path, err = testDB.Back()
-	checkAnotherUsers(t, records, path, err)
+		for _, n := range test.next {
+			testDB.Next(n)
+		}
+
+		for _, d := range test.answer {
+			data, err := testDB.Back()
+			if err != nil {
+				t.Error(err)
+				continue
+			}
+			if !equal(d, data.Records) {
+				t.Errorf("Test #%d Not equal. Want: %v Got: %v", i, d, data.Records)
+				break
+			}
+		}
+
+		testDB.clearPath()
+	}
+
 }
 
 func TestGetCurrent(t *testing.T) {
+	tests := []struct {
+		offset int
+		next   []string
+		answer []Record
+	}{
+		{100, []string{"user"}, []Record{rcrd("age", "15"), rcrd("name", "TestUser")}},
+		{1, []string{"user"}, []Record{rcrd("age", "15")}},
+		{100, []string{"anotherUsers"}, []Record{bckt("1"), bckt("2"), rcrd("testData", "15")}},
+		{100, []string{"anotherUsers", "1"}, []Record{rcrd("age", "99"), rcrd("name", "Admin")}},
+		{1, []string{"anotherUsers", "1"}, []Record{rcrd("age", "99")}},
+		{2, []string{"anotherUsers", "1"}, []Record{rcrd("age", "99"), rcrd("name", "Admin")}},
+	}
+
 	testDB, err := Open("testdata/test.db")
 	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testDB.Next("user")
-	testDB.Back()
-	testDB.Next("anotherUsers")
-	testDB.Next("1")
-
-	// Get bucket "1"
-	records, path, err := testDB.GetCurrent()
-	checkBucket1(t, records, path, err)
-
-	testDB.Back()
-	testDB.Back()
-
-	// Get root
-	records, path, err = testDB.GetCurrent()
-	checkRoot(t, records, path, err)
-}
-
-// Functions for testring buckets
-
-func checkRoot(t *testing.T, records []Record, path []string, err error) {
-	if err != nil {
-		t.Error(err)
-	}
-	if len(path) != 0 {
-		t.Errorf("Wrong currentBucket Want: [] Got: %v", path)
-	}
-
-	if len(records) != 2 {
-		t.Fatalf("Wrong records Want: %v Got: %v", root, records)
-	}
-	for i, e := range records {
-		if e != root[i] {
-			t.Errorf("Wrong record Want: %v Got: %v", e, root[i])
+	for i, test := range tests {
+		SetOffset(test.offset)
+		for _, s := range test.next {
+			testDB.Next(s)
 		}
-	}
-}
 
-func checkUser(t *testing.T, records []Record, path []string, err error) {
-	// Nothing
-}
-
-func checkBucket1(t *testing.T, records []Record, path []string, err error) {
-	if err != nil {
-		t.Error(err)
-	}
-	if len(path) != 2 || path[0] != "anotherUsers" || path[1] != "1" {
-		t.Errorf("Wrong currentBucket Want: [anotherUsers 1] Got: %v", path)
-	}
-
-	if len(records) != 2 {
-		t.Fatalf("Wrong records Want: %v Got: %v", bucket1, records)
-	}
-	for i, e := range records {
-		if e != bucket1[i] {
-			t.Errorf("Wrong record Want: %v Got: %v", e, bucket1[i])
+		data, err := testDB.GetCurrent()
+		if err != nil {
+			t.Error(err)
+			continue
 		}
+		if !equal(data.Records, test.answer) {
+			t.Errorf("Test #%d Not equal. Want: %v Got: %v", i, test.answer, data.Records)
+		}
+
+		testDB.clearPath()
+	}
+
+}
+
+func TestNextRecords(t *testing.T) {
+	tests := []struct {
+		offset      int
+		next        []string
+		nextCounter int
+		answer      []Record
+	}{
+		{1, []string{"user"}, 1, []Record{rcrd("name", "TestUser")}},
+		{1, []string{"anotherUsers"}, 1, []Record{bckt("2")}},
+		{1, []string{"anotherUsers", "1"}, 1, []Record{rcrd("name", "Admin")}},
+		{2, []string{"anotherUsers"}, 1, []Record{rcrd("testData", "15")}},
+	}
+
+	testDB, err := Open("testdata/test.db")
+	defer testDB.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for i, test := range tests {
+		SetOffset(test.offset)
+
+		for _, n := range test.next {
+			testDB.Next(n)
+		}
+
+		var data Data
+		var err error
+		for i := 0; i < test.nextCounter; i++ {
+			data, err = testDB.NextRecords()
+		}
+		if err != nil {
+			t.Error(err)
+			continue
+		}
+
+		if !equal(data.Records, test.answer) {
+			t.Errorf("Test #%d Not equal. Want: %v Got: %v", i, test.answer, data.Records)
+		}
+
+		testDB.clearPath()
 	}
 }
 
-func checkAnotherUsers(t *testing.T, records []Record, path []string, err error) {
+func TestPrevRecords(t *testing.T) {
+	tests := []struct {
+		offset      int
+		next        []string
+		nextCounter int
+		backCounter int
+		answer      []Record
+	}{
+		{1, []string{"user"}, 1, 1, []Record{rcrd("age", "15")}},
+		{1, []string{"anotherUsers"}, 2, 1, []Record{bckt("2")}},
+		{1, []string{"anotherUsers", "1"}, 1, 1, []Record{rcrd("age", "99")}},
+		{3, []string{"anotherUsers"}, 1, 1, []Record{bckt("1"), bckt("2"), rcrd("testData", "15")}},
+	}
+
+	testDB, err := Open("testdata/test.db")
+	defer testDB.Close()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
-	if len(path) != 1 || path[0] != "anotherUsers" {
-		t.Errorf("Wrong currentBucket Want: [anotherUsers] Got: %v", path)
-	}
-	if len(records) != 3 {
-		t.Fatalf("Wrong records Want: %v Got: %v", anotherUsers, records)
-	}
-	for i, e := range records {
-		if e != anotherUsers[i] {
-			t.Errorf("Wrong record Want: %v Got: %v", e, anotherUsers[i])
+
+	for i, test := range tests {
+		SetOffset(test.offset)
+
+		for _, n := range test.next {
+			testDB.Next(n)
 		}
+	
+		for i := 0; i < test.nextCounter; i++ {
+			testDB.NextRecords()
+		}
+
+		var data Data
+		var err error
+		for i := 0; i < test.backCounter; i++ {
+			data, err = testDB.PrevRecords()
+		}
+		if err != nil {
+			t.Error(err)
+			continue
+		}
+
+		if !equal(data.Records, test.answer) {
+			t.Errorf("Test #%d Not equal. Want: %v Got: %v", i, test.answer, data.Records)
+		}
+
+		testDB.clearPath()
 	}
 }
