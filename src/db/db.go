@@ -16,7 +16,7 @@ const (
 	recordTemplate = "record"
 )
 
-var maxOffset int
+var maxOffset = 100
 
 // BoltAPI is a warrep for *bolt.DB
 //
@@ -51,7 +51,7 @@ type Data struct {
 	Path        string
 }
 
-// SetOffset change value of maxOffset
+// SetOffset change value of maxOffset (default – 100)
 func SetOffset(offset int) {
 	maxOffset = offset
 }
