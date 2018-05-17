@@ -1,9 +1,10 @@
 package db
 
 import (
-	"sort"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	"github.com/boltdb/bolt"
 
@@ -11,29 +12,53 @@ import (
 )
 
 const (
-	bucket = "bucket"
-	record = "record"
+	bucketTemplate = "bucket"
+	recordTemplate = "record"
 )
 
-// DBApi is a warrep for *bolt.DB
-type DBApi struct {
+var maxOffset = 100
+
+// BoltAPI is a warrep for *bolt.DB
+//
+// pages is a number of pages (1 page = maxOffset)
+// 1 – [0, maxOffset)
+// 2 – [maxOffset, 2*maxOffset)
+// 3 – [2*maxOffset, 3*maxOffset)
+// etc.
+type BoltAPI struct {
 	db            *bolt.DB
 	currentBucket []string
+	pages         pagesStack
+	recordsAmount int    // number of records in current bucket
 	Name          string `json:"name"`
-	FilePath      string `json:"filePath"`
+	DBPath        string `json:"dbPath"`
 	Size          int64  `json:"size"`
 }
 
-// Element consists information about record in the db
-type Element struct {
+// Record consists information about record in the db
+type Record struct {
 	T     string `json:"type"`
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
 
-// Open return info about the file of db, wrapper for *bolt.DB
-func Open(path string) (*DBApi, error) {
-	db := new(DBApi)
+// Data serves for returning
+type Data struct {
+	Records     []Record
+	PrevBucket  bool
+	PrevRecords bool
+	NextRecords bool
+	Path        string
+}
+
+// SetOffset change value of maxOffset (default – 100)
+func SetOffset(offset int) {
+	maxOffset = offset
+}
+
+// Open returns info about the file of db, wrapper for *bolt.DB
+func Open(path string) (*BoltAPI, error) {
+	db := new(BoltAPI)
 	var err error
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil, err
@@ -44,8 +69,11 @@ func Open(path string) (*DBApi, error) {
 		return nil, err
 	}
 
+	// For root
+	db.pages.add()
+
 	// Getting info about the file
-	db.FilePath = path
+	db.DBPath = path
 	db.Name = filepath.Base(path)
 	file, _ := os.Stat(path)
 	db.Size = file.Size()
@@ -54,143 +82,244 @@ func Open(path string) (*DBApi, error) {
 }
 
 // Close closes db
-func (db *DBApi) Close() error {
+func (db *BoltAPI) Close() error {
 	return db.db.Close()
 }
 
-// GetCMD returns records from root of db
-func (db *DBApi) GetCMD() ([]Element, []string, error) {
-	var elements []Element
-
-	err := db.db.View(func(tx *bolt.Tx) error {
+// GetRoot returns records from root of db
+func (db *BoltAPI) GetRoot() (data Data, err error) {
+	err = db.db.View(func(tx *bolt.Tx) error {
 		c := tx.Cursor()
-		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var elem Element
-			if v == nil {
-				elem.T = bucket
-				elem.Key = converters.ConvertKey(k)
-			} else {
-				elem.T = record
-				elem.Key = converters.ConvertKey(k)
-				elem.Value = converters.ConvertValue(v)
-			}
-			elements = append(elements, elem)
-		}
+		data.Records = db.getRecords(c)
 
 		return nil
 	})
+	data.PrevBucket = false
+	data.PrevRecords = false
+	data.NextRecords = (db.recordsAmount > maxOffset)
+	data.Path = "/"
 
-	sortElements(elements)
-	return elements, []string{}, err
+	return data, err
 }
 
 // GetCurrent returns records from current bucket
-func (db *DBApi) GetCurrent() ([]Element, []string, error) {
-	var elements []Element
+func (db *BoltAPI) GetCurrent() (data Data, err error) {
 	if len(db.currentBucket) == 0 {
-		return db.GetCMD()
+		return db.GetRoot()
 	}
 
-	err := db.db.View(func(tx *bolt.Tx) error {
+	err = db.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(db.currentBucket[0]))
 		for i := 1; i < len(db.currentBucket); i++ {
 			b = b.Bucket([]byte(db.currentBucket[i]))
 		}
 
 		c := b.Cursor()
-		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var elem Element
-			if v == nil {
-				elem.T = bucket
-				elem.Key = converters.ConvertKey(k)
-			} else {
-				elem.T = record
-				elem.Key = converters.ConvertKey(k)
-				elem.Value= converters.ConvertValue(v)
-			}
-			elements = append(elements, elem)
-		}
+		data.Records = db.getRecords(c)
+
 		return nil
 	})
+	data.PrevBucket = true
+	data.PrevRecords = (db.pages.top() > 1)
+	data.NextRecords = (db.recordsAmount > maxOffset*db.pages.top())
+	data.Path = "/" + strings.Join(db.currentBucket, "/")
 
-	sortElements(elements)
-	return elements, db.currentBucket, err
+	return data, err
 }
 
 // Back return records from previous bucket
-func (db *DBApi) Back() ([]Element, []string, error) {
-	var elements []Element
+func (db *BoltAPI) Back() (data Data, err error) {
 	db.currentBucket = db.currentBucket[:len(db.currentBucket)-1]
+	db.pages.del()
+
 	if len(db.currentBucket) == 0 {
-		return db.GetCMD()
+		return db.GetRoot()
 	}
 
-	err := db.db.View(func(tx *bolt.Tx) error {
+	err = db.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(db.currentBucket[0]))
 		for i := 1; i < len(db.currentBucket); i++ {
 			b = b.Bucket([]byte(db.currentBucket[i]))
 		}
 
 		c := b.Cursor()
-		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var elem Element
-			if v == nil {
-				elem.T = bucket
-				elem.Key = converters.ConvertKey(k)
-			} else {
-				elem.T = record
-				elem.Key = converters.ConvertKey(k)
-				elem.Value= converters.ConvertValue(v)
-			}
-			elements = append(elements, elem)
-		}
+		data.Records = db.getRecords(c)
 
 		return nil
 	})
 
-	sortElements(elements)
-	return elements, db.currentBucket, err
+	data.PrevBucket = true // if there is no previous bucket will be called GetRoot()
+	data.PrevRecords = (db.pages.top() > 1)
+	data.NextRecords = (db.recordsAmount > maxOffset*db.pages.top())
+	data.Path = "/" + strings.Join(db.currentBucket, "/")
+
+	return data, err
 }
 
 // Next return records from next bucket with according name
-func (db *DBApi) Next(name string) ([]Element, []string, error) {
-	var elements []Element
-
+func (db *BoltAPI) Next(name string) (data Data, err error) {
 	db.currentBucket = append(db.currentBucket, name)
-	err := db.db.View(func(tx *bolt.Tx) error {
+	db.pages.add()
+
+	err = db.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(db.currentBucket[0]))
 		for i := 1; i < len(db.currentBucket); i++ {
 			b = b.Bucket([]byte(db.currentBucket[i]))
 		}
 
 		c := b.Cursor()
-		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var elem Element
-			if v == nil {
-				elem.T = bucket
-				elem.Key = converters.ConvertKey(k)
-			} else {
-				elem.T = record
-				elem.Key = converters.ConvertKey(k)
-				elem.Value= converters.ConvertValue(v)
-			}
-			elements = append(elements, elem)
-		}
+		data.Records = db.getRecords(c)
 
 		return nil
 	})
 
-	sortElements(elements)
-	return elements, db.currentBucket, err
+	data.PrevBucket = true
+	data.PrevRecords = false
+	data.NextRecords = (db.recordsAmount > maxOffset)
+	data.Path = "/" + strings.Join(db.currentBucket, "/")
+
+	return data, err
 }
 
-func sortElements(elements []Element) {
-	sort.Slice(elements, func (i, j int) bool {
-		if elements[i].T == elements[j].T {
+// NextRecords return next part of records and bool, which shows is there next records
+func (db *BoltAPI) NextRecords() (data Data, err error) {
+	err = db.db.View(func(tx *bolt.Tx) error {
+		var c *bolt.Cursor
+		if len(db.currentBucket) == 0 {
+			c = tx.Cursor()
+		} else {
+			b := tx.Bucket([]byte(db.currentBucket[0]))
+			for i := 1; i < len(db.currentBucket); i++ {
+				b = b.Bucket([]byte(db.currentBucket[i]))
+			}
+			c = b.Cursor()
+		}
+
+		data.Records, data.NextRecords = db.getNextRecords(c)
+		return nil
+	})
+	data.PrevBucket = (len(db.currentBucket) != 0)
+	data.PrevRecords = true
+
+	return data, err
+}
+
+// PrevRecords return prev part of records and bool, which shows is there previous records
+func (db *BoltAPI) PrevRecords() (data Data, err error) {
+	err = db.db.View(func(tx *bolt.Tx) error {
+		var c *bolt.Cursor
+		if len(db.currentBucket) == 0 {
+			c = tx.Cursor()
+		} else {
+			b := tx.Bucket([]byte(db.currentBucket[0]))
+			for i := 1; i < len(db.currentBucket); i++ {
+				b = b.Bucket([]byte(db.currentBucket[i]))
+			}
+			c = b.Cursor()
+		}
+
+		data.Records, data.PrevRecords = db.getPrevRecords(c)
+		return nil
+	})
+	data.PrevBucket = (len(db.currentBucket) != 0)
+	data.NextRecords = true
+
+	return data, err
+}
+
+// return records with current offset (db.offset.top())
+// also update db.recordsAmount
+func (db *BoltAPI) getRecords(c *bolt.Cursor) (records []Record) {
+	var (
+		i       int
+		counter int
+	)
+
+	// [ maxOffset * (db.offset - 1); maxOffset * db.offset )
+	for k, v := c.First(); k != nil; k, v = c.Next() {
+		if maxOffset*(db.pages.top()-1) <= i && i < maxOffset*db.pages.top() {
+			var r Record
+			if v == nil {
+				r.T = bucketTemplate
+				r.Key = converters.ConvertKey(k)
+			} else {
+				r.T = recordTemplate
+				r.Key = converters.ConvertKey(k)
+				r.Value = converters.ConvertValue(v)
+			}
+			records = append(records, r)
+		}
+		i++
+		counter++
+	}
+
+	// Updating number of records
+	db.recordsAmount = counter
+
+	sortRecords(records)
+	return records
+}
+
+func (db *BoltAPI) getNextRecords(c *bolt.Cursor) (records []Record, canMoveNext bool) {
+	var i = 0
+	// [ maxOffset * db.offset; maxOffset * (db.offset + 1) )
+	for k, v := c.First(); k != nil && i < maxOffset*(db.pages.top()+1); k, v = c.Next() {
+		if maxOffset*db.pages.top() <= i {
+			var r Record
+			if v == nil {
+				r.T = bucketTemplate
+				r.Key = converters.ConvertKey(k)
+			} else {
+				r.T = recordTemplate
+				r.Key = converters.ConvertKey(k)
+				r.Value = converters.ConvertValue(v)
+			}
+			records = append(records, r)
+		}
+		i++
+	}
+	db.pages.inc()
+
+	canMoveNext = (db.pages.top()*maxOffset < db.recordsAmount)
+
+	sortRecords(records)
+	return records, canMoveNext
+}
+
+func (db *BoltAPI) getPrevRecords(c *bolt.Cursor) (records []Record, canMoveBack bool) {
+	db.pages.dec()
+
+	var i = 0
+	// [ maxOffset * (db.offset - 1); maxOffset * db.offset )
+	for k, v := c.First(); k != nil && i < maxOffset*db.pages.top(); k, v = c.Next() {
+		if maxOffset*(db.pages.top()-1) <= i {
+			var r Record
+			if v == nil {
+				r.T = bucketTemplate
+				r.Key = converters.ConvertKey(k)
+			} else {
+				r.T = recordTemplate
+				r.Key = converters.ConvertKey(k)
+				r.Value = converters.ConvertValue(v)
+			}
+			records = append(records, r)
+		}
+		i++
+	}
+
+	canMoveBack = (db.pages.top() > 1)
+
+	sortRecords(records)
+	return records, canMoveBack
+}
+
+func sortRecords(records []Record) {
+	sort.Slice(records, func(i, j int) bool {
+		if records[i].T == records[j].T {
 			// compare keys
-			return elements[i].Key < elements[j].Key
+			return records[i].Key < records[j].Key
 		}
 		// compare type ("bucket" and "record")
-		return elements[i].T < elements[j].T
+		return records[i].T < records[j].T
 	})
 }
