@@ -10,7 +10,7 @@ boltBrowser is a web-browser for BoltDB.
 
 ## How to start
 
-1. Run the program
+1. Run the program (you can download compiled [program](program/boltBrowser_v1.0.7z))
 1. Go to [localhost:500](http://localhost:500)
 1. Add db by pressing sign '+'
 1. Enjoy!
