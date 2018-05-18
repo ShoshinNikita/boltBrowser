@@ -202,6 +202,8 @@ func root(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// databasesList return list of dbs
+//
 // Params: -
 // Return:
 // [
@@ -301,8 +303,8 @@ func returnError(w http.ResponseWriter, err error, message string, code int) {
 	http.Error(w, text, code)
 }
 
+// nextRecords
 //
-
 // Params: dbPath
 // Return:
 // {
@@ -345,6 +347,8 @@ func nextRecords(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// prevRecords
+//
 // Params: dbPath
 // Return:
 // {
