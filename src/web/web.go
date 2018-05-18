@@ -44,6 +44,8 @@ func Start(port string, debug bool, stopChan chan struct{}) {
 	router.Path("/api/next").Methods("GET").HandlerFunc(next)
 	router.Path("/api/nextRecords").Methods("GET").HandlerFunc(nextRecords)
 	router.Path("/api/prevRecords").Methods("GET").HandlerFunc(prevRecords)
+	router.Path("/api/search").Methods("GET").HandlerFunc(search)
+	router.Path("/api/searchRegex").Methods("GET").HandlerFunc(searchRegex)
 
 	// For static files
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))

@@ -390,3 +390,95 @@ func prevRecords(w http.ResponseWriter, r *http.Request) {
 		returnError(w, nil, "Bad path of db "+dbPath, http.StatusBadRequest)
 	}
 }
+
+// search
+//
+// Params: dbPath, needle
+// Return:
+// {
+//  "prevBucket": bool,
+//  "prevRecords": bool,
+//  "nextRecords": bool,
+// 	"records": [
+// 	  {
+// 	    "type": "",
+// 		"key": "",
+// 		"value": ""
+// 	  },
+// 	]
+// }
+//
+func search(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	dbPath := r.Form.Get("dbPath")
+	needle := r.Form.Get("needle")
+
+	if _, ok := allDB[dbPath]; ok {
+		records, err := allDB[dbPath].Search(needle)
+		if err != nil {
+			returnError(w, err, "", http.StatusInternalServerError)
+			return
+		}
+
+		response := struct {
+			PrevBucket  bool        `json:"prevBucket"`
+			PrevRecords bool        `json:"prevRecords"`
+			NextRecords bool        `json:"nextRecords"`
+			Records     []db.Record `json:"records"`
+		}{
+			false,
+			false,
+			false,
+			records,
+		}
+		json.NewEncoder(w).Encode(response)
+	} else {
+		returnError(w, nil, "Bad path of db "+dbPath, http.StatusBadRequest)
+	}
+}
+
+// searchRegex
+//
+// Params: dbPath, expr
+// Return:
+// {
+//  "prevBucket": bool,
+//  "prevRecords": bool,
+//  "nextRecords": bool,
+// 	"records": [
+// 	  {
+// 	    "type": "",
+// 		"key": "",
+// 		"value": ""
+// 	  },
+// 	]
+// }
+//
+func searchRegex(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	dbPath := r.Form.Get("dbPath")
+	expr := r.Form.Get("expr")
+
+	if _, ok := allDB[dbPath]; ok {
+		records, err := allDB[dbPath].SearchRegexp(expr)
+		if err != nil {
+			returnError(w, err, "", http.StatusInternalServerError)
+			return
+		}
+
+		response := struct {
+			PrevBucket  bool        `json:"prevBucket"`
+			PrevRecords bool        `json:"prevRecords"`
+			NextRecords bool        `json:"nextRecords"`
+			Records     []db.Record `json:"records"`
+		}{
+			false,
+			false,
+			false,
+			records,
+		}
+		json.NewEncoder(w).Encode(response)
+	} else {
+		returnError(w, nil, "Bad path of db "+dbPath, http.StatusBadRequest)
+	}
+}
