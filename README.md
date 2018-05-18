@@ -1,6 +1,6 @@
 # boltBrowser
 
-boltBrowser is a web-browser for BoltDB.
+boltBrowser is a web-based explorer for BoltDB.
 
 ## Features
 
