@@ -46,6 +46,15 @@ function getError(result) {
 	return errorMessageTemplate.format(result.status, result.responseText);
 }
 
+function ShowPopup(message) {
+	$("#popupMessage").html(message);	
+	$("#popup").addClass("popup_animation")
+}
+
+function HidePopup() {
+	$("#popup").removeClass("popup_animation")
+}
+
 function ShowTree(data) {
 	var result = ""
 	if (data.prevRecords) {
