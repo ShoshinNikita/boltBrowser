@@ -48,7 +48,7 @@ input[type=button] {
 	border-left: 1px solid black;
 	float: right;
 	width: 35vw;
-	height: 81.7vh;
+	height: 81vh;
 	overflow-y: auto;
 }
 .record {

@@ -66,7 +66,7 @@ func closeDB(w http.ResponseWriter, r *http.Request) {
 // 	"prevBucket": bool,
 //  "prevRecords": bool,
 //  "nextRecords": bool,
-//  "bucketsPath": [],
+//  "bucketsPath": string,
 // 	"records": [
 // 	  {
 // 		"type": "",
@@ -235,7 +235,7 @@ func databasesList(w http.ResponseWriter, r *http.Request) {
 //  "prevBucket": bool,
 //  "prevRecords": bool,
 //  "nextRecords": bool,
-//  "bucketsPath": [],
+//  "bucketsPath": string,
 // 	"records": [
 // 	  {
 // 	    "type": "",
@@ -355,6 +355,7 @@ func nextRecords(w http.ResponseWriter, r *http.Request) {
 //  "prevBucket": bool,
 //  "prevRecords": bool,
 //  "nextRecords": bool,
+//  "bucketsPath": string,
 // 	"records": [
 // 	  {
 // 	    "type": "",
@@ -399,6 +400,7 @@ func prevRecords(w http.ResponseWriter, r *http.Request) {
 //  "prevBucket": bool,
 //  "prevRecords": bool,
 //  "nextRecords": bool,
+//  "bucketsPath": string,
 // 	"records": [
 // 	  {
 // 	    "type": "",
@@ -414,7 +416,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 	needle := r.Form.Get("needle")
 
 	if _, ok := allDB[dbPath]; ok {
-		records, err := allDB[dbPath].Search(needle)
+		records, path, err := allDB[dbPath].Search(needle)
 		if err != nil {
 			returnError(w, err, "", http.StatusInternalServerError)
 			return
@@ -424,11 +426,13 @@ func search(w http.ResponseWriter, r *http.Request) {
 			PrevBucket  bool        `json:"prevBucket"`
 			PrevRecords bool        `json:"prevRecords"`
 			NextRecords bool        `json:"nextRecords"`
+			Path        string      `json:"bucketsPath"`
 			Records     []db.Record `json:"records"`
 		}{
 			false,
 			false,
 			false,
+			path + " (Search \"" + needle + "\")",
 			records,
 		}
 		json.NewEncoder(w).Encode(response)
@@ -445,6 +449,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 //  "prevBucket": bool,
 //  "prevRecords": bool,
 //  "nextRecords": bool,
+//  "bucketsPath": string,
 // 	"records": [
 // 	  {
 // 	    "type": "",
@@ -460,7 +465,7 @@ func searchRegex(w http.ResponseWriter, r *http.Request) {
 	expr := r.Form.Get("expr")
 
 	if _, ok := allDB[dbPath]; ok {
-		records, err := allDB[dbPath].SearchRegexp(expr)
+		records, path, err := allDB[dbPath].SearchRegexp(expr)
 		if err != nil {
 			returnError(w, err, "", http.StatusInternalServerError)
 			return
@@ -470,11 +475,13 @@ func searchRegex(w http.ResponseWriter, r *http.Request) {
 			PrevBucket  bool        `json:"prevBucket"`
 			PrevRecords bool        `json:"prevRecords"`
 			NextRecords bool        `json:"nextRecords"`
+			Path        string      `json:"bucketsPath"`
 			Records     []db.Record `json:"records"`
 		}{
 			false,
 			false,
 			false,
+			path + " (Search \"" + expr + "\")",
 			records,
 		}
 		json.NewEncoder(w).Encode(response)
