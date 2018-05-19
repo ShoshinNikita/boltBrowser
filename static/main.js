@@ -12,11 +12,11 @@ const recordTemplate = `<div>
 
 const bucketTemplate = `<div>
 	<i class="material-icons" icon>folder<\/i>
-	<span class="bucket" onclick="Next(currentDBPath, '{0}');"><b>{0}<\/b><\/span>
+	<span class="bucket" onclick="Next('{0}');"><b>{0}<\/b><\/span>
 <\/div>`
 
 const backButton = `<div>
-	<i class="material-icons btn" icon onclick="Back(currentDBPath);" title="Back">more_horiz<\/i>
+	<i class="material-icons btn" icon onclick="Back();" title="Back">more_horiz<\/i>
 <\/div>`
 
 const fullRecordTemplate = `<div>
@@ -30,12 +30,12 @@ const fullRecordTemplate = `<div>
 
 const nextRecordersButtonTemplate = `<div>
 <i class="material-icons" icon>arrow_forward_ios<\/i>
-<span style="cursor: pointer;" onclick="NextRecords(currentDBPath);"><b>Next page<\/b><\/span>
+<span style="cursor: pointer;" onclick="NextRecords();"><b>Next page<\/b><\/span>
 <\/div>`
 
 const prevRecordersButtonTemplate = `<div>
 <i class="material-icons" icon>arrow_back_ios<\/i>
-<span style="cursor: pointer;" onclick="PrevRecords(currentDBPath);"><b>Previous page<\/b><\/span>
+<span style="cursor: pointer;" onclick="PrevRecords();"><b>Previous page<\/b><\/span>
 <\/div>`
 
 var currentDBPath = ""
@@ -178,12 +178,12 @@ function ChooseDB(dbPath) {
 	})
 }
 
-function Next(dbPath, bucket) {
+function Next(bucket) {
 	$.ajax({
 		url: "/api/next",
 		type: "GET",
 		data: {
-			"dbPath": dbPath,
+			"dbPath": currentDBPath,
 			"bucket": bucket
 		},
 		success: function(result){
@@ -198,12 +198,12 @@ function Next(dbPath, bucket) {
 	})
 }
 
-function Back(dbPath) {
+function Back() {
 	$.ajax({
 		url: "/api/back",
 		type: "GET",
 		data: {
-			"dbPath": dbPath,
+			"dbPath": currentDBPath,
 		},
 		success: function(result){
 			result = JSON.parse(result)
@@ -217,12 +217,12 @@ function Back(dbPath) {
 	})
 }
 
-function NextRecords(dbPath) {
+function NextRecords() {
 	$.ajax({
 		url: "/api/nextRecords",
 		type: "GET",
 		data: {
-			"dbPath": dbPath,
+			"dbPath": currentDBPath,
 		},
 		success: function(result){
 			result = JSON.parse(result)
@@ -236,12 +236,12 @@ function NextRecords(dbPath) {
 	})
 }
 
-function PrevRecords(dbPath) {
+function PrevRecords() {
 	$.ajax({
 		url: "/api/prevRecords",
 		type: "GET",
 		data: {
-			"dbPath": dbPath,
+			"dbPath": currentDBPath,
 		},
 		success: function(result){
 			result = JSON.parse(result)
