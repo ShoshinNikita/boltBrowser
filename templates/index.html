@@ -13,6 +13,7 @@
 	<link rel="stylesheet" type="text/css" media="screen" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 <body onload="ShowDBList();">
+	<!-- List of dbs -->
 	<div class="db_list">
 		<div style="font-size: 25px; text-align: center; margin: auto; position: relative; border-bottom: 1px solid black;">
 				Databases
@@ -25,20 +26,36 @@
 	<div class="db">
 		<div class="db_info">
 			<div style="margin: 0px 5px 5px 5px;">
-				<div id="dbName"><i>Name:</i> ?</div>
-				<div style="font-size: 17px;">
-					<div id="dbPath"><i>Path:</i> ?</div>
-					<div id="dbSize"><i>Size:</i> ?</div>
+				<!-- Main info -->
+				<div style="float: left;">
+					<div id="dbName"><i>Name:</i> ?</div>
+					<div id="dbPath" style="font-size: 17px;"><i>Path:</i> ?</div>
+					<div id="dbSize" style="font-size: 17px;"><i>Size:</i> ?</div>
+				</div>
+				<!-- Search -->
+				<div id="searchBox" style="float: right; visibility: hidden;">
+					<div style="float: left; font-size: 15px;">
+							<input type="text" id="searchText" style="width: 200px; font-size: 17px;">
+							<br>
+							Regex-mode: <input type="checkbox" id="regexMode" title="Regex-mode">
+					</div>
+					<div style="float: right;">
+						<i class="material-icons icon" style="cursor: pointer; font-size: 35px !important;" title="Search" onclick="Search();">search</i>
+						<br>
+						<i class="material-icons" style="cursor: pointer; font-size: 35px !important;" title="Hide results" onclick="ChooseDB(currentDBPath);">close</i>
+					</div>
 				</div>
 			</div>
 		</div>
 		
+		<!-- Path to the current bucket -->
 		<div style="height: 3vh;">
 			<i><div id="currentPath" style="margin: 1px 5px 1px 5px;"></div></i>
 		</div>
 
-		<div style="height: 81.7vh; border-top: 1px solid black;">
-			<div style="overflow: auto; float: left; height: 81.7vh;" id="db_tree_wrapper">
+		<!-- Records -->
+		<div style="height: 81vh; border-top: 1px solid black;">
+			<div style="overflow: auto; float: left; height: 81vh;" id="db_tree_wrapper">
 				<div class="db_tree" id="db_tree"></div>
 			</div>
 			<div class="record_data">
@@ -50,14 +67,5 @@
 	<div class="popup" id="popup" onclick="HidePopup();">
 		<div style="padding: 5px 5px 5px 5px;" id="popupMessage"></div>
 	</div>
-	<script>
-		function ShowPopup(message) {
-			$("#popupMessage").html(message);	
-			$("#popup").addClass("popup_animation")
-		}
-		function HidePopup() {
-			$("#popup").removeClass("popup_animation")
-		}
-	</script>
 </body>
 </html>

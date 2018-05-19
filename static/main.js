@@ -12,11 +12,11 @@ const recordTemplate = `<div>
 
 const bucketTemplate = `<div>
 	<i class="material-icons" icon>folder<\/i>
-	<span class="bucket" onclick="Next(currentDBPath, '{0}');"><b>{0}<\/b><\/span>
+	<span class="bucket" onclick="Next('{0}');"><b>{0}<\/b><\/span>
 <\/div>`
 
 const backButton = `<div>
-	<i class="material-icons btn" icon onclick="Back(currentDBPath);" title="Back">more_horiz<\/i>
+	<i class="material-icons btn" icon onclick="Back();" title="Back">more_horiz<\/i>
 <\/div>`
 
 const fullRecordTemplate = `<div>
@@ -30,12 +30,12 @@ const fullRecordTemplate = `<div>
 
 const nextRecordersButtonTemplate = `<div>
 <i class="material-icons" icon>arrow_forward_ios<\/i>
-<span style="cursor: pointer;" onclick="NextRecords(currentDBPath);"><b>Next page<\/b><\/span>
+<span style="cursor: pointer;" onclick="NextRecords();"><b>Next page<\/b><\/span>
 <\/div>`
 
 const prevRecordersButtonTemplate = `<div>
 <i class="material-icons" icon>arrow_back_ios<\/i>
-<span style="cursor: pointer;" onclick="PrevRecords(currentDBPath);"><b>Previous page<\/b><\/span>
+<span style="cursor: pointer;" onclick="PrevRecords();"><b>Previous page<\/b><\/span>
 <\/div>`
 
 var currentDBPath = ""
@@ -44,6 +44,15 @@ var currentData = null
 
 function getError(result) {
 	return errorMessageTemplate.format(result.status, result.responseText);
+}
+
+function ShowPopup(message) {
+	$("#popupMessage").html(message);	
+	$("#popup").addClass("popup_animation")
+}
+
+function HidePopup() {
+	$("#popup").removeClass("popup_animation")
 }
 
 function ShowTree(data) {
@@ -109,6 +118,7 @@ function CloseDB(dbPath) {
 				$("#db_tree").html("")
 				$("#currentPath").html("")
 				$("#record_data").html("")
+				$("#searchBox").css("visibility", "hidden")
 				currentDBPath = ""
 			}
 			ShowDBList()
@@ -125,7 +135,6 @@ function ShowDBList() {
 		type: "GET",
 		success: function(result){
 			allDB = JSON.parse(result)
-			console.log(allDB)
 			var result = ""
 			for (i in allDB) {
 				result += buttonTemplate.format(allDB[i].name, allDB[i].dbPath)
@@ -148,11 +157,19 @@ function ChooseDB(dbPath) {
 		},
 		success: function(result){
 			result = JSON.parse(result)
+			var path = result.db.dbPath
+			if (path.length > 40) {
+				path = path.substring(0, 20) + "..." + path.substring(path.length - 20, path.length)
+			}
+
 			$("#dbName").html("<i>Name:<\/i> " + result.db.name)
-			$("#dbPath").html("<i>Path:<\/i> " + result.db.dbPath)
+			$("#dbPath").html("<i>Path:<\/i> " + path)
+			$('#dbPath').prop("title", result.db.dbPath);
 			$("#dbSize").html("<i>Size:<\/i> " + result.db.size / 1024 + " Kb")
 			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
 			$("#record_data").html("")
+			$("#searchBox").css("visibility", "visible")
+		
 			ShowTree(result)
 		},
 		error: function(result) {
@@ -161,12 +178,12 @@ function ChooseDB(dbPath) {
 	})
 }
 
-function Next(dbPath, bucket) {
+function Next(bucket) {
 	$.ajax({
 		url: "/api/next",
 		type: "GET",
 		data: {
-			"dbPath": dbPath,
+			"dbPath": currentDBPath,
 			"bucket": bucket
 		},
 		success: function(result){
@@ -181,12 +198,12 @@ function Next(dbPath, bucket) {
 	})
 }
 
-function Back(dbPath) {
+function Back() {
 	$.ajax({
 		url: "/api/back",
 		type: "GET",
 		data: {
-			"dbPath": dbPath,
+			"dbPath": currentDBPath,
 		},
 		success: function(result){
 			result = JSON.parse(result)
@@ -200,13 +217,12 @@ function Back(dbPath) {
 	})
 }
 
-function NextRecords(dbPath) {
-	console.log("nextRecords")
+function NextRecords() {
 	$.ajax({
 		url: "/api/nextRecords",
 		type: "GET",
 		data: {
-			"dbPath": dbPath,
+			"dbPath": currentDBPath,
 		},
 		success: function(result){
 			result = JSON.parse(result)
@@ -220,13 +236,12 @@ function NextRecords(dbPath) {
 	})
 }
 
-function PrevRecords(dbPath) {
-	console.log("prevRecords")
+function PrevRecords() {
 	$.ajax({
 		url: "/api/prevRecords",
 		type: "GET",
 		data: {
-			"dbPath": dbPath,
+			"dbPath": currentDBPath,
 		},
 		success: function(result){
 			result = JSON.parse(result)
@@ -241,9 +256,41 @@ function PrevRecords(dbPath) {
 }
 
 function ShowFullRecord(number) {
-	console.log(currentData[number])
 	var result = fullRecordTemplate.format(currentData[number].key, currentData[number].value)
 	$("#record_data").html(result)
+}
+
+function Search() {
+	var text = $("#searchText").val()
+	if (text == "") {
+		ShowPopup("Error: empty input")
+		return
+	}
+
+	var mode = "plain"
+	if ($("#regexMode").prop("checked")) {
+		mode = "regex"
+	}
+	
+	$.ajax({
+		url: "/api/search",
+		type: "GET",
+		data: {
+			"dbPath": currentDBPath,
+			"text": text,
+			"mode": mode
+		},
+		success: function(result){
+			result = JSON.parse(result)
+			$("#record_data").html("")
+			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
+
+			ShowTree(result)
+		},
+		error: function(result) {
+			ShowPopup(result.responseText)
+		}
+	})
 }
 
 

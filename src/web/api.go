@@ -66,7 +66,7 @@ func closeDB(w http.ResponseWriter, r *http.Request) {
 // 	"prevBucket": bool,
 //  "prevRecords": bool,
 //  "nextRecords": bool,
-//  "bucketsPath": [],
+//  "bucketsPath": string,
 // 	"records": [
 // 	  {
 // 		"type": "",
@@ -202,6 +202,8 @@ func root(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// databasesList return list of dbs
+//
 // Params: -
 // Return:
 // [
@@ -233,7 +235,7 @@ func databasesList(w http.ResponseWriter, r *http.Request) {
 //  "prevBucket": bool,
 //  "prevRecords": bool,
 //  "nextRecords": bool,
-//  "bucketsPath": [],
+//  "bucketsPath": string,
 // 	"records": [
 // 	  {
 // 	    "type": "",
@@ -301,8 +303,8 @@ func returnError(w http.ResponseWriter, err error, message string, code int) {
 	http.Error(w, text, code)
 }
 
+// nextRecords
 //
-
 // Params: dbPath
 // Return:
 // {
@@ -345,12 +347,15 @@ func nextRecords(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// prevRecords
+//
 // Params: dbPath
 // Return:
 // {
 //  "prevBucket": bool,
 //  "prevRecords": bool,
 //  "nextRecords": bool,
+//  "bucketsPath": string,
 // 	"records": [
 // 	  {
 // 	    "type": "",
@@ -380,6 +385,72 @@ func prevRecords(w http.ResponseWriter, r *http.Request) {
 			data.PrevRecords,
 			data.NextRecords,
 			data.Records,
+		}
+		json.NewEncoder(w).Encode(response)
+	} else {
+		returnError(w, nil, "Bad path of db "+dbPath, http.StatusBadRequest)
+	}
+}
+
+// search
+//
+// Params: dbPath, text, mode ("regex" or "plain")
+// Return:
+// {
+//  "prevBucket": bool,
+//  "prevRecords": bool,
+//  "nextRecords": bool,
+//  "bucketsPath": string,
+// 	"records": [
+// 	  {
+// 	    "type": "",
+// 		"key": "",
+// 		"value": ""
+// 	  },
+// 	]
+// }
+//
+func search(w http.ResponseWriter, r *http.Request) {
+	const (
+		regex = "regex"
+		plain = "plain"
+	)
+
+	r.ParseForm()
+	dbPath := r.Form.Get("dbPath")
+	text := r.Form.Get("text")
+	mode := r.Form.Get("mode")
+
+	if _, ok := allDB[dbPath]; ok {
+		var (
+			records []db.Record
+			path    string
+			err     error
+		)
+
+		if mode == regex {
+			records, path, err = allDB[dbPath].SearchRegexp(text)
+		} else if mode == plain {
+			records, path, err = allDB[dbPath].Search(text)
+		}
+
+		if err != nil {
+			returnError(w, err, "", http.StatusInternalServerError)
+			return
+		}
+
+		response := struct {
+			PrevBucket  bool        `json:"prevBucket"`
+			PrevRecords bool        `json:"prevRecords"`
+			NextRecords bool        `json:"nextRecords"`
+			Path        string      `json:"bucketsPath"`
+			Records     []db.Record `json:"records"`
+		}{
+			false,
+			false,
+			false,
+			path + " (Search \"" + text + "\")",
+			records,
 		}
 		json.NewEncoder(w).Encode(response)
 	} else {
