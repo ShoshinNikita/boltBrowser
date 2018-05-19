@@ -1,3 +1,4 @@
+// Constants
 const buttonTemplate = `<div>
 	<input type="button" class="db_button" value="{0}" onclick="ChooseDB('{1}')" title="Choose">
 	<i class="material-icons btn" style="float: right; margin-right: 1vw; font-size: 30px !important;" title="Close" onclick="CloseDB('{1}')">close<\/i>
@@ -38,10 +39,13 @@ const prevRecordersButtonTemplate = `<div>
 <span style="cursor: pointer;" onclick="PrevRecords();"><b>Previous page<\/b><\/span>
 <\/div>`
 
+
+// Global variables
 var currentDBPath = ""
 var currentData = null
 
 
+// Popup
 function ShowPopup(message) {
 	$("#popupMessage").html(message);	
 	$("#popup").addClass("popup_animation")
@@ -51,37 +55,8 @@ function HidePopup() {
 	$("#popup").removeClass("popup_animation")
 }
 
-function ShowTree(data) {
-	var result = ""
-	if (data.prevRecords) {
-		result += prevRecordersButtonTemplate
-	} else if (data.prevBucket) {
-		result = backButton;
-	}
 
-	var records = data.records;
-	currentData = records;
-	for (i in records) {
-		if (records[i].type == "bucket") {
-			result += bucketTemplate.format(records[i].key);
-		} else if (records[i].type == "record") {
-			var value = records[i].value;
-			if (value.length > 40) {
-				value = value.substring(0, 60);
-				value += "..."
-			}
-			result += recordTemplate.format(i, records[i].key, value);
-		}
-	}
-
-	if (data.nextRecords) {
-		result += nextRecordersButtonTemplate
-	}
-	$("#db_tree").html(result);
-
-	document.getElementById("db_tree_wrapper").scrollTop = 0;
-}
-
+// Modal
 function ShowModal() {
 	var paths = JSON.parse(localStorage.getItem("paths"))
 
@@ -112,6 +87,8 @@ function HideModal() {
 	$("#modal").css("display", "none")
 }
 
+
+// Local Storage
 function PrepareLS() {
 	if (localStorage.getItem("paths") === null) {
 		var paths = {}
@@ -132,6 +109,8 @@ function putIntoLS(dbPath) {
 	localStorage.setItem("paths", JSON.stringify(paths))
 }
 
+
+// API
 function OpenDB() {
 	var dbPath = $("#DBPath").val()
 	if (dbPath == "" ) {
@@ -309,11 +288,6 @@ function PrevRecords() {
 	})
 }
 
-function ShowFullRecord(number) {
-	var result = fullRecordTemplate.format(currentData[number].key, currentData[number].value)
-	$("#record_data").html(result)
-}
-
 function Search() {
 	var text = $("#searchText").val()
 	if (text == "") {
@@ -347,10 +321,48 @@ function Search() {
 	})
 }
 
+
+// Secondary functions
+function ShowFullRecord(number) {
+	var result = fullRecordTemplate.format(currentData[number].key, currentData[number].value)
+	$("#record_data").html(result)
+}
+
 window.onclick = function(event) {
     if (event.target == modal) {
         $("#modal").css("display", "none")
     }
+}
+
+function ShowTree(data) {
+	var result = ""
+	if (data.prevRecords) {
+		result += prevRecordersButtonTemplate
+	} else if (data.prevBucket) {
+		result = backButton;
+	}
+
+	var records = data.records;
+	currentData = records;
+	for (i in records) {
+		if (records[i].type == "bucket") {
+			result += bucketTemplate.format(records[i].key);
+		} else if (records[i].type == "record") {
+			var value = records[i].value;
+			if (value.length > 40) {
+				value = value.substring(0, 60);
+				value += "..."
+			}
+			result += recordTemplate.format(i, records[i].key, value);
+		}
+	}
+
+	if (data.nextRecords) {
+		result += nextRecordersButtonTemplate
+	}
+	$("#db_tree").html(result);
+
+	document.getElementById("db_tree_wrapper").scrollTop = 0;
 }
 
 String.prototype.format = function () {
