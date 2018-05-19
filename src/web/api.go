@@ -394,7 +394,7 @@ func prevRecords(w http.ResponseWriter, r *http.Request) {
 
 // search
 //
-// Params: dbPath, needle
+// Params: dbPath, text, mode ("regex" or "plain")
 // Return:
 // {
 //  "prevBucket": bool,
@@ -411,12 +411,29 @@ func prevRecords(w http.ResponseWriter, r *http.Request) {
 // }
 //
 func search(w http.ResponseWriter, r *http.Request) {
+	const (
+		regex = "regex"
+		plain = "plain"
+	)
+
 	r.ParseForm()
 	dbPath := r.Form.Get("dbPath")
-	needle := r.Form.Get("needle")
+	text := r.Form.Get("text")
+	mode := r.Form.Get("mode")
 
 	if _, ok := allDB[dbPath]; ok {
-		records, path, err := allDB[dbPath].Search(needle)
+		var (
+			records []db.Record
+			path    string
+			err     error
+		)
+
+		if mode == regex {
+			records, path, err = allDB[dbPath].SearchRegexp(text)
+		} else if mode == plain {
+			records, path, err = allDB[dbPath].Search(text)
+		}
+
 		if err != nil {
 			returnError(w, err, "", http.StatusInternalServerError)
 			return
@@ -432,56 +449,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 			false,
 			false,
 			false,
-			path + " (Search \"" + needle + "\")",
-			records,
-		}
-		json.NewEncoder(w).Encode(response)
-	} else {
-		returnError(w, nil, "Bad path of db "+dbPath, http.StatusBadRequest)
-	}
-}
-
-// searchRegex
-//
-// Params: dbPath, expr
-// Return:
-// {
-//  "prevBucket": bool,
-//  "prevRecords": bool,
-//  "nextRecords": bool,
-//  "bucketsPath": string,
-// 	"records": [
-// 	  {
-// 	    "type": "",
-// 		"key": "",
-// 		"value": ""
-// 	  },
-// 	]
-// }
-//
-func searchRegex(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	dbPath := r.Form.Get("dbPath")
-	expr := r.Form.Get("expr")
-
-	if _, ok := allDB[dbPath]; ok {
-		records, path, err := allDB[dbPath].SearchRegexp(expr)
-		if err != nil {
-			returnError(w, err, "", http.StatusInternalServerError)
-			return
-		}
-
-		response := struct {
-			PrevBucket  bool        `json:"prevBucket"`
-			PrevRecords bool        `json:"prevRecords"`
-			NextRecords bool        `json:"nextRecords"`
-			Path        string      `json:"bucketsPath"`
-			Records     []db.Record `json:"records"`
-		}{
-			false,
-			false,
-			false,
-			path + " (Search \"" + expr + "\")",
+			path + " (Search \"" + text + "\")",
 			records,
 		}
 		json.NewEncoder(w).Encode(response)

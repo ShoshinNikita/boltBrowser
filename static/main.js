@@ -262,51 +262,35 @@ function ShowFullRecord(number) {
 
 function Search() {
 	var text = $("#searchText").val()
-
 	if (text == "") {
 		ShowPopup("Error: empty input")
 		return
 	}
 
+	var mode = "plain"
 	if ($("#regexMode").prop("checked")) {
-		$.ajax({
-			url: "/api/searchRegex",
-			type: "GET",
-			data: {
-				"dbPath": currentDBPath,
-				"expr": text,
-			},
-			success: function(result){
-				result = JSON.parse(result)
-				$("#record_data").html("")
-				$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
-
-				ShowTree(result)
-			},
-			error: function(result) {
-				ShowPopup(result.responseText)
-			}
-		})
-	} else {
-		$.ajax({
-			url: "/api/search",
-			type: "GET",
-			data: {
-				"dbPath": currentDBPath,
-				"needle": text,
-			},
-			success: function(result){
-				result = JSON.parse(result)
-				$("#record_data").html("")
-				$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
-
-				ShowTree(result)
-			},
-			error: function(result) {
-				ShowPopup(result.responseText)
-			}
-		})
+		mode = "regex"
 	}
+	
+	$.ajax({
+		url: "/api/search",
+		type: "GET",
+		data: {
+			"dbPath": currentDBPath,
+			"text": text,
+			"mode": mode
+		},
+		success: function(result){
+			result = JSON.parse(result)
+			$("#record_data").html("")
+			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
+
+			ShowTree(result)
+		},
+		error: function(result) {
+			ShowPopup(result.responseText)
+		}
+	})
 }
 
 
