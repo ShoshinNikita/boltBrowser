@@ -25,6 +25,11 @@ func main() {
 	flag.IntVar(&flags.offset, "offset", 100, "number of records on single page")
 	flag.Parse()
 
+	// Checking of ':' before port
+	if flags.port[0] != ':' {
+		flags.port = ":" + flags.port
+	}
+
 	fmt.Printf("[INFO] Start, port - %s, debug mode - %t, offset - %d\n", flags.port, flags.debug, flags.offset)
 
 	stopSite := make(chan struct{})
