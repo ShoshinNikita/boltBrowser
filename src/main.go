@@ -31,7 +31,7 @@ func main() {
 	stop := make(chan os.Signal, 1)
 
 	db.SetOffset(flags.offset)
-	web.Initialize()
+
 	go web.Start(flags.port, flags.debug, stopSite)
 
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
