@@ -42,10 +42,6 @@ var currentDBPath = ""
 var currentData = null
 
 
-function getError(result) {
-	return errorMessageTemplate.format(result.status, result.responseText);
-}
-
 function ShowPopup(message) {
 	$("#popupMessage").html(message);	
 	$("#popup").addClass("popup_animation")
@@ -86,8 +82,64 @@ function ShowTree(data) {
 	document.getElementById("db_tree_wrapper").scrollTop = 0;
 }
 
+function ShowModal() {
+	var paths = JSON.parse(localStorage.getItem("paths"))
+
+	// Sorting. Return only keys
+	var sortedPaths = Object.keys(paths).sort(function(a, b){
+		if (paths[a].uses < paths[b].uses) {
+			return 1;
+		}
+		if (paths[a].uses > paths[b].uses) {
+			return -1;
+		}
+		return 0;
+	});
+
+	const template = `<option value="{0}">`
+
+	var options = ""
+	for (var i = 0; i < sortedPaths.length && i < 5; i++) {
+		options += template.format(sortedPaths[i])
+	}
+
+	$("#paths").html(options)
+	$("#modal").css("display", "block")
+	$("#DBPath").focus()
+}
+
+function HideModal() {
+	$("#modal").css("display", "none")
+}
+
+function PrepareLS() {
+	if (localStorage.getItem("paths") === null) {
+		var paths = {}
+		localStorage.setItem("paths", JSON.stringify(paths))
+	}
+}
+
+function putIntoLS(dbPath) {
+	var paths = JSON.parse(localStorage.getItem("paths"))
+	if (paths[dbPath] == null) {
+		paths[dbPath] = {
+			"uses": 1
+		}
+	} else {
+		paths[dbPath].uses += 1
+	}
+
+	localStorage.setItem("paths", JSON.stringify(paths))
+}
+
 function OpenDB() {
-	var dbPath = prompt("Please, enter the path to the database")
+	var dbPath = $("#DBPath").val()
+	if (dbPath == "" ) {
+		ShowPopup("Error: path is empty")
+		return
+	}
+
+	$("#DBPath").val("")
 	$.ajax({
 		url: "/api/databases",
 		type: "POST",
@@ -95,12 +147,14 @@ function OpenDB() {
 			"dbPath": dbPath
 		},
 		success: function(result){
+			putIntoLS(dbPath)
 			ShowDBList()
 		},
 		error: function(result) {
 			ShowPopup(result.responseText)
 		}
 	})
+	
 }
 
 function CloseDB(dbPath) {
@@ -293,6 +347,11 @@ function Search() {
 	})
 }
 
+window.onclick = function(event) {
+    if (event.target == modal) {
+        $("#modal").css("display", "none")
+    }
+}
 
 String.prototype.format = function () {
 	var a = this;

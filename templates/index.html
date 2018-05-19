@@ -12,12 +12,12 @@
 	<!-- Icons -->
 	<link rel="stylesheet" type="text/css" media="screen" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
-<body onload="ShowDBList();">
+<body onload="ShowDBList(); PrepareLS();">
 	<!-- List of dbs -->
 	<div class="db_list">
 		<div style="font-size: 25px; text-align: center; margin: auto; position: relative; border-bottom: 1px solid black;">
 				Databases
-			<i class="material-icons btn icon" style="font-size: 30px !important; position: absolute; top: 0px; right: 1vw;" onclick="OpenDB();" title="Open new db">add</i>
+			<i class="material-icons btn icon" style="font-size: 30px !important; position: absolute; top: 0px; right: 1vw;" onclick="ShowModal();" title="Open new db">add</i>
 		</div>
 		<br>
 		<div id="list" style="overflow-y: auto;"></div>
@@ -66,6 +66,14 @@
 
 	<div class="popup" id="popup" onclick="HidePopup();">
 		<div style="padding: 5px 5px 5px 5px;" id="popupMessage"></div>
+	</div>
+
+	<div id="modal" class="modal">
+		<div class="modal-content">
+			<input list="paths" id="DBPath" style="width: 85%;" autofocus>
+			<datalist id="paths"></datalist>
+			<input type="button" value="Open" style="border-radius: 3px; border: 2px solid #888; background-color: white;" onclick="OpenDB(); HideModal();">
+		</div>
 	</div>
 </body>
 </html>
