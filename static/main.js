@@ -1,3 +1,4 @@
+// Constants
 const buttonTemplate = `<div>
 	<input type="button" class="db_button" value="{0}" onclick="ChooseDB('{1}')" title="Choose">
 	<i class="material-icons btn" style="float: right; margin-right: 1vw; font-size: 30px !important;" title="Close" onclick="CloseDB('{1}')">close<\/i>
@@ -12,11 +13,11 @@ const recordTemplate = `<div>
 
 const bucketTemplate = `<div>
 	<i class="material-icons" icon>folder<\/i>
-	<span class="bucket" onclick="Next(currentDBPath, '{0}');"><b>{0}<\/b><\/span>
+	<span class="bucket" onclick="Next('{0}');"><b>{0}<\/b><\/span>
 <\/div>`
 
 const backButton = `<div>
-	<i class="material-icons btn" icon onclick="Back(currentDBPath);" title="Back">more_horiz<\/i>
+	<i class="material-icons btn" icon onclick="Back();" title="Back">more_horiz<\/i>
 <\/div>`
 
 const fullRecordTemplate = `<div>
@@ -30,20 +31,307 @@ const fullRecordTemplate = `<div>
 
 const nextRecordersButtonTemplate = `<div>
 <i class="material-icons" icon>arrow_forward_ios<\/i>
-<span style="cursor: pointer;" onclick="NextRecords(currentDBPath);"><b>Next page<\/b><\/span>
+<span style="cursor: pointer;" onclick="NextRecords();"><b>Next page<\/b><\/span>
 <\/div>`
 
 const prevRecordersButtonTemplate = `<div>
 <i class="material-icons" icon>arrow_back_ios<\/i>
-<span style="cursor: pointer;" onclick="PrevRecords(currentDBPath);"><b>Previous page<\/b><\/span>
+<span style="cursor: pointer;" onclick="PrevRecords();"><b>Previous page<\/b><\/span>
 <\/div>`
 
+
+// Global variables
 var currentDBPath = ""
 var currentData = null
 
 
-function getError(result) {
-	return errorMessageTemplate.format(result.status, result.responseText);
+// Popup
+function ShowPopup(message) {
+	$("#popupMessage").html(message);	
+	$("#popup").addClass("popup_animation")
+}
+
+function HidePopup() {
+	$("#popup").removeClass("popup_animation")
+}
+
+
+// Modal
+function ShowModal() {
+	var paths = JSON.parse(localStorage.getItem("paths"))
+
+	// Sorting. Return only keys
+	var sortedPaths = Object.keys(paths).sort(function(a, b){
+		if (paths[a].uses < paths[b].uses) {
+			return 1;
+		}
+		if (paths[a].uses > paths[b].uses) {
+			return -1;
+		}
+		return 0;
+	});
+
+	const template = `<option value="{0}">`
+
+	var options = ""
+	for (var i = 0; i < sortedPaths.length && i < 5; i++) {
+		options += template.format(sortedPaths[i])
+	}
+
+	$("#paths").html(options)
+	$("#modal").css("display", "block")
+	$("#DBPath").focus()
+}
+
+function HideModal() {
+	$("#modal").css("display", "none")
+}
+
+
+// Local Storage
+function PrepareLS() {
+	if (localStorage.getItem("paths") === null) {
+		var paths = {}
+		localStorage.setItem("paths", JSON.stringify(paths))
+	}
+}
+
+function putIntoLS(dbPath) {
+	var paths = JSON.parse(localStorage.getItem("paths"))
+	if (paths[dbPath] == null) {
+		paths[dbPath] = {
+			"uses": 1
+		}
+	} else {
+		paths[dbPath].uses += 1
+	}
+
+	localStorage.setItem("paths", JSON.stringify(paths))
+}
+
+
+// API
+function OpenDB() {
+	var dbPath = $("#DBPath").val()
+	if (dbPath == "" ) {
+		ShowPopup("Error: path is empty")
+		return
+	}
+
+	$("#DBPath").val("")
+	$.ajax({
+		url: "/api/databases",
+		type: "POST",
+		data: {
+			"dbPath": dbPath
+		},
+		success: function(result){
+			putIntoLS(dbPath)
+			ShowDBList()
+		},
+		error: function(result) {
+			ShowPopup(result.responseText)
+		}
+	})
+	
+}
+
+function CloseDB(dbPath) {
+	$.ajax({
+		url: "/api/closeDB",
+		type: "POST",
+		data: {
+			"dbPath": dbPath,
+		},
+		success: function(result){
+			if (dbPath == currentDBPath) {
+				$("#dbName").html("<i>Name:<\/i> ?")
+				$("#dbPath").html("<i>Path:<\/i> ?")
+				$("#dbSize").html("<i>Size:<\/i> ?")
+				$("#db_tree").html("")
+				$("#currentPath").html("")
+				$("#record_data").html("")
+				$("#searchBox").css("visibility", "hidden")
+				currentDBPath = ""
+			}
+			ShowDBList()
+		},
+		error: function(result) {
+			ShowPopup(result.responseText)
+		}
+	})
+}
+
+function ShowDBList() {
+	$.ajax({
+		url: "/api/databases",
+		type: "GET",
+		success: function(result){
+			allDB = JSON.parse(result)
+			var result = ""
+			for (i in allDB) {
+				result += buttonTemplate.format(allDB[i].name, allDB[i].dbPath)
+			}
+			$("#list").html(result)
+		},
+		error: function(result) {
+			ShowPopup(result.responseText)
+		}
+	})
+}
+
+function ChooseDB(dbPath) {
+	currentDBPath = dbPath
+	$.ajax({
+		url: "/api/current",
+		type: "GET",
+		data: {
+			"dbPath": dbPath,
+		},
+		success: function(result){
+			result = JSON.parse(result)
+			var path = result.db.dbPath
+			if (path.length > 40) {
+				path = path.substring(0, 20) + "..." + path.substring(path.length - 20, path.length)
+			}
+
+			$("#dbName").html("<i>Name:<\/i> " + result.db.name)
+			$("#dbPath").html("<i>Path:<\/i> " + path)
+			$('#dbPath').prop("title", result.db.dbPath);
+			$("#dbSize").html("<i>Size:<\/i> " + result.db.size / 1024 + " Kb")
+			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
+			$("#record_data").html("")
+			$("#searchBox").css("visibility", "visible")
+		
+			ShowTree(result)
+		},
+		error: function(result) {
+			ShowPopup(result.responseText)
+		}
+	})
+}
+
+function Next(bucket) {
+	$.ajax({
+		url: "/api/next",
+		type: "GET",
+		data: {
+			"dbPath": currentDBPath,
+			"bucket": bucket
+		},
+		success: function(result){
+			result = JSON.parse(result)
+			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
+			$("#record_data").html("")
+			ShowTree(result)
+		},
+		error: function(result) {
+			ShowPopup(result.responseText)
+		}
+	})
+}
+
+function Back() {
+	$.ajax({
+		url: "/api/back",
+		type: "GET",
+		data: {
+			"dbPath": currentDBPath,
+		},
+		success: function(result){
+			result = JSON.parse(result)
+			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
+			$("#record_data").html("")
+			ShowTree(result)
+		},
+		error: function(result) {
+			ShowPopup(result.responseText)
+		}
+	})
+}
+
+function NextRecords() {
+	$.ajax({
+		url: "/api/nextRecords",
+		type: "GET",
+		data: {
+			"dbPath": currentDBPath,
+		},
+		success: function(result){
+			result = JSON.parse(result)
+			$("#record_data").html("")
+
+			ShowTree(result)
+		},
+		error: function(result) {
+			ShowPopup(result.responseText)
+		}
+	})
+}
+
+function PrevRecords() {
+	$.ajax({
+		url: "/api/prevRecords",
+		type: "GET",
+		data: {
+			"dbPath": currentDBPath,
+		},
+		success: function(result){
+			result = JSON.parse(result)
+			$("#record_data").html("")
+
+			ShowTree(result)
+		},
+		error: function(result) {
+			ShowPopup(result.responseText)
+		}
+	})
+}
+
+function Search() {
+	var text = $("#searchText").val()
+	if (text == "") {
+		ShowPopup("Error: empty input")
+		return
+	}
+
+	var mode = "plain"
+	if ($("#regexMode").prop("checked")) {
+		mode = "regex"
+	}
+	
+	$.ajax({
+		url: "/api/search",
+		type: "GET",
+		data: {
+			"dbPath": currentDBPath,
+			"text": text,
+			"mode": mode
+		},
+		success: function(result){
+			result = JSON.parse(result)
+			$("#record_data").html("")
+			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
+
+			ShowTree(result)
+		},
+		error: function(result) {
+			ShowPopup(result.responseText)
+		}
+	})
+}
+
+
+// Secondary functions
+function ShowFullRecord(number) {
+	var result = fullRecordTemplate.format(currentData[number].key, currentData[number].value)
+	$("#record_data").html(result)
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        $("#modal").css("display", "none")
+    }
 }
 
 function ShowTree(data) {
@@ -76,176 +364,6 @@ function ShowTree(data) {
 
 	document.getElementById("db_tree_wrapper").scrollTop = 0;
 }
-
-function OpenDB() {
-	var dbPath = prompt("Please, enter the path to the database")
-	$.ajax({
-		url: "/api/databases",
-		type: "POST",
-		data: {
-			"dbPath": dbPath
-		},
-		success: function(result){
-			ShowDBList()
-		},
-		error: function(result) {
-			ShowPopup(result.responseText)
-		}
-	})
-}
-
-function CloseDB(dbPath) {
-	$.ajax({
-		url: "/api/closeDB",
-		type: "POST",
-		data: {
-			"dbPath": dbPath,
-		},
-		success: function(result){
-			if (dbPath == currentDBPath) {
-				$("#dbName").html("<i>Name:<\/i> ?")
-				$("#dbPath").html("<i>Path:<\/i> ?")
-				$("#dbSize").html("<i>Size:<\/i> ?")
-				$("#db_tree").html("")
-				$("#currentPath").html("")
-				$("#record_data").html("")
-				currentDBPath = ""
-			}
-			ShowDBList()
-		},
-		error: function(result) {
-			ShowPopup(result.responseText)
-		}
-	})
-}
-
-function ShowDBList() {
-	$.ajax({
-		url: "/api/databases",
-		type: "GET",
-		success: function(result){
-			allDB = JSON.parse(result)
-			console.log(allDB)
-			var result = ""
-			for (i in allDB) {
-				result += buttonTemplate.format(allDB[i].name, allDB[i].dbPath)
-			}
-			$("#list").html(result)
-		},
-		error: function(result) {
-			ShowPopup(result.responseText)
-		}
-	})
-}
-
-function ChooseDB(dbPath) {
-	currentDBPath = dbPath
-	$.ajax({
-		url: "/api/current",
-		type: "GET",
-		data: {
-			"dbPath": dbPath,
-		},
-		success: function(result){
-			result = JSON.parse(result)
-			$("#dbName").html("<i>Name:<\/i> " + result.db.name)
-			$("#dbPath").html("<i>Path:<\/i> " + result.db.dbPath)
-			$("#dbSize").html("<i>Size:<\/i> " + result.db.size / 1024 + " Kb")
-			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
-			$("#record_data").html("")
-			ShowTree(result)
-		},
-		error: function(result) {
-			ShowPopup(result.responseText)
-		}
-	})
-}
-
-function Next(dbPath, bucket) {
-	$.ajax({
-		url: "/api/next",
-		type: "GET",
-		data: {
-			"dbPath": dbPath,
-			"bucket": bucket
-		},
-		success: function(result){
-			result = JSON.parse(result)
-			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
-			$("#record_data").html("")
-			ShowTree(result)
-		},
-		error: function(result) {
-			ShowPopup(result.responseText)
-		}
-	})
-}
-
-function Back(dbPath) {
-	$.ajax({
-		url: "/api/back",
-		type: "GET",
-		data: {
-			"dbPath": dbPath,
-		},
-		success: function(result){
-			result = JSON.parse(result)
-			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ")
-			$("#record_data").html("")
-			ShowTree(result)
-		},
-		error: function(result) {
-			ShowPopup(result.responseText)
-		}
-	})
-}
-
-function NextRecords(dbPath) {
-	console.log("nextRecords")
-	$.ajax({
-		url: "/api/nextRecords",
-		type: "GET",
-		data: {
-			"dbPath": dbPath,
-		},
-		success: function(result){
-			result = JSON.parse(result)
-			$("#record_data").html("")
-
-			ShowTree(result)
-		},
-		error: function(result) {
-			ShowPopup(result.responseText)
-		}
-	})
-}
-
-function PrevRecords(dbPath) {
-	console.log("prevRecords")
-	$.ajax({
-		url: "/api/prevRecords",
-		type: "GET",
-		data: {
-			"dbPath": dbPath,
-		},
-		success: function(result){
-			result = JSON.parse(result)
-			$("#record_data").html("")
-
-			ShowTree(result)
-		},
-		error: function(result) {
-			ShowPopup(result.responseText)
-		}
-	})
-}
-
-function ShowFullRecord(number) {
-	console.log(currentData[number])
-	var result = fullRecordTemplate.format(currentData[number].key, currentData[number].value)
-	$("#record_data").html(result)
-}
-
 
 String.prototype.format = function () {
 	var a = this;

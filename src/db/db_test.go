@@ -1,7 +1,8 @@
-package db
+package db_test
 
 import (
 	"testing"
+	. "db"
 )
 
 // Test db in testdata/test.db
@@ -37,12 +38,12 @@ func equal(want, got []Record) bool {
 
 // return Record{T: "bucket"}
 func bckt(key string) Record {
-	return Record{T: bucketTemplate, Key: key, Value: ""}
+	return Record{T: BucketTemplate, Key: key, Value: ""}
 }
 
 // return Record{T: "record"}
 func rcrd(key, value string) Record {
-	return Record{T: recordTemplate, Key: key, Value: value}
+	return Record{T: RecordTemplate, Key: key, Value: value}
 }
 
 func TestSortRecords(t *testing.T) {
@@ -51,25 +52,25 @@ func TestSortRecords(t *testing.T) {
 		result []Record
 	}{
 		{
-			[]Record{Record{Key: "a", T: recordTemplate}, Record{Key: "b", T: bucketTemplate}},
-			[]Record{Record{Key: "b", T: bucketTemplate}, Record{Key: "a", T: recordTemplate}},
+			[]Record{Record{Key: "a", T: RecordTemplate}, Record{Key: "b", T: BucketTemplate}},
+			[]Record{Record{Key: "b", T: BucketTemplate}, Record{Key: "a", T: RecordTemplate}},
 		},
 		{
-			[]Record{Record{Key: "abc", T: bucketTemplate}, Record{Key: "acd", T: bucketTemplate}},
-			[]Record{Record{Key: "abc", T: bucketTemplate}, Record{Key: "acd", T: bucketTemplate}},
+			[]Record{Record{Key: "abc", T: BucketTemplate}, Record{Key: "acd", T: BucketTemplate}},
+			[]Record{Record{Key: "abc", T: BucketTemplate}, Record{Key: "acd", T: BucketTemplate}},
 		},
 		{
-			[]Record{Record{Key: "abc", T: recordTemplate}, Record{Key: "acd", T: bucketTemplate}, Record{Key: "hello", T: bucketTemplate}},
-			[]Record{Record{Key: "acd", T: bucketTemplate}, Record{Key: "hello", T: bucketTemplate}, Record{Key: "abc", T: recordTemplate}},
+			[]Record{Record{Key: "abc", T: RecordTemplate}, Record{Key: "acd", T: BucketTemplate}, Record{Key: "hello", T: BucketTemplate}},
+			[]Record{Record{Key: "acd", T: BucketTemplate}, Record{Key: "hello", T: BucketTemplate}, Record{Key: "abc", T: RecordTemplate}},
 		},
 		{
-			[]Record{Record{Key: "abc", T: recordTemplate}, Record{Key: "t", T: recordTemplate}, Record{Key: "acd", T: bucketTemplate}, Record{Key: "hello", T: bucketTemplate}},
-			[]Record{Record{Key: "acd", T: bucketTemplate}, Record{Key: "hello", T: bucketTemplate}, Record{Key: "abc", T: recordTemplate}, Record{Key: "t", T: recordTemplate}},
+			[]Record{Record{Key: "abc", T: RecordTemplate}, Record{Key: "t", T: RecordTemplate}, Record{Key: "acd", T: BucketTemplate}, Record{Key: "hello", T: BucketTemplate}},
+			[]Record{Record{Key: "acd", T: BucketTemplate}, Record{Key: "hello", T: BucketTemplate}, Record{Key: "abc", T: RecordTemplate}, Record{Key: "t", T: RecordTemplate}},
 		},
 	}
 
 	for i, test := range tests {
-		sortRecords(test.slice)
+		SortRecords(test.slice)
 		for j := range test.slice {
 			if test.slice[j] != test.result[j] {
 				t.Errorf("Test #%d Want: %v Got: %v", i, test.result, test.slice)
@@ -86,8 +87,8 @@ func TestOpen(t *testing.T) {
 		t.Error(err)
 	}
 	// Check opened db
-	if len(testDB.currentBucket) != 0 {
-		t.Errorf("Wrong currentBucket Want: 0 Got: %d", len(testDB.currentBucket))
+	if len(testDB.GetCurrentBucket()) != 0 {
+		t.Errorf("Wrong currentBucket Want: 0 Got: %d", len(testDB.GetCurrentBucket()))
 	}
 	if testDB.Name != "test.db" {
 		t.Errorf("Wrong Name Want: test.db Got: %s", testDB.Name)
@@ -111,9 +112,9 @@ func TestGetRoot(t *testing.T) {
 		offset int
 		answer []Record
 	}{
-		{100, []Record{Record{T: bucketTemplate, Key: "anotherUsers", Value: ""}, Record{T: bucketTemplate, Key: "user", Value: ""}}},
-		{2, []Record{Record{T: bucketTemplate, Key: "anotherUsers", Value: ""}, Record{T: bucketTemplate, Key: "user", Value: ""}}},
-		{1, []Record{Record{T: bucketTemplate, Key: "anotherUsers", Value: ""}}},
+		{100, []Record{Record{T: BucketTemplate, Key: "anotherUsers", Value: ""}, Record{T: BucketTemplate, Key: "user", Value: ""}}},
+		{2, []Record{Record{T: BucketTemplate, Key: "anotherUsers", Value: ""}, Record{T: BucketTemplate, Key: "user", Value: ""}}},
+		{1, []Record{Record{T: BucketTemplate, Key: "anotherUsers", Value: ""}}},
 	}
 
 	testDB, err := Open("testdata/test.db")
@@ -178,7 +179,7 @@ func TestNext(t *testing.T) {
 			}
 		}
 
-		testDB.clearPath()
+		testDB.ClearPath()
 	}
 
 }
@@ -225,7 +226,7 @@ func TestBack(t *testing.T) {
 			}
 		}
 
-		testDB.clearPath()
+		testDB.ClearPath()
 	}
 
 }
@@ -265,7 +266,7 @@ func TestGetCurrent(t *testing.T) {
 			t.Errorf("Test #%d Not equal. Want: %v Got: %v", i, test.answer, data.Records)
 		}
 
-		testDB.clearPath()
+		testDB.ClearPath()
 	}
 
 }
@@ -310,7 +311,7 @@ func TestNextRecords(t *testing.T) {
 			t.Errorf("Test #%d Not equal. Want: %v Got: %v", i, test.answer, data.Records)
 		}
 
-		testDB.clearPath()
+		testDB.ClearPath()
 	}
 }
 
@@ -359,6 +360,6 @@ func TestPrevRecords(t *testing.T) {
 			t.Errorf("Test #%d Not equal. Want: %v Got: %v", i, test.answer, data.Records)
 		}
 
-		testDB.clearPath()
+		testDB.ClearPath()
 	}
 }
