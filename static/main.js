@@ -171,6 +171,10 @@ function ShowDBList() {
 }
 
 function ChooseDB(dbPath) {
+	if (currentDBPath == dbPath) {
+		return;
+	}
+
 	currentDBPath = dbPath;
 	$.ajax({
 		url: "/api/current",
