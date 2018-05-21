@@ -331,6 +331,9 @@ function ShowFullRecord(number) {
 window.onclick = function(event) {
     if (event.target == modal) {
         $("#modal").css("display", "none")
+	}
+	if (event.target == dbListBackground) {
+		$("#dbListBackground").css("display", "none")
     }
 }
 
@@ -371,4 +374,10 @@ String.prototype.format = function () {
 		a = a.replace(new RegExp("\\{" + k + "\\}", 'g'), arguments[k]);
 	}
 	return a;
+}
+
+
+function ShowDBsList() {
+	$("#dbListBackground").css("display", "block")
+	$("#dbList").addClass("db_animation")
 }

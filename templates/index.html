@@ -12,17 +12,34 @@
 	<!-- Icons -->
 	<link rel="stylesheet" type="text/css" media="screen" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
-<body onload="ShowDBList(); PrepareLS();">
-	<!-- List of dbs -->
-	<div class="db_list">
-		<div style="font-size: 25px; text-align: center; margin: auto; position: relative; border-bottom: 1px solid black;">
-				Databases
-			<i class="material-icons btn icon" style="font-size: 30px !important; position: absolute; top: 0px; right: 1vw;" onclick="ShowModal();" title="Open new db">add</i>
+<body onload="ShowDBList(); PrepareLS();" style="margin: 0px 0px 0px 0px;">
+	<!-- Menu -->
+	<div class="menu" id="menu">	
+		<div style="float: left; margin: 2px 0px 0px 2px;">
+			<i class="material-icons" style="font-size: 30px !important; cursor: pointer;" onclick="ShowDBsList();">list</i>
 		</div>
-		<br>
-		<div id="list" style="overflow-y: auto;"></div>
+		<div style="padding-top: 5px; display:inline-flex;">
+				boltBrowser v1.2
+		</div>
+		<div style="float: right; margin: 2px 2px 0px 0px;">
+			<a href="https://github.com/ShoshinNikita/boltbrowser/issues" target="_blank" style="color: black;">
+				<i class="material-icons" style="font-size: 30px !important;" title="Leave feedback">feedback</i>
+			</a>
+		</div>
 	</div>
-	
+
+	<!-- List of dbs -->
+	<div class="background" id="dbListBackground">
+		<div class="db_list" id="dbList">
+			<div style="font-size: 25px; text-align: center; margin: auto; position: relative; border-bottom: 1px solid black;">
+					Databases
+				<i class="material-icons btn icon" style="font-size: 30px !important; position: absolute; top: 0px; right: 1vw;" onclick="ShowModal();" title="Open new db">add</i>
+			</div>
+			<br>
+			<div id="list" style="overflow-y: auto;"></div>
+		</div>
+	</div>
+
 	<div class="db">
 		<div class="db_info">
 			<div style="margin: 0px 5px 5px 5px;">
@@ -47,7 +64,7 @@
 				</div>
 			</div>
 		</div>
-		
+	
 		<!-- Path to the current bucket -->
 		<div style="height: 3vh;">
 			<i><div id="currentPath" style="margin: 1px 5px 1px 5px;"></div></i>
