@@ -1,3 +1,4 @@
+/* Common */
 html * {
 	font-family: Arial;
 }
@@ -11,7 +12,40 @@ input[type=button] {
 	font-size: 30px !important;
 }
 
+
+/* Main classes */
+.menu {
+	top: 0px;
+	left: 0px;
+	height: 35px;
+	width: 100%;
+	font-size: 20px;
+	background-color: rgba(180, 180, 180, 0.493);
+	text-align: center;
+}
+
+/* The list of dbs */
+.db_list {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	height: 100vh;
+	width: 300px;
+	z-index: 1;
+	background-color: white;
+}
+.db_list_animation {
+	animation-name: openDB;
+	animation-iteration-count: 1;
+	animation-duration: 0.5s;
+}
+@keyframes openDB {
+	0% {margin-left: -300px;}
+	100% {margin-left: 0px;}
+}
+
 .db_button {
+	margin-bottom: 15px;
 	background-color: white;
 	border-radius: 4px;
     color: black;
@@ -23,28 +57,25 @@ input[type=button] {
 	font-size: 20px;
 	margin-left: 1vw;
 }
+
+/* Consist info about the current db and records */
 .db {
-	
 	height: 95vh;
 	width: 96%;
 	margin: auto;
 }
 .db_info {
-	border-bottom: 1px solid black;
 	font-size: 25px;
 	height: 10vh;
 }
-.db_tree {
-	margin-left: 1vw;
-	width: 32vw;
-	float: left;
-}
 .record_data {
-	border-left: 1px solid black;
 	float: right;
-	width: 35vw;
-	height: 81vh;
+	width: 40%;
+	height: 100%;
+	padding: 10px 10px 10px 10px;
 	overflow-y: auto;
+
+    background-color: white;/* Black w/ opacity */
 }
 .record {
 	cursor: help;
@@ -61,8 +92,8 @@ input[type=button] {
 	left: 0.5vw;
 	width: 300px;
 	height: 100px;
+	z-index: 2;
 	visibility: hidden;
-
 	cursor: pointer;
 	background-color: white;
 	border: 1px solid black;
@@ -88,12 +119,23 @@ input[type=button] {
     background: #f1f1f1; 
 }
 ::-webkit-scrollbar-thumb {
-    background: #888; 
+    background: rgba(180, 180, 180, 0.493); 
 }
 ::-webkit-scrollbar-thumb:hover {
-    background:#555; 
+    background: #888; 
 }
 
+
+/* Modal Box */
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+	padding: 20px;
+	text-align: center;
+	border: 1px solid #888;
+	border-radius: 5px;
+    width: 40vw;
+}
 .background {
 	display: none; /* Hidden by default */
     position: fixed;
@@ -105,57 +147,4 @@ input[type=button] {
     height: 100%;
     background-color: rgb(0,0,0); /* Fallback color */
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
-
-/* Modal Box */
-/* background */
-.modal {
-    display: none; /* Hidden by default */
-    position: fixed;
-    z-index: 1;
-    padding-top: 5vh;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
-.modal-content {
-    background-color: #fefefe;
-    margin: auto;
-	padding: 20px;
-	text-align: center;
-	border: 1px solid #888;
-	border-radius: 5px;
-    width: 40vw;
-}
-
-
-.menu {
-	top: 0px;
-	left: 0px;
-	height: 35px;
-	width: 100%;
-	font-size: 20px;
-	background-color: rgba(180, 180, 180, 0.63);
-	text-align: center;
-}
-.db_list {
-	position: fixed;
-	top: 0px;
-	left: 0px;
-	height: 100vh;
-	width: 300px;
-	z-index: 1;
-	background-color: white;
-}
-.db_animation {
-	animation-name: openDB;
-	animation-iteration-count: 1;
-	animation-duration: 0.5s;
-}
-@keyframes openDB {
-	0% {margin-left: -300px;}
-	100% {margin-left: 0px;}
 }
