@@ -12,18 +12,37 @@
 	<!-- Icons -->
 	<link rel="stylesheet" type="text/css" media="screen" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
-<body onload="ShowDBList(); PrepareLS();">
-	<!-- List of dbs -->
-	<div class="db_list">
-		<div style="font-size: 25px; text-align: center; margin: auto; position: relative; border-bottom: 1px solid black;">
-				Databases
-			<i class="material-icons btn icon" style="font-size: 30px !important; position: absolute; top: 0px; right: 1vw;" onclick="ShowModal();" title="Open new db">add</i>
+<body onload="ShowDBList(); PrepareLS();" style="margin: 0px 0px 0px 0px; overflow-y: hidden;">
+	<!-- Menu -->
+	<div class="menu" id="menu">	
+		<div style="float: left; margin: 2px 0px 0px 2px;">
+			<i class="material-icons icon btn" onclick="ShowDBsList();">list</i>
 		</div>
-		<br>
-		<div id="list" style="overflow-y: auto;"></div>
+		<div style="padding-top: 5px; display:inline-flex;">
+				<a href="https://github.com/ShoshinNikita/boltbrowser" target="_blank" style="color: black; text-decoration: none;" title="Page on GitHub">boltBrowser</a>
+		</div>
+		<div style="float: right; margin: 2px 2px 0px 0px;">
+			<a href="https://github.com/ShoshinNikita/boltbrowser/issues" target="_blank" style="color: black;">
+				<i class="material-icons icon" title="Leave feedback">feedback</i>
+			</a>
+		</div>
 	</div>
-	
+
+	<!-- List of dbs -->
+	<div class="background" id="dbListBackground">
+		<div class="db_list" id="dbList">
+			<div style="font-size: 25px; text-align: center; border-bottom: 1px solid black; margin-top: 5px;">
+				Databases
+				<i class="material-icons btn icon" style="float: right; margin-right: 1vw;" onclick="ShowModal();" title="Open new db">add</i>
+			</div>
+			<br>
+			<div id="list" style="overflow-y: auto;"></div>
+		</div>
+	</div>
+
+	<!-- Main div -->
 	<div class="db">
+		<!-- Info about the current db -->
 		<div class="db_info">
 			<div style="margin: 0px 5px 5px 5px;">
 				<!-- Main info -->
@@ -35,31 +54,36 @@
 				<!-- Search -->
 				<div id="searchBox" style="float: right; visibility: hidden;">
 					<div style="float: left; font-size: 15px;">
-							<input type="text" id="searchText" style="width: 200px; font-size: 17px;">
-							<br>
-							Regex-mode: <input type="checkbox" id="regexMode" title="Regex-mode">
+						<input type="text" id="searchText" style="width: 200px; font-size: 17px;">
+						<br>
+						Regex-mode: <input type="checkbox" id="regexMode" title="Regex-mode">
 					</div>
 					<div style="float: right;">
-						<i class="material-icons icon" style="cursor: pointer; font-size: 35px !important;" title="Search" onclick="Search();">search</i>
+						<i class="material-icons icon btn" style="font-size: 35px !important;" title="Search" onclick="Search();">search</i>
 						<br>
-						<i class="material-icons" style="cursor: pointer; font-size: 35px !important;" title="Hide results" onclick="ChooseDB(currentDBPath);">close</i>
+						<i class="material-icons btn" style=" font-size: 35px !important;" title="Hide results" onclick="ChooseDB(currentDBPath);">close</i>
 					</div>
 				</div>
 			</div>
 		</div>
-		
+	
 		<!-- Path to the current bucket -->
-		<div style="height: 3vh;">
+		<div style="height: 3vh; border-top: 1px solid black; border-bottom: 1px solid black;">
 			<i><div id="currentPath" style="margin: 1px 5px 1px 5px;"></div></i>
 		</div>
 
 		<!-- Records -->
-		<div style="height: 81vh; border-top: 1px solid black;">
-			<div style="overflow: auto; float: left; height: 81vh;" id="db_tree_wrapper">
-				<div class="db_tree" id="db_tree"></div>
+		<div style="height: 80vh; overflow: hidden; padding-top: 2px;">
+			<div style="height: 100%; width: 57%; float: left; overflow-y: scroll;" id="dbTreeWrapper">
+				<div id="dbTree"></div>
 			</div>
-			<div class="record_data">
-				<div style="margin: 5px 5px 0px 5px;"id="record_data"></div>	
+			<!-- Full record -->
+			<div class="record_data" id="recordData">
+				<h4 style="border-bottom: 1px solid black;"><i>Record</i></h4>
+				<div id="recordPath">?</div>
+				<h4 style="border-bottom: 1px solid black;"><i>Value</i></h4>
+				<div id="recordValue">?</div>
+				<br>
 			</div>
 		</div>
 	</div>
@@ -68,7 +92,7 @@
 		<div style="padding: 5px 5px 5px 5px;" id="popupMessage"></div>
 	</div>
 
-	<div id="modal" class="modal">
+	<div id="modal" class="background">
 		<div class="modal-content">
 			<input list="paths" id="DBPath" style="width: 85%;" autofocus>
 			<datalist id="paths"></datalist>
