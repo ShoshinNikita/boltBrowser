@@ -1,16 +1,14 @@
 package web
 
 import (
+	"db"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"regexp"
 
-	"db"
+	"dbs"
 )
-
-// allDB keeps all opened databases. string – the path to the db
-var allDB map[string]*db.BoltAPI
 
 // openDB open db. It also adds db.DBApi to allDB
 //
@@ -25,21 +23,14 @@ func openDB(w http.ResponseWriter, r *http.Request) {
 	reg := regexp.MustCompile(`\\\\|\\`)
 	dbPath = reg.ReplaceAllString(dbPath, "/")
 
-	// Check if db was opened
-	if _, ok := allDB[dbPath]; ok {
-		returnError(w, nil, "This DB was already opened", http.StatusBadRequest)
-		return
-	}
-
-	newDB, err := db.Open(dbPath)
+	dbName, code, err := dbs.OpenDB(dbPath)
 	if err != nil {
-		returnError(w, err, "", http.StatusInternalServerError)
+		returnError(w, err, "", code)
 		return
 	}
 
-	allDB[dbPath] = newDB
-	fmt.Printf("[INFO] DB \"%s\" (%s) was opened\n", newDB.Name, newDB.DBPath)
-	w.WriteHeader(http.StatusOK)
+	fmt.Printf("[INFO] DB \"%s\" (%s) was opened\n", dbName, dbPath)
+	w.WriteHeader(code)
 }
 
 // Params: dbPath
@@ -49,13 +40,12 @@ func closeDB(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	dbPath := r.Form.Get("dbPath")
 
-	if _, ok := allDB[dbPath]; ok {
-		dbName := allDB[dbPath].Name
-		allDB[dbPath].Close()
-		delete(allDB, dbPath)
-		fmt.Printf("[INFO] DB \"%s\" (%s) was closed\n", dbName, dbPath)
+	code, err := dbs.CloseDB(dbPath)
+	if err != nil {
+		returnError(w, err, "", code)
 	}
-	w.WriteHeader(http.StatusOK)
+
+	w.WriteHeader(code)
 }
 
 // next returns records from bucket with according to the name
@@ -81,30 +71,28 @@ func next(w http.ResponseWriter, r *http.Request) {
 	dbPath := r.Form.Get("dbPath")
 	nextBucket := r.Form.Get("bucket")
 
-	if _, ok := allDB[dbPath]; ok {
-		data, err := allDB[dbPath].Next(nextBucket)
-		if err != nil {
-			returnError(w, err, "", http.StatusInternalServerError)
-			return
-		}
-
-		response := struct {
-			PrevBucket  bool        `json:"prevBucket"`
-			PrevRecords bool        `json:"prevRecords"`
-			NextRecords bool        `json:"nextRecords"`
-			Path        string      `json:"bucketsPath"`
-			Records     []db.Record `json:"records"`
-		}{
-			data.PrevBucket,
-			data.PrevRecords,
-			data.NextRecords,
-			data.Path,
-			data.Records,
-		}
-		json.NewEncoder(w).Encode(response)
-	} else {
-		returnError(w, nil, "Bad path of db "+dbPath, http.StatusBadRequest)
+	data, code, err := dbs.NextBucket(dbPath, nextBucket)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
 	}
+
+	response := struct {
+		PrevBucket  bool        `json:"prevBucket"`
+		PrevRecords bool        `json:"prevRecords"`
+		NextRecords bool        `json:"nextRecords"`
+		Path        string      `json:"bucketsPath"`
+		Records     []db.Record `json:"records"`
+	}{
+		data.PrevBucket,
+		data.PrevRecords,
+		data.NextRecords,
+		data.Path,
+		data.Records,
+	}
+
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(response)
 }
 
 // back returns records from previous directory
@@ -129,30 +117,29 @@ func back(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	dbPath := r.Form.Get("dbPath")
 
-	if _, ok := allDB[dbPath]; ok {
-		data, err := allDB[dbPath].Back()
-		if err != nil {
-			returnError(w, err, "", http.StatusInternalServerError)
-			return
-		}
-
-		response := struct {
-			PrevBucket  bool        `json:"prevBucket"`
-			PrevRecords bool        `json:"prevRecords"`
-			NextRecords bool        `json:"nextRecords"`
-			Path        string      `json:"bucketsPath"`
-			Records     []db.Record `json:"records"`
-		}{
-			data.PrevBucket,
-			data.PrevRecords,
-			data.NextRecords,
-			data.Path,
-			data.Records,
-		}
-		json.NewEncoder(w).Encode(response)
-	} else {
-		returnError(w, nil, "Bad path of db "+dbPath, http.StatusBadRequest)
+	data, code, err := dbs.PrevBucket(dbPath)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
 	}
+
+	response := struct {
+		PrevBucket  bool        `json:"prevBucket"`
+		PrevRecords bool        `json:"prevRecords"`
+		NextRecords bool        `json:"nextRecords"`
+		Path        string      `json:"bucketsPath"`
+		Records     []db.Record `json:"records"`
+	}{
+		data.PrevBucket,
+		data.PrevRecords,
+		data.NextRecords,
+		data.Path,
+		data.Records,
+	}
+
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(response)
+
 }
 
 // root returns records from root of db
@@ -177,29 +164,28 @@ func root(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	dbPath := r.Form.Get("dbPath")
 
-	if _, ok := allDB[dbPath]; ok {
-		data, err := allDB[dbPath].GetRoot()
-		if err != nil {
-			returnError(w, err, "", http.StatusInternalServerError)
-			return
-		}
-		response := struct {
-			PrevBucket  bool        `json:"prevBucket"`
-			PrevRecords bool        `json:"prevRecords"`
-			NextRecords bool        `json:"nextRecords"`
-			Path        string      `json:"bucketsPath"`
-			Records     []db.Record `json:"records"`
-		}{
-			data.PrevBucket,
-			data.PrevRecords,
-			data.NextRecords,
-			data.Path,
-			data.Records,
-		}
-		json.NewEncoder(w).Encode(response)
-	} else {
-		returnError(w, nil, "Bad path of db "+dbPath, http.StatusBadRequest)
+	data, code, err := dbs.GetRoot(dbPath)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
 	}
+
+	response := struct {
+		PrevBucket  bool        `json:"prevBucket"`
+		PrevRecords bool        `json:"prevRecords"`
+		NextRecords bool        `json:"nextRecords"`
+		Path        string      `json:"bucketsPath"`
+		Records     []db.Record `json:"records"`
+	}{
+		data.PrevBucket,
+		data.PrevRecords,
+		data.NextRecords,
+		data.Path,
+		data.Records,
+	}
+
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(response)
 }
 
 // databasesList return list of dbs
@@ -215,10 +201,10 @@ func root(w http.ResponseWriter, r *http.Request) {
 // ]
 //
 func databasesList(w http.ResponseWriter, r *http.Request) {
-	var list []db.BoltAPI
-	for _, v := range allDB {
-		list = append(list, *v)
-	}
+	list := dbs.GetDBsList()
+	// TODO check DBInfo
+
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(list)
 }
 
@@ -249,58 +235,34 @@ func current(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	dbPath := r.Form.Get("dbPath")
 
-	if _, ok := allDB[dbPath]; ok {
-		data, err := allDB[dbPath].GetCurrent()
-		if err != nil {
-			returnError(w, err, "", http.StatusInternalServerError)
-			return
-		}
-		type DBInfo struct {
-			Name   string `json:"name"`
-			DBPath string `json:"dbPath"`
-			Size   int64  `json:"size"`
-		}
-		response := struct {
-			DB          DBInfo      `json:"db"`
-			PrevBucket  bool        `json:"prevBucket"`
-			PrevRecords bool        `json:"prevRecords"`
-			NextRecords bool        `json:"nextRecords"`
-			Path        string      `json:"bucketsPath"`
-			Records     []db.Record `json:"records"`
-		}{
-			DBInfo{
-				allDB[dbPath].Name,
-				allDB[dbPath].DBPath,
-				allDB[dbPath].Size,
-			},
-			data.PrevBucket,
-			data.PrevRecords,
-			data.NextRecords,
-			data.Path,
-			data.Records,
-		}
-		json.NewEncoder(w).Encode(response)
-	} else {
-		returnError(w, nil, "Bad path of db "+dbPath, http.StatusBadRequest)
-	}
-}
-
-// returnError writes error into http.ResponseWriter and into terminal
-func returnError(w http.ResponseWriter, err error, message string, code int) {
-	var text string
-	if message != "" && err != nil {
-		text = fmt.Sprintf("Error: %s Message: %s", err.Error(), message)
-	} else if message != "" {
-		text = fmt.Sprintf("Message: %s", message)
-	} else if err != nil {
-		text = fmt.Sprintf("Error: %s", err.Error())
-	} else {
-		text = "Nothing"
+	info, data, code, err := dbs.GetCurrent(dbPath)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
 	}
 
-	fmt.Printf("[ERR] %s\n", text)
+	response := struct {
+		DB          dbs.DBInfo  `json:"db"`
+		PrevBucket  bool        `json:"prevBucket"`
+		PrevRecords bool        `json:"prevRecords"`
+		NextRecords bool        `json:"nextRecords"`
+		Path        string      `json:"bucketsPath"`
+		Records     []db.Record `json:"records"`
+	}{
+		dbs.DBInfo{
+			info.Name,
+			info.DBPath,
+			info.Size,
+		},
+		data.PrevBucket,
+		data.PrevRecords,
+		data.NextRecords,
+		data.Path,
+		data.Records,
+	}
 
-	http.Error(w, text, code)
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(response)
 }
 
 // nextRecords
@@ -323,28 +285,27 @@ func returnError(w http.ResponseWriter, err error, message string, code int) {
 func nextRecords(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	dbPath := r.Form.Get("dbPath")
-	if _, ok := allDB[dbPath]; ok {
-		data, err := allDB[dbPath].NextRecords()
-		if err != nil {
-			returnError(w, err, "", http.StatusInternalServerError)
-			return
-		}
 
-		response := struct {
-			PrevBucket  bool        `json:"prevBucket"`
-			PrevRecords bool        `json:"prevRecords"`
-			NextRecords bool        `json:"nextRecords"`
-			Records     []db.Record `json:"records"`
-		}{
-			data.PrevBucket,
-			data.PrevRecords,
-			data.NextRecords,
-			data.Records,
-		}
-		json.NewEncoder(w).Encode(response)
-	} else {
-		returnError(w, nil, "Bad path of db "+dbPath, http.StatusBadRequest)
+	data, code, err := dbs.GetNextRecords(dbPath)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
 	}
+
+	response := struct {
+		PrevBucket  bool        `json:"prevBucket"`
+		PrevRecords bool        `json:"prevRecords"`
+		NextRecords bool        `json:"nextRecords"`
+		Records     []db.Record `json:"records"`
+	}{
+		data.PrevBucket,
+		data.PrevRecords,
+		data.NextRecords,
+		data.Records,
+	}
+
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(response)
 }
 
 // prevRecords
@@ -368,28 +329,27 @@ func nextRecords(w http.ResponseWriter, r *http.Request) {
 func prevRecords(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	dbPath := r.Form.Get("dbPath")
-	if _, ok := allDB[dbPath]; ok {
-		data, err := allDB[dbPath].PrevRecords()
-		if err != nil {
-			returnError(w, err, "", http.StatusInternalServerError)
-			return
-		}
 
-		response := struct {
-			PrevBucket  bool        `json:"prevBucket"`
-			PrevRecords bool        `json:"prevRecords"`
-			NextRecords bool        `json:"nextRecords"`
-			Records     []db.Record `json:"records"`
-		}{
-			data.PrevBucket,
-			data.PrevRecords,
-			data.NextRecords,
-			data.Records,
-		}
-		json.NewEncoder(w).Encode(response)
-	} else {
-		returnError(w, nil, "Bad path of db "+dbPath, http.StatusBadRequest)
+	data, code, err := dbs.GetPrevRecrods(dbPath)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
 	}
+
+	response := struct {
+		PrevBucket  bool        `json:"prevBucket"`
+		PrevRecords bool        `json:"prevRecords"`
+		NextRecords bool        `json:"nextRecords"`
+		Records     []db.Record `json:"records"`
+	}{
+		data.PrevBucket,
+		data.PrevRecords,
+		data.NextRecords,
+		data.Records,
+	}
+
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(response)
 }
 
 // search
@@ -421,39 +381,44 @@ func search(w http.ResponseWriter, r *http.Request) {
 	text := r.Form.Get("text")
 	mode := r.Form.Get("mode")
 
-	if _, ok := allDB[dbPath]; ok {
-		var (
-			records []db.Record
-			path    string
-			err     error
-		)
-
-		if mode == regex {
-			records, path, err = allDB[dbPath].SearchRegexp(text)
-		} else if mode == plain {
-			records, path, err = allDB[dbPath].Search(text)
-		}
-
-		if err != nil {
-			returnError(w, err, "", http.StatusInternalServerError)
-			return
-		}
-
-		response := struct {
-			PrevBucket  bool        `json:"prevBucket"`
-			PrevRecords bool        `json:"prevRecords"`
-			NextRecords bool        `json:"nextRecords"`
-			Path        string      `json:"bucketsPath"`
-			Records     []db.Record `json:"records"`
-		}{
-			false,
-			false,
-			false,
-			path + " (Search \"" + text + "\")",
-			records,
-		}
-		json.NewEncoder(w).Encode(response)
-	} else {
-		returnError(w, nil, "Bad path of db "+dbPath, http.StatusBadRequest)
+	records, path, code, err := dbs.Search(dbPath, mode, text)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
 	}
+
+	response := struct {
+		PrevBucket  bool        `json:"prevBucket"`
+		PrevRecords bool        `json:"prevRecords"`
+		NextRecords bool        `json:"nextRecords"`
+		Path        string      `json:"bucketsPath"`
+		Records     []db.Record `json:"records"`
+	}{
+		false,
+		false,
+		false,
+		path + " (Search \"" + text + "\")",
+		records,
+	}
+
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(response)
+}
+
+// returnError writes error into http.ResponseWriter and into terminal
+func returnError(w http.ResponseWriter, err error, message string, code int) {
+	var text string
+	if message != "" && err != nil {
+		text = fmt.Sprintf("Error: %s Message: %s", err.Error(), message)
+	} else if message != "" {
+		text = fmt.Sprintf("Message: %s", message)
+	} else if err != nil {
+		text = fmt.Sprintf("Error: %s", err.Error())
+	} else {
+		text = "Nothing"
+	}
+
+	fmt.Printf("[ERR] %s\n", text)
+
+	http.Error(w, text, code)
 }

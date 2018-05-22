@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"db"
+	"dbs"
 	"versioning"
 	"web"
 )
@@ -60,6 +61,6 @@ func main() {
 	<-stop
 	close(stopSite)
 	time.Sleep(100 * time.Millisecond)
-	web.CloseDBs()
+	dbs.CloseDBs()
 	fmt.Println("[INFO] Program was stopped")
 }
