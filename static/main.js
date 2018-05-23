@@ -171,10 +171,6 @@ function ShowDBList() {
 }
 
 function ChooseDB(dbPath) {
-	if (currentDBPath == dbPath) {
-		return;
-	}
-
 	currentDBPath = dbPath;
 	$.ajax({
 		url: "/api/current",
@@ -277,7 +273,7 @@ function PrevRecords() {
 function Search() {
 	var text = $("#searchText").val();
 	if (text == "") {
-		ShowPopup("Error: empty input");
+		ChooseDB(currentDBPath);
 		return;
 	}
 
@@ -285,7 +281,6 @@ function Search() {
 	if ($("#regexMode").prop("checked")) {
 		mode = "regex";
 	}
-	;
 	$.ajax({
 		url: "/api/search",
 		type: "GET",
@@ -364,6 +359,18 @@ window.onclick = function(event) {
 	}
 }
 
+window.onkeydown = function(event) {
+	if (event.target == searchText) {
+		// Enter
+		if (event.keyCode == 13 || event.which == 13) {
+			Search();
+		}
+		// Esc
+		if (event.keyCode == 27 || event.which == 27) {
+			ChooseDB(currentDBPath);
+		}
+	}
+}
 
 String.prototype.format = function () {
 	var a = this;
