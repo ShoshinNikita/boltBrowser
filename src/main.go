@@ -23,7 +23,7 @@ type opts struct {
 }
 
 func main() {
-	const currentVersion = "v1.2"
+	const currentVersion = "v1.3"
 
 	var flags opts
 	flag.StringVar(&flags.port, "port", ":500", "port for website (with ':')")
