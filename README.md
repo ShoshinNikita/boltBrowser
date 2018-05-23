@@ -7,8 +7,11 @@ boltBrowser is a web-based explorer for BoltDB.
 + You can work with several databases in one time
 + You can visit nested buckets
 + Minimalistic and simple interface
++ Opportunity to search records using regex
 
-![123](stuff/screenshot.png)
+[Examples of using the program](Examples.md)
+
+![1](stuff/screenshot.png)
 
 ## How to start
 
@@ -30,6 +33,7 @@ Flag | Default | Description
 `-port` | `:500` | port of the website
 `-offset` | `100` | number of records on single page
 `-debug` | `false` | switch mode
+`-checkVer` | `true` | should program check a new version
 
 ## Additional info
 
