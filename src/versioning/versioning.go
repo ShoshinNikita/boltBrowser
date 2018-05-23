@@ -21,7 +21,7 @@ type Info struct {
 // to
 // [1-st change, 2-st change, 3-st change]
 func getChanges(text string) (changes []string) {
-	r := regexp.MustCompile(`(?:\+|\*) ?(?P<change>[\w\d. _()#:-]+)(?:\r\n|$)`)
+	r := regexp.MustCompile(`(?:\+|\*) ?(?P<change>[\w !@#$%^&*()+/*+"№;:?*=~{}\[\],.<'>|^-]+)(?:\r\n|$)`)
 	matches := r.FindAllStringSubmatch(text, -1)
 
 	for _, match := range matches {
