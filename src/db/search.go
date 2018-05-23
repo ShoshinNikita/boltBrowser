@@ -41,6 +41,8 @@ func (db *BoltAPI) Search(needle string) (records []Record, path string, err err
 	})
 
 	path = "/" + strings.Join(db.currentBucket, "/")
+
+	sortRecords(records)
 	return records, path, err
 }
 
@@ -80,5 +82,7 @@ func (db *BoltAPI) SearchRegexp(expr string) (records []Record, path string, err
 	})
 
 	path = "/" + strings.Join(db.currentBucket, "/")
+
+	sortRecords(records)
 	return records, path, err
 }
