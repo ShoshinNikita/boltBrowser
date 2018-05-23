@@ -210,7 +210,6 @@ func root(w http.ResponseWriter, r *http.Request) {
 //
 func databasesList(w http.ResponseWriter, r *http.Request) {
 	list := dbs.GetDBsList()
-	// TODO check DBInfo
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(list)

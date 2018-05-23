@@ -1,4 +1,4 @@
-// Constants
+/* Constants */
 const buttonTemplate = `<div>
 	<input type="button" class="db_button" value="{0}" onclick="ChooseDB('{1}')" title="Choose">
 	<i class="material-icons btn" style="float: right; margin-right: 1vw; font-size: 30px !important;" title="Close" onclick="CloseDB('{1}');">close<\/i>
@@ -19,55 +19,22 @@ const backButton = `<div>
 <\/div>`;
 
 const nextRecordersButtonTemplate = `<div>
-<i class="material-icons" icon>arrow_forward_ios<\/i>
-<span style="cursor: pointer;" onclick="NextRecords();"><b>Next page<\/b><\/span>
+	<i class="material-icons" icon>arrow_forward_ios<\/i>
+	<span style="cursor: pointer;" onclick="NextRecords();"><b>Next page<\/b><\/span>
 <\/div>`;
 
 const prevRecordersButtonTemplate = `<div>
-<i class="material-icons" icon>arrow_back_ios<\/i>
-<span style="cursor: pointer;" onclick="PrevRecords();"><b>Previous page<\/b><\/span>
+	<i class="material-icons" icon>arrow_back_ios<\/i>
+	<span style="cursor: pointer;" onclick="PrevRecords();"><b>Previous page<\/b><\/span>
 <\/div>`;
 
 
-// Global variables
+/* Global variables */
 var currentDBPath = "";
 var currentData = null;
 
 
-// Popup
-function ShowPopup(message) {
-	$("#popupMessage").html(message);
-	$("#popup").addClass("popup_animation");
-}
-
-function HidePopup() {
-	$("#popup").removeClass("popup_animation");
-}
-
-
-// Modal
-function ShowModal() {
-	const template = `<option value="{0}">`;
-
-	var sortedPaths = getPaths();
-
-	var options = "";
-	for (var i = 0; i < sortedPaths.length && i < 5; i++) {
-		options += template.format(sortedPaths[i]);
-	}
-
-	$("#paths").html(options);
-	$("#modal").css("display", "block");
-	$("#DBPath").focus();
-}
-
-function HideModal() {
-	$("#modal").css("display", "none");
-	$("#dbPathsList").css("display", "none");
-}
-
-
-// Local Storage
+/* Local Storage */
 function PrepareLS() {
 	if (localStorage.getItem("paths") === null) {
 		var paths = {}
@@ -114,7 +81,7 @@ function DeletePath(path) {
 }
 
 
-// API
+/* API */
 function OpenDB() {
 	var dbPath = $("#DBPath").val();
 	if (dbPath == "" ) {
@@ -318,7 +285,7 @@ function Search() {
 }
 
 
-// Animation
+/* Animation */
 function ShowDBsList() {
 	$("#dbListBackground").css("display", "block");
 	$("#dbList").addClass("db_list_animation");
@@ -382,8 +349,39 @@ function ShowPathsForDelete() {
 	$("#dbPathsList").css("display", "block");
 }
 
+// Popup
+function ShowPopup(message) {
+	$("#popupMessage").html(message);
+	$("#popup").addClass("popup_animation");
+}
 
-// Secondary functions
+function HidePopup() {
+	$("#popup").removeClass("popup_animation");
+}
+
+// Modal
+function ShowModal() {
+	const template = `<option value="{0}">`;
+
+	var sortedPaths = getPaths();
+
+	var options = "";
+	for (var i = 0; i < sortedPaths.length && i < 5; i++) {
+		options += template.format(sortedPaths[i]);
+	}
+
+	$("#paths").html(options);
+	$("#modal").css("display", "block");
+	$("#DBPath").focus();
+}
+
+function HideModal() {
+	$("#modal").css("display", "none");
+	$("#dbPathsList").css("display", "none");
+}
+
+
+/* Secondary functions */
 window.onclick = function(event) {
     if (event.target == modal) {
 		HideModal();
