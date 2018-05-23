@@ -16,9 +16,10 @@ import (
 )
 
 type opts struct {
-	port   string
-	debug  bool
-	offset int
+	port     string
+	debug    bool
+	offset   int
+	checkVer bool
 }
 
 func main() {
@@ -28,6 +29,7 @@ func main() {
 	flag.StringVar(&flags.port, "port", ":500", "port for website (with ':')")
 	flag.BoolVar(&flags.debug, "debug", false, "debug mode")
 	flag.IntVar(&flags.offset, "offset", 100, "number of records on single page")
+	flag.BoolVar(&flags.checkVer, "checkVer", true, "should program check is there a new version")
 	flag.Parse()
 
 	// Checking of ':' before port
@@ -36,17 +38,19 @@ func main() {
 	}
 
 	fmt.Printf("boltBrowser %s\n", currentVersion)
-	fmt.Printf("[INFO] Start, port - %s, debug mode - %t, offset - %d\n", flags.port, flags.debug, flags.offset)
+	fmt.Printf("[INFO] Start, port - %s, debug mode - %t, offset - %d, check version - %t\n", flags.port, flags.debug, flags.offset, flags.checkVer)
 
-	// Checking is there a new version
-	data, err := versioning.CheckVersion(currentVersion)
-	if err != nil {
-		fmt.Printf("[ERR] Can't check is there a new version: %s", err.Error())
-	} else if data.IsNewVersion {
-		changes := "+ " + strings.Join(data.Changes, "\n+ ")
-		fmt.Printf("\n[INFO] New version (%s) is available.\nChanges:\n%s\nLink: %s\n\n", data.LastVersion, changes, data.Link)
-	} else {
-		fmt.Printf("[INFO] You use the last version of boltBrowser\n")
+	if flags.checkVer {
+		// Checking is there a new version
+		data, err := versioning.CheckVersion(currentVersion)
+		if err != nil {
+			fmt.Printf("[ERR] Can't check is there a new version: %s", err.Error())
+		} else if data.IsNewVersion {
+			changes := "+ " + strings.Join(data.Changes, "\n+ ")
+			fmt.Printf("\n[INFO] New version (%s) is available.\nChanges:\n%s\nLink: %s\n\n", data.LastVersion, changes, data.Link)
+		} else {
+			fmt.Printf("[INFO] You use the last version of boltBrowser\n")
+		}
 	}
 
 	// Init of channels
