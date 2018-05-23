@@ -9,22 +9,12 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
-	"db"
+	"dbs"
 )
-
-// CloseDBs closes all databases
-func CloseDBs() {
-	for k := range allDB {
-		allDB[k].Close()
-		delete(allDB, k)
-	}
-	fmt.Println("[INFO] All databases were closed")
-}
 
 // Start runs website
 func Start(port string, debug bool, stopChan chan struct{}) {
-	// Initializing allDB
-	allDB = make(map[string]*db.BoltAPI)
+	dbs.Init()
 
 	router := mux.NewRouter().StrictSlash(true)
 	router.Path("/favicon.ico").Methods("GET").Handler(http.FileServer(http.Dir("./static/")))

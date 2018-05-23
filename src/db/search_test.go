@@ -33,6 +33,7 @@ func TestSearch(t *testing.T) {
 		answer  []Record
 	}{
 		{"1", []Record{
+			bckt("B1ucket"),
 			rcrd("1", "hello"),
 			rcrd("151", "hello"),
 			rcrd("1561", "hello"),
@@ -40,8 +41,7 @@ func TestSearch(t *testing.T) {
 			rcrd("351", "hello"),
 			rcrd("51", "hello"),
 			rcrd("61", "hello"),
-			rcrd("651", "hello"),
-			bckt("B1ucket")}},
+			rcrd("651", "hello")}},
 		{"12", []Record{}},
 		{"51", []Record{
 			rcrd("151", "hello"),
