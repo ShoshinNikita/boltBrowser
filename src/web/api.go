@@ -13,7 +13,10 @@ import (
 // openDB open db. It also adds db.DBApi to allDB
 //
 // Params: dbPath
-// Return: -
+// Return:
+// {
+// 	"dbPath": str
+// }
 //
 func openDB(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -30,7 +33,12 @@ func openDB(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Printf("[INFO] DB \"%s\" (%s) was opened\n", dbName, dbPath)
+
 	w.WriteHeader(code)
+	response := struct {
+		DBPath string `json:"dbPath"`
+	}{dbPath}
+	json.NewEncoder(w).Encode(response)
 }
 
 // Params: dbPath
@@ -195,7 +203,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 // [
 //	{
 // 	  "name": "",
-//    "path": "",
+//    "dbPath": "",
 // 	  "size": 0
 // 	},
 // ]

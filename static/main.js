@@ -47,20 +47,9 @@ function HidePopup() {
 
 // Modal
 function ShowModal() {
-	var paths = JSON.parse(localStorage.getItem("paths"));
-
-	// Sorting. Return only keys;
-	var sortedPaths = Object.keys(paths).sort(function(a, b){
-		if (paths[a].uses < paths[b].uses) {
-			return 1;
-		}
-		if (paths[a].uses > paths[b].uses) {
-			return -1;
-		}
-		return 0;
-	});
-
 	const template = `<option value="{0}">`;
+
+	var sortedPaths = getPaths();
 
 	var options = "";
 	for (var i = 0; i < sortedPaths.length && i < 5; i++) {
@@ -74,6 +63,7 @@ function ShowModal() {
 
 function HideModal() {
 	$("#modal").css("display", "none");
+	$("#dbPathsList").css("display", "none");
 }
 
 
@@ -98,6 +88,31 @@ function putIntoLS(dbPath) {
 	localStorage.setItem("paths", JSON.stringify(paths));
 }
 
+function getPaths() {
+	var paths = JSON.parse(localStorage.getItem("paths"));
+
+	// Sorting. Return only keys;
+	var sortedPaths = Object.keys(paths).sort(function(a, b){
+		if (paths[a].uses < paths[b].uses) {
+			return 1;
+		}
+		if (paths[a].uses > paths[b].uses) {
+			return -1;
+		}
+		return 0;
+	});
+
+	return sortedPaths;
+}
+
+function DeletePath(path) {
+	var paths = JSON.parse(localStorage.getItem("paths"));
+	delete paths[path];
+	localStorage.setItem("paths", JSON.stringify(paths));
+
+	ShowPathsForDelete();
+}
+
 
 // API
 function OpenDB() {
@@ -115,7 +130,8 @@ function OpenDB() {
 			"dbPath": dbPath
 		},
 		success: function(result){
-			putIntoLS(dbPath);
+			result= JSON.parse(result)
+			putIntoLS(result.dbPath);
 			ShowDBList();
 		},
 		error: function(result) {
@@ -347,11 +363,30 @@ function ShowTree(data) {
 	document.getElementById("dbTreeWrapper").scrollTop = 0;
 }
 
+function ShowPathsForDelete() {
+	const button = `<div style="margin-bottom: 10px; text-align: left;"><span>{0}</span>
+	<i class="material-icons btn" style="float: right; margin-right: 1vw; font-size: 25px !important;" title="Delete" onclick="DeletePath('{0}');">close<\/i><\/div>`;
+
+	var paths = getPaths();
+
+	var res = ""
+	for (var i = 0; i < paths.length; i++) {
+		res += button.format(paths[i]);
+	}
+
+	if (res == "") {
+		res = "Empty"
+	}
+
+	$("#dbPathsList").html(res);
+	$("#dbPathsList").css("display", "block");
+}
+
 
 // Secondary functions
 window.onclick = function(event) {
     if (event.target == modal) {
-        $("#modal").css("display", "none");
+		HideModal();
 	}
 	if (event.target == dbListBackground) {
 		$("#dbListBackground").css("display", "none");

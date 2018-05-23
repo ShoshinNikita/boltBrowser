@@ -94,9 +94,11 @@
 
 	<div id="modal" class="background">
 		<div class="modal-content">
-			<input list="paths" id="DBPath" style="width: 85%;" autofocus>
+			<i class="material-icons btn" style="font-size: 20px !important; vertical-align: middle;" onclick="ShowPathsForDelete();" title="Change the list of paths">settings</i>
+			<input list="paths" id="DBPath" style="width: 75%;" autofocus>
 			<datalist id="paths"></datalist>
 			<input type="button" value="Open" style="border-radius: 3px; border: 2px solid #888; background-color: white;" onclick="OpenDB(); HideModal();">
+			<div id="dbPathsList" style="margin-top: 20px; display: none;"></div>
 		</div>
 	</div>
 </body>
