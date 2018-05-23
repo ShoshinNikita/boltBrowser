@@ -257,9 +257,9 @@ func current(w http.ResponseWriter, r *http.Request) {
 		Records     []db.Record `json:"records"`
 	}{
 		dbs.DBInfo{
-			info.Name,
-			info.DBPath,
-			info.Size,
+			Name: info.Name,
+			DBPath: info.DBPath,
+			Size: info.Size,
 		},
 		data.PrevBucket,
 		data.PrevRecords,
@@ -378,11 +378,6 @@ func prevRecords(w http.ResponseWriter, r *http.Request) {
 // }
 //
 func search(w http.ResponseWriter, r *http.Request) {
-	const (
-		regex = "regex"
-		plain = "plain"
-	)
-
 	r.ParseForm()
 	dbPath := r.Form.Get("dbPath")
 	text := r.Form.Get("text")
