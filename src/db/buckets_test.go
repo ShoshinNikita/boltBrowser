@@ -23,6 +23,8 @@ import (
 // 				| "name" - "TestUser"
 
 func TestGetRoot(t *testing.T) {
+	SetOffset(100)
+
 	tests := []struct {
 		offset int
 		answer []Record
@@ -52,6 +54,8 @@ func TestGetRoot(t *testing.T) {
 }
 
 func TestNext(t *testing.T) {
+	SetOffset(100)
+
 	type T struct {
 		next   string
 		answer []Record
@@ -100,6 +104,8 @@ func TestNext(t *testing.T) {
 }
 
 func TestBack(t *testing.T) {
+	SetOffset(100)
+
 	tests := []struct {
 		offset int
 		next   []string
@@ -147,6 +153,8 @@ func TestBack(t *testing.T) {
 }
 
 func TestGetCurrent(t *testing.T) {
+	SetOffset(100)
+
 	tests := []struct {
 		offset int
 		next   []string

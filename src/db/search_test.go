@@ -30,6 +30,8 @@ import (
 // 	 | 984
 
 func TestSearch(t *testing.T) {
+	SetOffset(100)
+
 	tests := []struct {
 		request string
 		answer  []Record
@@ -91,6 +93,8 @@ func TestSearch(t *testing.T) {
 }
 
 func TestSearchRegex(t *testing.T) {
+	SetOffset(100)
+
 	tests := []struct {
 		request string
 		err     string

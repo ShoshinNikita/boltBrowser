@@ -1,6 +1,7 @@
 package db_test
 
 import (
+	"errors"
 	"testing"
 
 	. "db"
@@ -45,6 +46,14 @@ func bckt(key string) Record {
 // return Record{T: "record"}
 func rcrd(key, value string) Record {
 	return Record{T: RecordTemplate, Key: key, Value: value}
+}
+
+func newErr(err string) error {
+	if err == "" {
+		return nil
+	} else {
+		return errors.New(err)
+	}
 }
 
 func TestOpen(t *testing.T) {
