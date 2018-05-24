@@ -2,6 +2,7 @@ package db_test
 
 import (
 	"testing"
+
 	. "db"
 )
 
@@ -27,6 +28,7 @@ import (
 // 	 | 84
 // 	 | 94
 // 	 | 984
+
 func TestSearch(t *testing.T) {
 	tests := []struct {
 		request string
@@ -91,7 +93,7 @@ func TestSearch(t *testing.T) {
 func TestSearchRegex(t *testing.T) {
 	tests := []struct {
 		request string
-		err 	string
+		err     string
 		answer  []Record
 	}{
 		{"^1", "", []Record{
