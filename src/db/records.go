@@ -11,16 +11,8 @@ import (
 // NextRecords return next part of records and bool, which shows is there next records
 func (db *BoltAPI) NextRecords() (data Data, err error) {
 	err = db.db.View(func(tx *bolt.Tx) error {
-		var c *bolt.Cursor
-		if len(db.currentBucket) == 0 {
-			c = tx.Cursor()
-		} else {
-			b := tx.Bucket([]byte(db.currentBucket[0]))
-			for i := 1; i < len(db.currentBucket); i++ {
-				b = b.Bucket([]byte(db.currentBucket[i]))
-			}
-			c = b.Cursor()
-		}
+		b := db.getCurrentBucket(tx)
+		c := b.Cursor()
 
 		data.Records, data.NextRecords = db.getNextRecords(c)
 		return nil
@@ -34,16 +26,8 @@ func (db *BoltAPI) NextRecords() (data Data, err error) {
 // PrevRecords return prev part of records and bool, which shows is there previous records
 func (db *BoltAPI) PrevRecords() (data Data, err error) {
 	err = db.db.View(func(tx *bolt.Tx) error {
-		var c *bolt.Cursor
-		if len(db.currentBucket) == 0 {
-			c = tx.Cursor()
-		} else {
-			b := tx.Bucket([]byte(db.currentBucket[0]))
-			for i := 1; i < len(db.currentBucket); i++ {
-				b = b.Bucket([]byte(db.currentBucket[i]))
-			}
-			c = b.Cursor()
-		}
+		b := db.getCurrentBucket(tx)
+		c := b.Cursor()
 
 		data.Records, data.PrevRecords = db.getPrevRecords(c)
 		return nil
