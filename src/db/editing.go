@@ -87,7 +87,7 @@ func (db *BoltAPI) DeleteRecord(key string) error {
 	})
 }
 
-func (db *BoltAPI) ModifyRecord(oldKey, newKey, newValue string) error {
+func (db *BoltAPI) EditRecord(oldKey, newKey, newValue string) error {
 	return db.db.Update(func(tx *bolt.Tx) error {
 		var err error
 		b := db.getCurrentBucket(tx)

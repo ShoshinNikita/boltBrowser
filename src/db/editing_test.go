@@ -6,7 +6,7 @@ import (
 	. "db"
 )
 
-// Test db in testdata/modify.db
+// Test db in testdata/edit.db
 //
 // Structure:
 // root
@@ -59,7 +59,7 @@ func TestBucketsEditing(t *testing.T) {
 		{[]string{"xyz"}, "byte", newErr("\"byte\" is a record")},
 	}
 
-	testDB, err := Open("testdata/modify.db")
+	testDB, err := Open("testdata/edit.db")
 	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
@@ -175,7 +175,7 @@ func TestRecordEditing(t *testing.T) {
 		{[]string{"hello"}, "123", newErr("\"123\" doesn't exist")},
 	}
 
-	testDB, err := Open("testdata/modify.db")
+	testDB, err := Open("testdata/edit.db")
 	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
@@ -260,7 +260,7 @@ func TestRecordEditing(t *testing.T) {
 	}
 }
 
-func TestModifyRecord(t *testing.T) {
+func TestEditRecord(t *testing.T) {
 	tests := []struct {
 		path     []string
 		oldKey   string
@@ -286,19 +286,19 @@ func TestModifyRecord(t *testing.T) {
 			[]Record{rcrd("byte", "15"), rcrd("hi", "yeah")}},
 	}
 
-	testDB, err := Open("testdata/modify.db")
+	testDB, err := Open("testdata/edit.db")
 	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Testing of modifying recrods
-	t.Log("Testing of modifying recrods")
+	// Testing of editing recrods
+	t.Log("Testing of editing recrods")
 	for i, test := range tests {
 		for _, s := range test.path {
 			testDB.Next(s)
 		}
-		err := testDB.ModifyRecord(test.oldKey, test.newKey, test.newValue)
+		err := testDB.EditRecord(test.oldKey, test.newKey, test.newValue)
 
 		if (err == nil && test.err != nil) || (err != nil && test.err == nil) {
 			t.Errorf("Test #%d Want: %v Got: %v", i, test.err, err)

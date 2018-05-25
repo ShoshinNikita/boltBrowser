@@ -202,12 +202,12 @@ func AddRecord(dbPath, key, value string) (code int, err error) {
 	return http.StatusCreated, nil
 }
 
-func ModifyRecord(dbPath, oldKey, newKey, newValue string) (code int, err error) {
+func EditRecord(dbPath, oldKey, newKey, newValue string) (code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
 	}
 
-	err = allDB[dbPath].ModifyRecord(oldKey, newKey, newValue)
+	err = allDB[dbPath].EditRecord(oldKey, newKey, newValue)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}

@@ -481,18 +481,18 @@ func addRecord(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(code)
 }
 
-// modifyRecord
+// editRecord
 //
 // Params: dbPath, oldKey, newKey, newValue
 // Return: -
 //
-func modifyRecord(w http.ResponseWriter, r *http.Request) {
+func editRecord(w http.ResponseWriter, r *http.Request) {
 	dbPath := r.PostFormValue("dbPath")
 	oldKey := r.PostFormValue("oldKey")
 	newKey := r.PostFormValue("newKey")
 	newValue := r.PostFormValue("newValue")
 
-	code, err := dbs.ModifyRecord(dbPath, oldKey, newKey, newValue)
+	code, err := dbs.EditRecord(dbPath, oldKey, newKey, newValue)
 	if err != nil {
 		returnError(w, err, "", code)
 		return
