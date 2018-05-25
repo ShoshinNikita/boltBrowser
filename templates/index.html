@@ -4,13 +4,14 @@
 	<meta charset="utf-8" />
 	<title>boltDB web-browser</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- Custom css and js -->
-	<link rel="stylesheet" type="text/css" media="screen" href="/static/main.css" />
-	<script src="/static/main.js"></script>
 	<!-- jQuery -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<!-- Icons -->
 	<link rel="stylesheet" type="text/css" media="screen" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<!-- Custom css and js -->
+	<link rel="stylesheet" type="text/css" media="screen" href="/static/main.css" />
+	<script src="/static/main.js"></script>
+	
 </head>
 <body onload="ShowDBList(); PrepareLS();" style="margin: 0px 0px 0px 0px; overflow-y: hidden;">
 	<!-- Menu -->
@@ -74,9 +75,10 @@
 
 		<!-- Records -->
 		<div style="height: 80vh; overflow: hidden; padding-top: 2px;">
-			<div style="height: 100%; width: 57%; float: left; overflow-y: scroll;" id="dbTreeWrapper">
+			<div class="db_tree_wrapper" id="dbTreeWrapper" oncontextmenu="return false;">
 				<div id="dbTree"></div>
 			</div>
+			
 			<!-- Full record -->
 			<div class="record_data" id="recordData">
 				<h4 style="border-bottom: 1px solid black;"><i>Record</i></h4>
@@ -99,6 +101,12 @@
 			<datalist id="paths"></datalist>
 			<input type="button" value="Open" style="border-radius: 3px; border: 2px solid #888; background-color: white;" onclick="OpenDB(); HideModal();">
 			<div id="dbPathsList" style="margin-top: 20px; display: none;"></div>
+		</div>
+	</div>
+
+	<div id="popupMenu" class="popup_menu">
+		<div id="popupMenuContent">
+			
 		</div>
 	</div>
 </body>

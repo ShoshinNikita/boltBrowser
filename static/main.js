@@ -4,29 +4,36 @@ const buttonTemplate = `<div>
 	<i class="material-icons btn" style="float: right; margin-right: 1vw; font-size: 30px !important;" title="Close" onclick="CloseDB('{1}');">close<\/i>
 <\/div>`;
 
-const recordTemplate = `<div>
+const recordTemplate = `<div style="display: table;">
 	<i class="material-icons" icon>assignment<\/i>
-	<span class="record" onclick="ShowFullRecord({0});"><b>{1}<\/b>:<\/span> {2}
+	<span class="record" onclick="ShowFullRecord({0});"><b>{1}<\/b><\/span>: {2}
 <\/div>`;
 
-const bucketTemplate = `<div>
+const bucketTemplate = `<div style="display: table;">
 	<i class="material-icons" icon>folder<\/i>
 	<span class="bucket" onclick="Next('{0}');"><b>{0}<\/b><\/span>
 <\/div>`;
 
-const backButton = `<div>
+const backButton = `<div style="display: table;">
 	<i class="material-icons btn" icon onclick="Back();" title="Back">more_horiz<\/i>
 <\/div>`;
 
-const nextRecordersButtonTemplate = `<div>
+const nextRecordsButtonTemplate = `<div style="display: table;">
 	<i class="material-icons" icon>arrow_forward_ios<\/i>
 	<span style="cursor: pointer;" onclick="NextRecords();"><b>Next page<\/b><\/span>
 <\/div>`;
 
-const prevRecordersButtonTemplate = `<div>
+const prevRecordsButtonTemplate = `<div style="display: table;">
 	<i class="material-icons" icon>arrow_back_ios<\/i>
 	<span style="cursor: pointer;" onclick="PrevRecords();"><b>Previous page<\/b><\/span>
 <\/div>`;
+
+// Reset margin for last element
+const addMenuHTML = `<input type="button" class="popup_button" onclick="AddBucket();" value="Add bucket">
+<input type="button" class="popup_button" style="margin: auto;" onclick="AddRecord();" value="Add record">`;
+const bucketMenuHTML = `<input type="button" class="popup_button" style="margin: auto;" onclick="DeleteBucket("{0}");" value="Delete">`;
+const recordMenuHTML = `<input type="button" class="popup_button" onclick="EditRecord('{0}');" value="Edit">
+<input type="button" class="popup_button" style="margin: auto;" onclick="DeleteRecord('{0}');" value="Delete">`;
 
 
 /* Global variables */
@@ -302,7 +309,7 @@ function ShowFullRecord(number) {
 function ShowTree(data) {
 	var result = "";
 	if (data.prevRecords) {
-		result += prevRecordersButtonTemplate;
+		result += prevRecordsButtonTemplate;
 	} else if (data.prevBucket) {
 		result = backButton;
 	}
@@ -323,11 +330,21 @@ function ShowTree(data) {
 	}
 
 	if (data.nextRecords) {
-		result += nextRecordersButtonTemplate;
+		result += nextRecordsButtonTemplate;
 	}
 	$("#dbTree").html(result);
 
 	document.getElementById("dbTreeWrapper").scrollTop = 0;
+
+	// Add popup menus for buckets and records
+	var records = document.getElementsByClassName("record")
+	for (i = 0; i < records.length; i++) {
+		records[i].oncontextmenu = showRecordMenu;
+	}
+	var buckets = document.getElementsByClassName("bucket")
+	for (i = 0; i < buckets.length; i++) {
+		buckets[i].oncontextmenu = showBucketMenu;
+	}
 }
 
 function ShowPathsForDelete() {
@@ -380,8 +397,46 @@ function HideModal() {
 	$("#dbPathsList").css("display", "none");
 }
 
+// Menus
+function showPopupMenu(x, y, html) {
+	$("#popupMenu").css("top", y + 10 + "px");
+	$("#popupMenu").css("left", x + 10 + "px");
+	$("#popupMenu").html(html);
+	$("#popupMenu").css("visibility", "visible");
+}
+
+function showBucketMenu(event) {
+	// Reset margin for last element
+	var html =  bucketMenuHTML.format(event.target.innerHTML);
+
+	showPopupMenu(event.clientX, event.clientY, html);
+	return false;
+}
+
+function showRecordMenu(event) {
+	// Reset margin for last element
+	var html = recordMenuHTML.format(event.target.innerHTML)
+	showPopupMenu(event.clientX, event.clientY, html);
+	return false;
+}
+
+function showAddMenu(event) {
+	showPopupMenu(event.clientX, event.clientY, addMenuHTML);
+	return false;
+}
+
 
 /* Secondary functions */
+$(document).ready(function() {
+	$("#dbTreeWrapper").mousedown(function(event) {
+		// Magic. Program shows addMenu only if target is dbTreeWrapper and isn't anything else
+		if ((event.target == dbTreeWrapper || event.target == dbTree) && event.which == 3) {
+			showAddMenu(event);
+			return false
+		}
+	});
+});
+
 window.onclick = function(event) {
     if (event.target == modal) {
 		HideModal();
@@ -389,6 +444,10 @@ window.onclick = function(event) {
 	if (event.target == dbListBackground) {
 		$("#dbListBackground").css("display", "none");
 		$("#dbList").removeClass("db_list_animation");
+	}
+	// Hiding popup menu
+	if ($("#popupMenu").css("visibility") == "visible" && event.target != popupMenu) {
+		$("#popupMenu").css("visibility", "hidden");
 	}
 }
 
