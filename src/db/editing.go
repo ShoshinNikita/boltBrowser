@@ -99,8 +99,13 @@ func (db *BoltAPI) ModifyRecord(oldKey, newKey, newValue string) error {
 			if oldKey == newKey {
 				err = b.Put([]byte(oldKey), []byte(newValue))
 			} else {
-				b.Delete([]byte(oldKey))
-				err = b.Put([]byte(newKey), []byte(newValue))
+				if b.Get([]byte(newKey)) != nil {
+					// If newKey already exists
+					err = errors.New("\"" + newKey + "\" already exists")
+				} else {
+					b.Delete([]byte(oldKey))
+					err = b.Put([]byte(newKey), []byte(newValue))
+				}
 			}
 		} else {
 			// If record doesn't exist
