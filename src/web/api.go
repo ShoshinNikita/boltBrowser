@@ -257,9 +257,9 @@ func current(w http.ResponseWriter, r *http.Request) {
 		Records     []db.Record `json:"records"`
 	}{
 		dbs.DBInfo{
-			Name: info.Name,
+			Name:   info.Name,
 			DBPath: info.DBPath,
-			Size: info.Size,
+			Size:   info.Size,
 		},
 		data.PrevBucket,
 		data.PrevRecords,
@@ -423,4 +423,99 @@ func returnError(w http.ResponseWriter, err error, message string, code int) {
 	fmt.Printf("[ERR] %s\n", text)
 
 	http.Error(w, text, code)
+}
+
+// addBucket
+//
+// Params: dbPath, bucket
+// Return: -
+//
+func addBucket(w http.ResponseWriter, r *http.Request) {
+	dbPath := r.PostFormValue("dbPath")
+	bucket := r.PostFormValue("bucket")
+
+	code, err := dbs.AddBucket(dbPath, bucket)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
+	}
+
+	w.WriteHeader(code)
+}
+
+// deleteBucket
+//
+// Params: dbPath, bucket (int URI)
+// Return: -
+//
+func deleteBucket(w http.ResponseWriter, r *http.Request) {
+	vars := r.URL.Query()
+	dbPath := vars.Get("dbPath")
+	bucket := vars.Get("bucket")
+
+	code, err := dbs.DeleteBucket(dbPath, bucket)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
+	}
+
+	w.WriteHeader(code)
+}
+
+// addRecord
+//
+// Params: dbPath, key, value
+// Return: -
+//
+func addRecord(w http.ResponseWriter, r *http.Request) {
+	dbPath := r.PostFormValue("dbPath")
+	key := r.PostFormValue("key")
+	value := r.PostFormValue("value")
+
+	code, err := dbs.AddRecord(dbPath, key, value)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
+	}
+
+	w.WriteHeader(code)
+}
+
+// modifyRecord
+//
+// Params: dbPath, oldKey, newKey, newValue
+// Return: -
+//
+func modifyRecord(w http.ResponseWriter, r *http.Request) {
+	dbPath := r.PostFormValue("dbPath")
+	oldKey := r.PostFormValue("oldKey")
+	newKey := r.PostFormValue("newKey")
+	newValue := r.PostFormValue("newValue")
+
+	code, err := dbs.ModifyRecord(dbPath, oldKey, newKey, newValue)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
+	}
+
+	w.WriteHeader(code)
+}
+
+// deleteRecord
+//
+// Params: dbPath, key (int URI)
+// Return: -
+//
+func deleteRecord(w http.ResponseWriter, r *http.Request) {
+	vars := r.URL.Query()
+	dbPath := vars.Get("dbPath")
+	key := vars.Get("key")
+
+	code, err := dbs.DeleteRecord(dbPath, key)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
+	}
+
+	w.WriteHeader(code)
 }

@@ -163,6 +163,71 @@ func Search(dbPath, mode, text string) (records []db.Record, path string, code i
 	return records, path, http.StatusOK, nil
 }
 
+func AddBucket(dbPath, bucketName string) (code int, err error) {
+	if _, ok := allDB[dbPath]; !ok {
+		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
+	}
+
+	err = allDB[dbPath].AddBucket(bucketName)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	return http.StatusCreated, nil
+}
+
+func DeleteBucket(dbPath, bucketName string) (code int, err error) {
+	if _, ok := allDB[dbPath]; !ok {
+		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
+	}
+
+	err = allDB[dbPath].DeleteBucket(bucketName)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	return http.StatusOK, nil
+}
+
+func AddRecord(dbPath, key, value string) (code int, err error) {
+	if _, ok := allDB[dbPath]; !ok {
+		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
+	}
+
+	err = allDB[dbPath].AddRecord(key, value)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	return http.StatusCreated, nil
+}
+
+func ModifyRecord(dbPath, oldKey, newKey, newValue string) (code int, err error) {
+	if _, ok := allDB[dbPath]; !ok {
+		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
+	}
+
+	err = allDB[dbPath].ModifyRecord(oldKey, newKey, newValue)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	return http.StatusOK, nil
+}
+
+func DeleteRecord(dbPath, key string) (code int, err error) {
+	if _, ok := allDB[dbPath]; !ok {
+		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
+	}
+
+	err = allDB[dbPath].DeleteRecord(key)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	return http.StatusOK, nil
+}
+
 // CloseDBs closes all databases
 func CloseDBs() {
 	for k := range allDB {
