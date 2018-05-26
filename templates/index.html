@@ -34,7 +34,7 @@
 		<div class="db_list" id="dbList">
 			<div style="font-size: 25px; text-align: center; border-bottom: 1px solid black; margin-top: 5px;">
 				Databases
-				<i class="material-icons btn icon" style="float: right; margin-right: 1vw;" onclick="ShowModal();" title="Open new db">add</i>
+				<i class="material-icons btn icon" style="float: right; margin-right: 1vw;" onclick="ShowOpenDbWindow();" title="Open new db">add</i>
 			</div>
 			<br>
 			<div id="list" style="overflow-y: auto;"></div>
@@ -90,16 +90,16 @@
 		</div>
 	</div>
 
-	<div class="popup" id="popup" onclick="HidePopup();">
+	<div class="popup" id="errorPopup" onclick="HideErrorPopup();">
 		<div style="padding: 5px 5px 5px 5px;" id="popupMessage"></div>
 	</div>
 
-	<div id="modal" class="background">
+	<div id="openDbWindow" class="background">
 		<div class="modal-content">
 			<i class="material-icons btn" style="font-size: 20px !important; vertical-align: middle;" onclick="ShowPathsForDelete();" title="Change the list of paths">settings</i>
 			<input list="paths" id="DBPath" style="width: 75%;" autofocus>
 			<datalist id="paths"></datalist>
-			<input type="button" value="Open" style="border-radius: 3px; border: 2px solid #888; background-color: white;" onclick="OpenDB(); HideModal();">
+			<input type="button" value="Open" style="border-radius: 3px; border: 2px solid #888; background-color: white;" onclick="OpenDB(); HideOpenDbWindow();">
 			<div id="dbPathsList" style="margin-top: 20px; display: none;"></div>
 		</div>
 	</div>

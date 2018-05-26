@@ -31,7 +31,7 @@ const prevRecordsButtonTemplate = `<div style="display: table;">
 // Reset margin for last element
 const addMenuHTML = `<input type="button" class="popup_button" onclick="AddBucket();" value="Add bucket">
 <input type="button" class="popup_button" style="margin: auto;" onclick="AddRecord();" value="Add record">`;
-const bucketMenuHTML = `<input type="button" class="popup_button" style="margin: auto;" onclick="DeleteBucket("{0}");" value="Delete">`;
+const bucketMenuHTML = `<input type="button" class="popup_button" style="margin: auto;" onclick="DeleteBucket('{0}');" value="Delete">`;
 const recordMenuHTML = `<input type="button" class="popup_button" onclick="EditRecord('{0}');" value="Edit">
 <input type="button" class="popup_button" style="margin: auto;" onclick="DeleteRecord('{0}');" value="Delete">`;
 
@@ -92,7 +92,7 @@ function DeletePath(path) {
 function OpenDB() {
 	var dbPath = $("#DBPath").val();
 	if (dbPath == "" ) {
-		ShowPopup("Error: path is empty");
+		ShowErrorPopup("Error: path is empty");
 		return;
 	}
 
@@ -109,7 +109,7 @@ function OpenDB() {
 			ShowDBList();
 		},
 		error: function(result) {
-			ShowPopup(result.responseText);
+			ShowErrorPopup(result.responseText);
 		}
 	});
 	;
@@ -137,7 +137,7 @@ function CloseDB(dbPath) {
 			ShowDBList();
 		},
 		error: function(result) {
-			ShowPopup(result.responseText);
+			ShowErrorPopup(result.responseText);
 		}
 	});
 }
@@ -155,7 +155,7 @@ function ShowDBList() {
 			$("#list").html(result);
 		},
 		error: function(result) {
-			ShowPopup(result.responseText);
+			ShowErrorPopup(result.responseText);
 		}
 	});
 }
@@ -182,7 +182,7 @@ function ChooseDB(dbPath) {
 			ShowTree(result);
 		},
 		error: function(result) {
-			ShowPopup(result.responseText);
+			ShowErrorPopup(result.responseText);
 		}
 	});
 }
@@ -201,7 +201,7 @@ function Next(bucket) {
 			ShowTree(result);
 		},
 		error: function(result) {
-			ShowPopup(result.responseText);
+			ShowErrorPopup(result.responseText);
 		}
 	});
 }
@@ -219,7 +219,7 @@ function Back() {
 			ShowTree(result);
 		},
 		error: function(result) {
-			ShowPopup(result.responseText);
+			ShowErrorPopup(result.responseText);
 		}
 	});
 }
@@ -237,7 +237,7 @@ function NextRecords() {
 			ShowTree(result);
 		},
 		error: function(result) {
-			ShowPopup(result.responseText);
+			ShowErrorPopup(result.responseText);
 		}
 	});
 }
@@ -255,7 +255,7 @@ function PrevRecords() {
 			ShowTree(result);
 		},
 		error: function(result) {
-			ShowPopup(result.responseText);
+			ShowErrorPopup(result.responseText);
 		}
 	});
 }
@@ -286,7 +286,7 @@ function Search() {
 			ShowTree(result);
 		},
 		error: function(result) {
-			ShowPopup(result.responseText);
+			ShowErrorPopup(result.responseText);
 		}
 	});
 }
@@ -336,7 +336,7 @@ function ShowTree(data) {
 
 	document.getElementById("dbTreeWrapper").scrollTop = 0;
 
-	// Add popup menus for buckets and records
+	// Add ErrorPopup(menus for buckets and records
 	var records = document.getElementsByClassName("record")
 	for (i = 0; i < records.length; i++) {
 		records[i].oncontextmenu = showRecordMenu;
@@ -367,17 +367,17 @@ function ShowPathsForDelete() {
 }
 
 // Popup
-function ShowPopup(message) {
+function ShowErrorPopup(message) {
 	$("#popupMessage").html(message);
-	$("#popup").addClass("popup_animation");
+	$("#errorPopup").addClass("popup_animation");
 }
 
-function HidePopup() {
-	$("#popup").removeClass("popup_animation");
+function HideErrorPopup() {
+	$("#errorPopup").removeClass("popup_animation");
 }
 
-// Modal
-function ShowModal() {
+// OpenDbWindow
+function ShowOpenDbWindow() {
 	const template = `<option value="{0}">`;
 
 	var sortedPaths = getPaths();
@@ -388,12 +388,12 @@ function ShowModal() {
 	}
 
 	$("#paths").html(options);
-	$("#modal").css("display", "block");
+	$("#openDbWindow").css("display", "block");
 	$("#DBPath").focus();
 }
 
-function HideModal() {
-	$("#modal").css("display", "none");
+function HideOpenDbWindow() {
+	$("#openDbWindow").css("display", "none");
 	$("#dbPathsList").css("display", "none");
 }
 
@@ -408,7 +408,6 @@ function showPopupMenu(x, y, html) {
 function showBucketMenu(event) {
 	// Reset margin for last element
 	var html =  bucketMenuHTML.format(event.target.innerHTML);
-
 	showPopupMenu(event.clientX, event.clientY, html);
 	return false;
 }
@@ -421,31 +420,33 @@ function showRecordMenu(event) {
 }
 
 function showAddMenu(event) {
-	showPopupMenu(event.clientX, event.clientY, addMenuHTML);
-	return false;
+	// Magic. Program shows addMenu only if target is dbTreeWrapper and isn't anything else
+	if ((event.target == dbTreeWrapper || event.target == dbTree) && event.which == 3) {
+		// Show menu only if db was chosen
+		if (currentDBPath != "") {
+			showPopupMenu(event.clientX, event.clientY, addMenuHTML);
+			return false;
+		}
+	}
 }
 
 
 /* Secondary functions */
 $(document).ready(function() {
 	$("#dbTreeWrapper").mousedown(function(event) {
-		// Magic. Program shows addMenu only if target is dbTreeWrapper and isn't anything else
-		if ((event.target == dbTreeWrapper || event.target == dbTree) && event.which == 3) {
-			showAddMenu(event);
-			return false
-		}
-	});
+		showAddMenu(event);
+	})
 });
 
 window.onclick = function(event) {
-    if (event.target == modal) {
-		HideModal();
+    if (event.target == openDbWindow) {
+		HideOpenDbWindow();
 	}
 	if (event.target == dbListBackground) {
 		$("#dbListBackground").css("display", "none");
 		$("#dbList").removeClass("db_list_animation");
 	}
-	// Hiding popup menu
+	// Hiding ErrorPopup(menu
 	if ($("#popupMenu").css("visibility") == "visible" && event.target != popupMenu) {
 		$("#popupMenu").css("visibility", "hidden");
 	}
