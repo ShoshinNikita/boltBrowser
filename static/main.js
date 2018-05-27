@@ -377,6 +377,17 @@ function HideOpenDbWindow() {
 	$("#dbPathsList").css("display", "none");
 }
 
+// DonePopup
+function ShowDonePopup() {
+	$("#donePopup").css("display", "block")
+	$("#donePopup").addClass("done_popup_animation")
+
+	setTimeout(function() {
+		$("#donePopup").css("display", "none")
+		$("#donePopup").removeClass("done_popup_animation")
+	}, 2000)
+}
+
 
 /* Secondary functions */
 window.onclick = function(event) {

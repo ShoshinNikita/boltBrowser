@@ -45,8 +45,8 @@ function AddBucket() {
 		},
 		success: function(result){
 			HideAddModal();
-			// TODO
-			ChooseDB(currentDBPath)
+			ShowDonePopup();
+			Next(bucketName);
 		},
 		error: function(result) {
 			ShowErrorPopup(result.responseText);
@@ -61,6 +61,7 @@ function DeleteBucket(bucket) {
 		type: "DELETE",
 		success: function(result){
 			// TODO
+			ShowDonePopup();
 			ChooseDB(currentDBPath)
 		},
 		error: function(result) {
@@ -88,6 +89,7 @@ function AddRecord() {
 		success: function(result){
 			HideAddModal();
 			// TODO
+			ShowDonePopup();
 			ChooseDB(currentDBPath)
 		},
 		error: function(result) {
@@ -116,6 +118,7 @@ function EditRecord(oldKey) {
 		success: function(result){
 			HideAddModal();
 			// TODO
+			ShowDonePopup();
 			ChooseDB(currentDBPath)
 		},
 		error: function(result) {
@@ -131,6 +134,7 @@ function DeleteRecord(key) {
 		type: "DELETE",
 		success: function(result){
 			// TODO
+			ShowDonePopup();
 			ChooseDB(currentDBPath)
 		},
 		error: function(result) {

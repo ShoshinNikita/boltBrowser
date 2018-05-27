@@ -146,6 +146,34 @@ input[type=button] {
 	margin-bottom: 5px;
 }
 
+/* DonePopup */
+.done_popup {
+	display: none;
+	position: absolute;
+	top: 80px;
+	left: 0;
+	right: 0;
+	margin-left: auto;
+	margin-right: auto;
+	padding: auto;
+	text-align: center;
+	background-color: rgba(180, 180, 180, 0.493);
+	border-radius: 5px;
+	border: 1px solid rgba(180, 180, 180, 0.7);
+	width: 60px;
+	height: 20px;
+}
+.done_popup_animation {
+	animation-name: moveDonePopup;
+	animation-duration: 2s;
+	animation-iteration-count: 1;
+}
+@keyframes moveDonePopup {
+	0% {opacity: 0.1;}
+	40%, 60% {opacity: 1;}
+	100% {opacity: 0.1;}
+}
+
 
 /* Scrollbar */
 ::-webkit-scrollbar {
