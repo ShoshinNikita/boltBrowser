@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -11,36 +10,20 @@ import (
 
 	"db"
 	"dbs"
+	"params"
 	"versioning"
 	"web"
 )
 
-type opts struct {
-	port     string
-	debug    bool
-	offset   int
-	checkVer bool
-}
-
 func main() {
 	const currentVersion = "v1.3"
 
-	var flags opts
-	flag.StringVar(&flags.port, "port", ":500", "port for website (with ':')")
-	flag.BoolVar(&flags.debug, "debug", false, "debug mode")
-	flag.IntVar(&flags.offset, "offset", 100, "number of records on single page")
-	flag.BoolVar(&flags.checkVer, "checkVer", true, "should program check is there a new version")
-	flag.Parse()
-
-	// Checking of ':' before port
-	if flags.port[0] != ':' {
-		flags.port = ":" + flags.port
-	}
+	params.ParseFlags()
 
 	fmt.Printf("boltBrowser %s\n", currentVersion)
-	fmt.Printf("[INFO] Start, port - %s, debug mode - %t, offset - %d, check version - %t\n", flags.port, flags.debug, flags.offset, flags.checkVer)
+	fmt.Printf("[INFO] Start, port - %s, debug mode - %t, offset - %d, check version - %t, read-only: %t\n", params.Port, params.Debug, params.Offset, params.CheckVer, !params.IsWriteMode)
 
-	if flags.checkVer {
+	if params.CheckVer {
 		// Checking is there a new version
 		data, err := versioning.CheckVersion(currentVersion)
 		if err != nil {
@@ -57,9 +40,9 @@ func main() {
 	stopSite := make(chan struct{})
 	stop := make(chan os.Signal, 1)
 
-	db.SetOffset(flags.offset)
+	db.SetOffset(params.Offset)
 
-	go web.Start(flags.port, flags.debug, stopSite)
+	go web.Start(params.Port, stopSite)
 
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 	<-stop
