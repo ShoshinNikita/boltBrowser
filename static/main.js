@@ -110,11 +110,8 @@ function OpenDB() {
 
 function CloseDB(dbPath) {
 	$.ajax({
-		url: "/api/closeDB",
-		type: "POST",
-		data: {
-			"dbPath": dbPath,
-		},
+		url: "/api/databases" + "?" + $.param({"dbPath": dbPath}),
+		type: "DELETE",
 		success: function(result){
 			if (dbPath == currentDBPath) {
 				$("#dbName").html("<i>Name:<\/i> ?");
@@ -156,7 +153,7 @@ function ShowDBList() {
 function ChooseDB(dbPath) {
 	currentDBPath = dbPath;
 	$.ajax({
-		url: "/api/current",
+		url: "/api/buckets/current",
 		type: "GET",
 		data: {
 			"dbPath": dbPath,
@@ -182,7 +179,7 @@ function ChooseDB(dbPath) {
 
 function Next(bucket) {
 	$.ajax({
-		url: "/api/next",
+		url: "/api/buckets/next",
 		type: "GET",
 		data: {
 			"dbPath": currentDBPath,
@@ -201,7 +198,7 @@ function Next(bucket) {
 
 function Back() {
 	$.ajax({
-		url: "/api/back",
+		url: "/api/buckets/back",
 		type: "GET",
 		data: {
 			"dbPath": currentDBPath,
@@ -219,7 +216,7 @@ function Back() {
 
 function NextRecords() {
 	$.ajax({
-		url: "/api/nextRecords",
+		url: "/api/records/next",
 		type: "GET",
 		data: {
 			"dbPath": currentDBPath,
@@ -237,7 +234,7 @@ function NextRecords() {
 
 function PrevRecords() {
 	$.ajax({
-		url: "/api/prevRecords",
+		url: "/api/records/prev",
 		type: "GET",
 		data: {
 			"dbPath": currentDBPath,
