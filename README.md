@@ -33,8 +33,9 @@ Flag | Default | Description
 ---- | ------ | -------
 `-port` | `:500` | port of the website
 `-offset` | `100` | number of records on single page
-`-debug` | `false` | switch mode
+`-debug` | `false` | mode of debugging
 `-checkVer` | `true` | should program check a new version
+`-writeMode` | `true` | can program edit databases
 
 ## Additional info
 
