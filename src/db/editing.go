@@ -24,6 +24,10 @@ func (db *BoltAPI) AddBucket(bucketName string) (err error) {
 		return err
 	})
 
+	if err == nil {
+		db.recordsAmount++
+	}
+
 	return err
 }
 
@@ -44,11 +48,15 @@ func (db *BoltAPI) DeleteBucket(key string) (err error) {
 		return err
 	})
 
+	if err == nil {
+		db.recordsAmount--
+	}
+
 	return err
 }
 
-func (db *BoltAPI) AddRecord(key, value string) error {
-	return db.db.Update(func(tx *bolt.Tx) error {
+func (db *BoltAPI) AddRecord(key, value string) (err error) {
+	err = db.db.Update(func(tx *bolt.Tx) error {
 		var err error
 
 		b := db.getCurrentBucket(tx)
@@ -65,10 +73,16 @@ func (db *BoltAPI) AddRecord(key, value string) error {
 
 		return err
 	})
+
+	if err == nil {
+		db.recordsAmount++
+	}
+
+	return err
 }
 
-func (db *BoltAPI) DeleteRecord(key string) error {
-	return db.db.Update(func(tx *bolt.Tx) error {
+func (db *BoltAPI) DeleteRecord(key string) (err error) {
+	err = db.db.Update(func(tx *bolt.Tx) error {
 		var err error
 
 		b := db.getCurrentBucket(tx)
@@ -85,6 +99,12 @@ func (db *BoltAPI) DeleteRecord(key string) error {
 
 		return err
 	})
+
+	if err == nil {
+		db.recordsAmount--
+	}
+
+	return err
 }
 
 func (db *BoltAPI) EditRecord(oldKey, newKey, newValue string) error {
