@@ -449,9 +449,9 @@ func addBucket(w http.ResponseWriter, r *http.Request) {
 // Return: -
 //
 func deleteBucket(w http.ResponseWriter, r *http.Request) {
-	vars := r.URL.Query()
-	dbPath := vars.Get("dbPath")
-	bucket := vars.Get("bucket")
+	r.ParseForm()
+	dbPath := r.Form.Get("dbPath")
+	bucket := r.Form.Get("bucket")
 
 	code, err := dbs.DeleteBucket(dbPath, bucket)
 	if err != nil {
@@ -507,9 +507,9 @@ func editRecord(w http.ResponseWriter, r *http.Request) {
 // Return: -
 //
 func deleteRecord(w http.ResponseWriter, r *http.Request) {
-	vars := r.URL.Query()
-	dbPath := vars.Get("dbPath")
-	key := vars.Get("key")
+	r.ParseForm()
+	dbPath := r.Form.Get("dbPath")
+	key := r.Form.Get("key")
 
 	code, err := dbs.DeleteRecord(dbPath, key)
 	if err != nil {
