@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"os"
 	"strings"
 
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
 	"dbs"
@@ -71,7 +69,7 @@ func Start(port string, stopChan chan struct{}) {
 
 	var handler http.Handler
 	if params.Debug {
-		handler = handlers.LoggingHandler(os.Stdout, router)
+		handler = debugHandler(router)
 	} else {
 		handler = router
 	}
@@ -82,6 +80,24 @@ func Start(port string, stopChan chan struct{}) {
 	<-stopChan
 	srv.Shutdown(context.Background())
 	fmt.Println("[INFO] Website was stopped")
+}
+
+func debugHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.ParseForm()
+
+		fmt.Printf("%s – %s\n", r.Method, r.URL.Path)
+		if len(r.Form) > 0 {
+			fmt.Print("Form:\n")
+		}
+		for key, values := range r.Form {
+			fmt.Printf("* %s: %v\n", key, values)
+		}
+
+		fmt.Print("\n")
+
+		h.ServeHTTP(w, r)
+	})
 }
 
 func middleware(h http.Handler) http.Handler {
