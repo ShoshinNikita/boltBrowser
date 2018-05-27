@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 
 	"github.com/boltdb/bolt"
+
+	"params"
 )
 
 const (
@@ -60,7 +62,15 @@ func Open(path string) (*BoltAPI, error) {
 		return nil, err
 	}
 
-	db.db, err = bolt.Open(path, 0600, nil)
+	var options *bolt.Options
+	// Check is ReadOnly mode
+	if !params.IsWriteMode {
+		options = &bolt.Options{ReadOnly: true}
+	} else {
+		options = nil
+	}
+
+	db.db, err = bolt.Open(path, 0600, options)
 	if err != nil {
 		return nil, err
 	}
