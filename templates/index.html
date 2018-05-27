@@ -11,7 +11,10 @@
 	<!-- Custom css and js -->
 	<link rel="stylesheet" type="text/css" media="screen" href="/static/main.css" />
 	<script src="/static/main.js"></script>
-	
+	{{if .WriteMode}}
+	<!-- Add write_mode.js -->
+	<script src="/static/write_mode.js"></script>
+	{{end}}
 </head>
 <body onload="ShowDBList(); PrepareLS();" style="margin: 0px 0px 0px 0px; overflow-y: hidden;">
 	<!-- Menu -->
@@ -75,7 +78,7 @@
 
 		<!-- Records -->
 		<div style="height: 80vh; overflow: hidden; padding-top: 2px;">
-			<div class="db_tree_wrapper" id="dbTreeWrapper" oncontextmenu="return false;">
+			<div class="db_tree_wrapper" id="dbTreeWrapper">
 				<div id="dbTree"></div>
 			</div>
 			
@@ -99,15 +102,20 @@
 			<i class="material-icons btn" style="font-size: 20px !important; vertical-align: middle;" onclick="ShowPathsForDelete();" title="Change the list of paths">settings</i>
 			<input list="paths" id="DBPath" style="width: 75%;" autofocus>
 			<datalist id="paths"></datalist>
-			<input type="button" value="Open" style="border-radius: 3px; border: 2px solid #888; background-color: white;" onclick="OpenDB(); HideOpenDbWindow();">
+			<input type="button" value="Open" class="button" onclick="OpenDB(); HideOpenDbWindow();">
 			<div id="dbPathsList" style="margin-top: 20px; display: none;"></div>
 		</div>
 	</div>
-
+	{{if .WriteMode}}
+	<!-- Add this elements only for WriteMode -->
 	<div id="popupMenu" class="popup_menu">
-		<div id="popupMenuContent">
-			
+		<div id="popupMenuContent"></div>
+	</div>
+
+	<div id="addItemWindowBackground" class="background">
+		<div class="modal-content" id="addItemWindow">
 		</div>
 	</div>
+	{{end}}
 </body>
 </html>

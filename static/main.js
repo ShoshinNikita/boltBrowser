@@ -28,13 +28,6 @@ const prevRecordsButtonTemplate = `<div style="display: table;">
 	<span style="cursor: pointer;" onclick="PrevRecords();"><b>Previous page<\/b><\/span>
 <\/div>`;
 
-// Reset margin for last element
-const addMenuHTML = `<input type="button" class="popup_button" onclick="AddBucket();" value="Add bucket">
-<input type="button" class="popup_button" style="margin: auto;" onclick="AddRecord();" value="Add record">`;
-const bucketMenuHTML = `<input type="button" class="popup_button" style="margin: auto;" onclick="DeleteBucket('{0}');" value="Delete">`;
-const recordMenuHTML = `<input type="button" class="popup_button" onclick="EditRecord('{0}');" value="Edit">
-<input type="button" class="popup_button" style="margin: auto;" onclick="DeleteRecord('{0}');" value="Delete">`;
-
 
 /* Global variables */
 var currentDBPath = "";
@@ -335,16 +328,6 @@ function ShowTree(data) {
 	$("#dbTree").html(result);
 
 	document.getElementById("dbTreeWrapper").scrollTop = 0;
-
-	// Add ErrorPopup(menus for buckets and records
-	var records = document.getElementsByClassName("record")
-	for (i = 0; i < records.length; i++) {
-		records[i].oncontextmenu = showRecordMenu;
-	}
-	var buckets = document.getElementsByClassName("bucket")
-	for (i = 0; i < buckets.length; i++) {
-		buckets[i].oncontextmenu = showBucketMenu;
-	}
 }
 
 function ShowPathsForDelete() {
@@ -366,7 +349,7 @@ function ShowPathsForDelete() {
 	$("#dbPathsList").css("display", "block");
 }
 
-// Popup
+// ErrorPopup
 function ShowErrorPopup(message) {
 	$("#popupMessage").html(message);
 	$("#errorPopup").addClass("popup_animation");
@@ -397,47 +380,8 @@ function HideOpenDbWindow() {
 	$("#dbPathsList").css("display", "none");
 }
 
-// Menus
-function showPopupMenu(x, y, html) {
-	$("#popupMenu").css("top", y + 10 + "px");
-	$("#popupMenu").css("left", x + 10 + "px");
-	$("#popupMenu").html(html);
-	$("#popupMenu").css("visibility", "visible");
-}
-
-function showBucketMenu(event) {
-	// Reset margin for last element
-	var html =  bucketMenuHTML.format(event.target.innerHTML);
-	showPopupMenu(event.clientX, event.clientY, html);
-	return false;
-}
-
-function showRecordMenu(event) {
-	// Reset margin for last element
-	var html = recordMenuHTML.format(event.target.innerHTML)
-	showPopupMenu(event.clientX, event.clientY, html);
-	return false;
-}
-
-function showAddMenu(event) {
-	// Magic. Program shows addMenu only if target is dbTreeWrapper and isn't anything else
-	if ((event.target == dbTreeWrapper || event.target == dbTree) && event.which == 3) {
-		// Show menu only if db was chosen
-		if (currentDBPath != "") {
-			showPopupMenu(event.clientX, event.clientY, addMenuHTML);
-			return false;
-		}
-	}
-}
-
 
 /* Secondary functions */
-$(document).ready(function() {
-	$("#dbTreeWrapper").mousedown(function(event) {
-		showAddMenu(event);
-	})
-});
-
 window.onclick = function(event) {
     if (event.target == openDbWindow) {
 		HideOpenDbWindow();
@@ -446,7 +390,13 @@ window.onclick = function(event) {
 		$("#dbListBackground").css("display", "none");
 		$("#dbList").removeClass("db_list_animation");
 	}
-	// Hiding ErrorPopup(menu
+
+	// From write_mode.js
+	// Hiding AddMenu
+	if (event.target == addItemWindowBackground) {
+		$("#addItemWindowBackground").css("display", "none");
+	}
+	// Hiding PopupMenu
 	if ($("#popupMenu").css("visibility") == "visible" && event.target != popupMenu) {
 		$("#popupMenu").css("visibility", "hidden");
 	}

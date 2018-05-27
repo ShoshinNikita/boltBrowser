@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 
@@ -19,6 +20,7 @@ var routes = []struct {
 }{
 	// TODO next -> buckets/next
 	// prevRecords -> records/prev etc.
+	{url: "/", method: "GET", handler: index},
 	{url: "/api/databases", method: "POST", handler: openDB},
 	{url: "/api/closeDB", method: "POST", handler: closeDB},
 	{url: "/api/databases", method: "GET", handler: databasesList},
@@ -29,6 +31,26 @@ var routes = []struct {
 	{url: "/api/nextRecords", method: "GET", handler: nextRecords},
 	{url: "/api/prevRecords", method: "GET", handler: prevRecords},
 	{url: "/api/search", method: "GET", handler: search},
+
+	{url: "/api/buckets", method: "POST", handler: addBucket},
+	{url: "/api/buckets", method: "DELETE", handler: deleteBucket},
+	{url: "/api/records", method: "POST", handler: addRecord},
+	{url: "/api/records", method: "PUT", handler: editRecord},
+	{url: "/api/records", method: "DELETE", handler: deleteRecord},
+}
+
+func index(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("templates/index.html")
+	if err != nil {
+		fmt.Printf("[ERR] %s\n", err.Error())
+		fmt.Fprintf(w, "[ERR] %s\n", err.Error())
+		return
+	}
+	// TODO global config
+	data := struct {
+		WriteMode bool
+	}{true}
+	t.Execute(w, data)
 }
 
 // Start runs website
@@ -37,7 +59,6 @@ func Start(port string, debug bool, stopChan chan struct{}) {
 
 	router := mux.NewRouter().StrictSlash(false)
 	router.Path("/favicon.ico").Methods("GET").Handler(http.FileServer(http.Dir("./static/")))
-	router.Path("/").Methods("GET").Handler(http.FileServer(http.Dir("templates/")))
 	for _, r := range routes {
 		router.Path(r.url).Methods(r.method).HandlerFunc(r.handler)
 	}
