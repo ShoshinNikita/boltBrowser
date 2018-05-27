@@ -43,7 +43,7 @@ function PrepareLS() {
 }
 
 function putIntoLS(dbPath) {
-	var paths = JSON.parse(localStorage.getItem("paths"));
+	var paths = SafeParse(localStorage.getItem("paths"));
 	if (paths[dbPath] == null) {
 		paths[dbPath] = {
 			"uses": 1
@@ -56,7 +56,7 @@ function putIntoLS(dbPath) {
 }
 
 function getPaths() {
-	var paths = JSON.parse(localStorage.getItem("paths"));
+	var paths = SafeParse(localStorage.getItem("paths"));
 
 	// Sorting. Return only keys;
 	var sortedPaths = Object.keys(paths).sort(function(a, b){
@@ -73,7 +73,7 @@ function getPaths() {
 }
 
 function DeletePath(path) {
-	var paths = JSON.parse(localStorage.getItem("paths"));
+	var paths = SafeParse(localStorage.getItem("paths"));
 	delete paths[path];
 	localStorage.setItem("paths", JSON.stringify(paths));
 
@@ -97,7 +97,7 @@ function OpenDB() {
 			"dbPath": dbPath
 		},
 		success: function(result){
-			result= JSON.parse(result)
+			result= SafeParse(result)
 			putIntoLS(result.dbPath);
 			ShowDBList();
 		},
@@ -137,7 +137,7 @@ function ShowDBList() {
 		url: "/api/databases",
 		type: "GET",
 		success: function(result){
-			allDB = JSON.parse(result);
+			allDB = SafeParse(result);
 			var result = "";
 			for (i in allDB) {
 				result += buttonTemplate.format(allDB[i].name, allDB[i].dbPath);
@@ -159,7 +159,7 @@ function ChooseDB(dbPath) {
 			"dbPath": dbPath,
 		},
 		success: function(result){
-			result = JSON.parse(result);
+			result = SafeParse(result);
 
 			$("#dbName").html("<i>Name:<\/i> " + result.db.name);
 			$("#dbPath").html("<i>Path:<\/i> " + result.db.dbPath);
@@ -186,7 +186,7 @@ function Next(bucket) {
 			"bucket": bucket
 		},
 		success: function(result){
-			result = JSON.parse(result);
+			result = SafeParse(result);
 			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ");
 			ShowTree(result);
 		},
@@ -204,7 +204,7 @@ function Back() {
 			"dbPath": currentDBPath,
 		},
 		success: function(result){
-			result = JSON.parse(result);
+			result = SafeParse(result);
 			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ");
 			ShowTree(result);
 		},
@@ -222,7 +222,7 @@ function NextRecords() {
 			"dbPath": currentDBPath,
 		},
 		success: function(result){
-			result = JSON.parse(result);
+			result = SafeParse(result);
 
 			ShowTree(result);
 		},
@@ -240,7 +240,7 @@ function PrevRecords() {
 			"dbPath": currentDBPath,
 		},
 		success: function(result){
-			result = JSON.parse(result);
+			result = SafeParse(result);
 
 			ShowTree(result);
 		},
@@ -270,7 +270,7 @@ function Search() {
 			"mode": mode
 		},
 		success: function(result){
-			result = JSON.parse(result);
+			result = SafeParse(result);
 			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ");
 
 			ShowTree(result);
@@ -306,6 +306,7 @@ function ShowTree(data) {
 
 	var records = data.records;
 	currentData = records;
+
 	for (i in records) {
 		if (records[i].type == "bucket") {
 			result += bucketTemplate.format(records[i].key);
@@ -390,6 +391,27 @@ function ShowDonePopup() {
 
 
 /* Secondary functions */
+
+// Return parsed object with "good" symbols
+function SafeParse(text) {
+	var object = JSON.parse(text);
+	makeSafe(object);
+	return object
+}
+
+// Erase all "bad" symbols from object like '<', '>', '\'', '"'
+// Works recursively
+function makeSafe(object) {
+	if (typeof object === 'object') {
+		for (i in object) {
+			object[i] = makeSafe(object[i]);
+		}
+	} else if (typeof object === 'string') {
+		object = object.replaceAll("<", "❮").replaceAll(">", "❯").replaceAll("\"", "＂").replaceAll("'", "ߴ")
+	}
+	return object
+}
+
 window.onclick = function(event) {
     if (event.target == openDbWindow) {
 		HideOpenDbWindow();
@@ -430,3 +452,8 @@ String.prototype.format = function () {
 	}
 	return a;
 }
+
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
