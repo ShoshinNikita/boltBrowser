@@ -3,7 +3,6 @@ package web
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strings"
 
@@ -41,18 +40,7 @@ var routes = []struct {
 	{url: "/api/search", method: "GET", handler: search, writeMode: false},
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("templates/index.html")
-	if err != nil {
-		fmt.Printf("[ERR] %s\n", err.Error())
-		fmt.Fprintf(w, "[ERR] %s\n", err.Error())
-		return
-	}
-	data := struct{ WriteMode bool }{params.IsWriteMode}
-	t.Execute(w, data)
-}
-
-// Start runs website
+// Start website
 func Start(port string, stopChan chan struct{}) {
 	dbs.Init()
 
