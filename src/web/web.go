@@ -32,7 +32,7 @@ var routes = []struct {
 	{url: "/api/buckets/root", method: "GET", handler: root, writeMode: false},
 	{url: "/api/buckets/back", method: "GET", handler: back, writeMode: false},
 	{url: "/api/buckets/next", method: "GET", handler: next, writeMode: false},
-	// recrods
+	// records
 	{url: "/api/records", method: "POST", handler: addRecord, writeMode: true},
 	{url: "/api/records", method: "PUT", handler: editRecord, writeMode: true},
 	{url: "/api/records", method: "DELETE", handler: deleteRecord, writeMode: true},
