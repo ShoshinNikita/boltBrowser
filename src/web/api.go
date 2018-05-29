@@ -431,8 +431,8 @@ func returnError(w http.ResponseWriter, err error, message string, code int) {
 // Return: -
 //
 func addBucket(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.PostFormValue("dbPath")
-	bucket := r.PostFormValue("bucket")
+	dbPath := r.Form.Get("dbPath")
+	bucket := r.Form.Get("bucket")
 
 	code, err := dbs.AddBucket(dbPath, bucket)
 	if err != nil {
@@ -468,9 +468,9 @@ func deleteBucket(w http.ResponseWriter, r *http.Request) {
 // Return: -
 //
 func addRecord(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.PostFormValue("dbPath")
-	key := r.PostFormValue("key")
-	value := r.PostFormValue("value")
+	dbPath := r.Form.Get("dbPath")
+	key := r.Form.Get("key")
+	value := r.Form.Get("value")
 
 	code, err := dbs.AddRecord(dbPath, key, value)
 	if err != nil {
@@ -487,10 +487,10 @@ func addRecord(w http.ResponseWriter, r *http.Request) {
 // Return: -
 //
 func editRecord(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.PostFormValue("dbPath")
-	oldKey := r.PostFormValue("oldKey")
-	newKey := r.PostFormValue("newKey")
-	newValue := r.PostFormValue("newValue")
+	dbPath := r.Form.Get("dbPath")
+	oldKey := r.Form.Get("oldKey")
+	newKey := r.Form.Get("newKey")
+	newValue := r.Form.Get("newValue")
 
 	code, err := dbs.EditRecord(dbPath, oldKey, newKey, newValue)
 	if err != nil {
