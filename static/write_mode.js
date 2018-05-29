@@ -22,8 +22,8 @@ const addRecordTemplate = `
 
 const editRecordTemplate = `
 <div style="margin-bottom: 10px;">Editing record "{0}"</div>
-<input id="newRecordKey" type="text" placeholder="Key (leave empty if don't want to edit key)" style="margin-bottom: 5px; width: 100%;">
-<input id="newRecordValue" type="text" placeholder="Value" style="margin-bottom: 5px; width: 100%;">
+<input id="newRecordKey" type="text" placeholder="Key (leave empty if don't want to edit key)" style="margin-bottom: 5px; width: 100%; box-sizing: border-box;">
+<textarea id="newRecordValue" type="text" placeholder="Value" style="resize: none; margin-bottom: 5px; width: 100%; height: 150px; box-sizing: border-box;"></textarea>
 <input type="submit" class="button" onclick="EditRecord('{0}');" value="Edit">
 `
 
