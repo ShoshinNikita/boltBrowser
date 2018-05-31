@@ -60,7 +60,6 @@ function DeleteBucket(bucket) {
 		url: "/api/buckets" + "?" + query,
 		type: "DELETE",
 		success: function(result){
-			// TODO
 			ShowDonePopup();
 			ChooseDB(currentDBPath)
 		},
@@ -88,7 +87,6 @@ function AddRecord() {
 		},
 		success: function(result){
 			HideAddModal();
-			// TODO
 			ShowDonePopup();
 			ChooseDB(currentDBPath)
 		},
@@ -117,7 +115,6 @@ function EditRecord(oldKey) {
 		},
 		success: function(result){
 			HideAddModal();
-			// TODO
 			ShowDonePopup();
 			ChooseDB(currentDBPath)
 		},
@@ -133,7 +130,6 @@ function DeleteRecord(key) {
 		url: "/api/records" + "?" + query,
 		type: "DELETE",
 		success: function(result){
-			// TODO
 			ShowDonePopup();
 			ChooseDB(currentDBPath)
 		},
