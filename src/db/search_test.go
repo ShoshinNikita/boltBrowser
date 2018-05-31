@@ -71,7 +71,7 @@ func TestSearch(t *testing.T) {
 
 	testDB.Next("benchmark")
 	for i, test := range tests {
-		result, path, err := testDB.Search(test.request)
+		result, path, _, err := testDB.Search(test.request)
 		if err != nil {
 			t.Error(err)
 			continue
@@ -124,7 +124,7 @@ func TestSearchRegex(t *testing.T) {
 
 	testDB.Next("benchmark")
 	for i, test := range tests {
-		result, path, err := testDB.SearchRegexp(test.request)
+		result, path, _, err := testDB.SearchRegexp(test.request)
 		if err != nil {
 			if err.Error() != test.err {
 				t.Error(err)
