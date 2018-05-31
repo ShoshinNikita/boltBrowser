@@ -5,7 +5,7 @@ var RecordTemplate = recordTemplate
 
 var SortRecords = sortRecords
 
-func (db *BoltAPI) GetCurrentBucket() []string {
+func (db *BoltAPI) GetCurrentBucketsPath() []string {
 	return db.currentBucket
 }
 

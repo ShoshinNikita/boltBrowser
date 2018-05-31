@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 
 	"github.com/boltdb/bolt"
+
+	"params"
 )
 
 const (
@@ -40,11 +42,12 @@ type Record struct {
 
 // Data serves for returning
 type Data struct {
-	Records     []Record
-	PrevBucket  bool
-	PrevRecords bool
-	NextRecords bool
-	Path        string
+	Records       []Record
+	PrevBucket    bool
+	PrevRecords   bool
+	NextRecords   bool
+	RecordsAmount int
+	Path          string
 }
 
 // SetOffset change value of maxOffset (default – 100)
@@ -60,7 +63,15 @@ func Open(path string) (*BoltAPI, error) {
 		return nil, err
 	}
 
-	db.db, err = bolt.Open(path, 0600, nil)
+	var options *bolt.Options
+	// Check is ReadOnly mode
+	if !params.IsWriteMode {
+		options = &bolt.Options{ReadOnly: true}
+	} else {
+		options = nil
+	}
+
+	db.db, err = bolt.Open(path, 0600, options)
 	if err != nil {
 		return nil, err
 	}

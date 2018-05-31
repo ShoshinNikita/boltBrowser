@@ -89,6 +89,12 @@ func (tx *Tx) Cursor() *Cursor {
 	return tx.root.Cursor()
 }
 
+// Root returns a pointer to the tx.root
+// Date of adding the function is 5/24/2018
+func (tx *Tx) Root() *Bucket {
+	return &tx.root
+}
+
 // Stats retrieves a copy of the current transaction statistics.
 func (tx *Tx) Stats() TxStats {
 	return tx.stats

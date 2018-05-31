@@ -4,13 +4,17 @@
 	<meta charset="utf-8" />
 	<title>boltDB web-browser</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- Custom css and js -->
-	<link rel="stylesheet" type="text/css" media="screen" href="/static/main.css" />
-	<script src="/static/main.js"></script>
 	<!-- jQuery -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<!-- Icons -->
 	<link rel="stylesheet" type="text/css" media="screen" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<!-- Custom css and js -->
+	<link rel="stylesheet" type="text/css" media="screen" href="/static/main.css" />
+	<script src="/static/main.js"></script>
+	{{if .WriteMode}}
+	<!-- Add write_mode.js -->
+	<script src="/static/write_mode.js"></script>
+	{{end}}
 </head>
 <body onload="ShowDBList(); PrepareLS();" style="margin: 0px 0px 0px 0px; overflow-y: hidden;">
 	<!-- Menu -->
@@ -33,7 +37,7 @@
 		<div class="db_list" id="dbList">
 			<div style="font-size: 25px; text-align: center; border-bottom: 1px solid black; margin-top: 5px;">
 				Databases
-				<i class="material-icons btn icon" style="float: right; margin-right: 1vw;" onclick="ShowModal();" title="Open new db">add</i>
+				<i class="material-icons btn icon" style="float: right; margin-right: 1vw;" onclick="ShowOpenDbWindow();" title="Open new db">add</i>
 			</div>
 			<br>
 			<div id="list" style="overflow-y: auto;"></div>
@@ -69,14 +73,18 @@
 	
 		<!-- Path to the current bucket -->
 		<div style="height: 3vh; border-top: 1px solid black; border-bottom: 1px solid black;">
-			<i><div id="currentPath" style="margin: 1px 5px 1px 5px;"></div></i>
+			<i>
+				<div id="currentPath" style="margin: 1px 5px 1px 5px; display: inline-block;"></div>
+				<div id="recordsAmount" style="display: inline-block;"></div>
+			</i>
 		</div>
 
 		<!-- Records -->
 		<div style="height: 80vh; overflow: hidden; padding-top: 2px;">
-			<div style="height: 100%; width: 57%; float: left; overflow-y: scroll;" id="dbTreeWrapper">
+			<div class="db_tree_wrapper" id="dbTreeWrapper">
 				<div id="dbTree"></div>
 			</div>
+			
 			<!-- Full record -->
 			<div class="record_data" id="recordData">
 				<h4 style="border-bottom: 1px solid black;"><i>Record</i></h4>
@@ -88,18 +96,33 @@
 		</div>
 	</div>
 
-	<div class="popup" id="popup" onclick="HidePopup();">
+	<div class="popup" id="errorPopup" onclick="HideErrorPopup();">
 		<div style="padding: 5px 5px 5px 5px;" id="popupMessage"></div>
 	</div>
 
-	<div id="modal" class="background">
+	<div id="openDbWindow" class="background">
 		<div class="modal-content">
 			<i class="material-icons btn" style="font-size: 20px !important; vertical-align: middle;" onclick="ShowPathsForDelete();" title="Change the list of paths">settings</i>
 			<input list="paths" id="DBPath" style="width: 75%;" autofocus>
 			<datalist id="paths"></datalist>
-			<input type="button" value="Open" style="border-radius: 3px; border: 2px solid #888; background-color: white;" onclick="OpenDB(); HideModal();">
+			<input type="button" value="Open" class="button" onclick="OpenDB(); HideOpenDbWindow();">
 			<div id="dbPathsList" style="margin-top: 20px; display: none;"></div>
 		</div>
 	</div>
+	<div id="donePopup" class="done_popup">
+		<div style="margin: auto; user-select: none;">Done</div>
+	</div>
+
+	{{if .WriteMode}}
+	<!-- Add this elements only for WriteMode -->
+	<div id="popupMenu" class="popup_menu">
+		<div id="popupMenuContent"></div>
+	</div>
+
+	<div id="addItemWindowBackground" class="background">
+		<div class="modal-content" id="addItemWindow">
+		</div>
+	</div>
+	{{end}}
 </body>
 </html>

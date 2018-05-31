@@ -9,20 +9,12 @@ import (
 )
 
 // Search use bytes.Contains()
-func (db *BoltAPI) Search(needle string) (records []Record, path string, err error) {
+func (db *BoltAPI) Search(needle string) (records []Record, path string, recordsAmount int, err error) {
 	bNeedle := []byte(needle)
 
 	err = db.db.View(func(tx *bolt.Tx) error {
-		var c *bolt.Cursor
-		if len(db.currentBucket) == 0 {
-			c = tx.Cursor()
-		} else {
-			b := tx.Bucket([]byte(db.currentBucket[0]))
-			for i := 1; i < len(db.currentBucket); i++ {
-				b = b.Bucket([]byte(db.currentBucket[i]))
-			}
-			c = b.Cursor()
-		}
+		b := db.getCurrentBucket(tx)
+		c := b.Cursor()
 
 		for k, v := c.First(); k != nil; k, v = c.Next() {
 			if bytes.Contains(k, bNeedle) {
@@ -41,29 +33,22 @@ func (db *BoltAPI) Search(needle string) (records []Record, path string, err err
 	})
 
 	path = "/" + strings.Join(db.currentBucket, "/")
+	recordsAmount = len(records)
 
 	sortRecords(records)
-	return records, path, err
+	return records, path, recordsAmount, err
 }
 
 // SearchRegexp use regexp.Match()
-func (db *BoltAPI) SearchRegexp(expr string) (records []Record, path string, err error) {
+func (db *BoltAPI) SearchRegexp(expr string) (records []Record, path string, recordsAmount int, err error) {
 	reg, err := regexp.Compile(expr)
 	if err != nil {
-		return []Record{}, "", err
+		return []Record{}, "", 0, err
 	}
 
 	err = db.db.View(func(tx *bolt.Tx) error {
-		var c *bolt.Cursor
-		if len(db.currentBucket) == 0 {
-			c = tx.Cursor()
-		} else {
-			b := tx.Bucket([]byte(db.currentBucket[0]))
-			for i := 1; i < len(db.currentBucket); i++ {
-				b = b.Bucket([]byte(db.currentBucket[i]))
-			}
-			c = b.Cursor()
-		}
+		b := db.getCurrentBucket(tx)
+		c := b.Cursor()
 
 		for k, v := c.First(); k != nil; k, v = c.Next() {
 			if reg.Match(k) {
@@ -82,7 +67,8 @@ func (db *BoltAPI) SearchRegexp(expr string) (records []Record, path string, err
 	})
 
 	path = "/" + strings.Join(db.currentBucket, "/")
+	recordsAmount = len(records)
 
 	sortRecords(records)
-	return records, path, err
+	return records, path, recordsAmount, err
 }

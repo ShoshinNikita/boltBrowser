@@ -33,8 +33,28 @@ Flag | Default | Description
 ---- | ------ | -------
 `-port` | `:500` | port of the website
 `-offset` | `100` | number of records on single page
-`-debug` | `false` | switch mode
+`-debug` | `false` | mode of debugging
 `-checkVer` | `true` | should program check a new version
+`-writeMode` | `true` | can program edit databases
+
+### Security
+
+For preventing of js-injection program changes some symbols
+
+Old symbol | New symbol
+---------- | ----------
+`<` | `❮`
+`>` | `❯`
+`"` | `＂`
+`'` | `ߴ`
+
+Scheme of work:
+
+1. User sends a request
+1. Program changes all new symbols to old (backend)
+1. Program get info from a db
+1. Program sends a response
+1. Program changes all old symbols to new (frontend – function `SafeParse()`)
 
 ## Additional info
 

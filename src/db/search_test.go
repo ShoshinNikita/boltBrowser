@@ -2,6 +2,7 @@ package db_test
 
 import (
 	"testing"
+
 	. "db"
 )
 
@@ -27,7 +28,10 @@ import (
 // 	 | 84
 // 	 | 94
 // 	 | 984
+
 func TestSearch(t *testing.T) {
+	SetOffset(100)
+
 	tests := []struct {
 		request string
 		answer  []Record
@@ -67,7 +71,7 @@ func TestSearch(t *testing.T) {
 
 	testDB.Next("benchmark")
 	for i, test := range tests {
-		result, path, err := testDB.Search(test.request)
+		result, path, _, err := testDB.Search(test.request)
 		if err != nil {
 			t.Error(err)
 			continue
@@ -89,9 +93,11 @@ func TestSearch(t *testing.T) {
 }
 
 func TestSearchRegex(t *testing.T) {
+	SetOffset(100)
+
 	tests := []struct {
 		request string
-		err 	string
+		err     string
 		answer  []Record
 	}{
 		{"^1", "", []Record{
@@ -118,7 +124,7 @@ func TestSearchRegex(t *testing.T) {
 
 	testDB.Next("benchmark")
 	for i, test := range tests {
-		result, path, err := testDB.SearchRegexp(test.request)
+		result, path, _, err := testDB.SearchRegexp(test.request)
 		if err != nil {
 			if err.Error() != test.err {
 				t.Error(err)

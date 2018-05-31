@@ -18,6 +18,7 @@ func (db *BoltAPI) GetRoot() (data Data, err error) {
 	data.PrevRecords = false
 	data.NextRecords = (db.recordsAmount > maxOffset)
 	data.Path = "/"
+	data.RecordsAmount = db.recordsAmount
 
 	return data, err
 }
@@ -29,10 +30,7 @@ func (db *BoltAPI) GetCurrent() (data Data, err error) {
 	}
 
 	err = db.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(db.currentBucket[0]))
-		for i := 1; i < len(db.currentBucket); i++ {
-			b = b.Bucket([]byte(db.currentBucket[i]))
-		}
+		b := db.getCurrentBucket(tx)
 
 		c := b.Cursor()
 		data.Records = db.getRecords(c)
@@ -43,6 +41,7 @@ func (db *BoltAPI) GetCurrent() (data Data, err error) {
 	data.PrevRecords = (db.pages.top() > 1)
 	data.NextRecords = (db.recordsAmount > maxOffset*db.pages.top())
 	data.Path = "/" + strings.Join(db.currentBucket, "/")
+	data.RecordsAmount = db.recordsAmount
 
 	return data, err
 }
@@ -57,10 +56,7 @@ func (db *BoltAPI) Back() (data Data, err error) {
 	}
 
 	err = db.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(db.currentBucket[0]))
-		for i := 1; i < len(db.currentBucket); i++ {
-			b = b.Bucket([]byte(db.currentBucket[i]))
-		}
+		b := db.getCurrentBucket(tx)
 
 		c := b.Cursor()
 		data.Records = db.getRecords(c)
@@ -72,6 +68,7 @@ func (db *BoltAPI) Back() (data Data, err error) {
 	data.PrevRecords = (db.pages.top() > 1)
 	data.NextRecords = (db.recordsAmount > maxOffset*db.pages.top())
 	data.Path = "/" + strings.Join(db.currentBucket, "/")
+	data.RecordsAmount = db.recordsAmount
 
 	return data, err
 }
@@ -82,10 +79,7 @@ func (db *BoltAPI) Next(name string) (data Data, err error) {
 	db.pages.add()
 
 	err = db.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(db.currentBucket[0]))
-		for i := 1; i < len(db.currentBucket); i++ {
-			b = b.Bucket([]byte(db.currentBucket[i]))
-		}
+		b := db.getCurrentBucket(tx)
 
 		c := b.Cursor()
 		data.Records = db.getRecords(c)
@@ -97,6 +91,20 @@ func (db *BoltAPI) Next(name string) (data Data, err error) {
 	data.PrevRecords = false
 	data.NextRecords = (db.recordsAmount > maxOffset)
 	data.Path = "/" + strings.Join(db.currentBucket, "/")
-
+	data.RecordsAmount = db.recordsAmount
+	
 	return data, err
+}
+
+func (db *BoltAPI) getCurrentBucket(tx *bolt.Tx) (b *bolt.Bucket) {
+	if len(db.currentBucket) == 0 {
+		b = tx.Root()
+	} else {
+		b = tx.Bucket([]byte(db.currentBucket[0]))
+		for i := 1; i < len(db.currentBucket); i++ {
+			b = b.Bucket([]byte(db.currentBucket[i]))
+		}
+	}
+
+	return b
 }
