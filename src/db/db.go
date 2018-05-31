@@ -42,11 +42,12 @@ type Record struct {
 
 // Data serves for returning
 type Data struct {
-	Records     []Record
-	PrevBucket  bool
-	PrevRecords bool
-	NextRecords bool
-	Path        string
+	Records       []Record
+	PrevBucket    bool
+	PrevRecords   bool
+	NextRecords   bool
+	RecordsAmount int
+	Path          string
 }
 
 // SetOffset change value of maxOffset (default – 100)

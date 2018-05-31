@@ -119,6 +119,7 @@ function CloseDB(dbPath) {
 				$("#dbSize").html("<i>Size:<\/i> ?");
 				$("#dbTree").html("");
 				$("#currentPath").html("");
+				$("#recordsAmount").html("");
 				$("#recordPath").html("?");
 				$("#recordValue").html("?");
 				$("#searchBox").css("visibility", "hidden");
@@ -164,11 +165,10 @@ function ChooseDB(dbPath) {
 			$("#dbName").html("<i>Name:<\/i> " + result.db.name);
 			$("#dbPath").html("<i>Path:<\/i> " + result.db.dbPath);
 			$("#dbSize").html("<i>Size:<\/i> " + result.db.size / 1024 + " Kb");
-			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ");
 			$("#recordPath").html("?");
 			$("#recordValue").html("?");
 			$("#searchBox").css("visibility", "visible");
-		;
+
 			ShowTree(result);
 		},
 		error: function(result) {
@@ -187,7 +187,6 @@ function Next(bucket) {
 		},
 		success: function(result){
 			result = SafeParse(result);
-			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ");
 			ShowTree(result);
 		},
 		error: function(result) {
@@ -205,7 +204,6 @@ function Back() {
 		},
 		success: function(result){
 			result = SafeParse(result);
-			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ");
 			ShowTree(result);
 		},
 		error: function(result) {
@@ -271,8 +269,7 @@ function Search() {
 		},
 		success: function(result){
 			result = SafeParse(result);
-			$("#currentPath").html("<i>" + result.bucketsPath + "<\/i> ");
-
+			
 			ShowTree(result);
 		},
 		error: function(result) {
@@ -290,13 +287,20 @@ function ShowDBsList() {
 
 function ShowFullRecord(number) {
 	var currentPath = $("#currentPath").text();
-	// Removing last space
-	currentPath = currentPath.slice(0, currentPath.length - 1);
 	$("#recordPath").html(currentData[number].key + " – <i>" + currentPath + "<\/i>");
 	$("#recordValue").html(currentData[number].value);
 }
 
 function ShowTree(data) {
+	$("#currentPath").html(data.bucketsPath);
+	if (data.recordsAmount == 0) {
+		$("#recordsAmount").html("(empty)")
+	} else if (data.recordsAmount == 1) {
+		$("#recordsAmount").html("(" + data.recordsAmount + " item)")
+	} else {
+		$("#recordsAmount").html("(" + data.recordsAmount + " items)")
+	}
+	
 	var result = "";
 	if (data.prevRecords) {
 		result += prevRecordsButtonTemplate;

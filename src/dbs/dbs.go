@@ -145,22 +145,22 @@ func GetPrevRecrods(dbPath string) (data db.Data, code int, err error) {
 	return data, http.StatusOK, nil
 }
 
-func Search(dbPath, mode, text string) (records []db.Record, path string, code int, err error) {
+func Search(dbPath, mode, text string) (records []db.Record, path string, recordsAmount int, code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
-		return records, "", http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
+		return records, "", 0, http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
 	}
 
 	if mode == "regex" {
-		records, path, err = allDB[dbPath].SearchRegexp(text)
+		records, path, recordsAmount, err = allDB[dbPath].SearchRegexp(text)
 	} else {
-		records, path, err = allDB[dbPath].Search(text)
+		records, path, recordsAmount, err = allDB[dbPath].Search(text)
 	}
 
 	if err != nil {
-		return records, "", http.StatusInternalServerError, err
+		return records, "", 0, http.StatusInternalServerError, err
 	}
 
-	return records, path, http.StatusOK, nil
+	return records, path, recordsAmount, http.StatusOK, nil
 }
 
 func AddBucket(dbPath, bucketName string) (code int, err error) {

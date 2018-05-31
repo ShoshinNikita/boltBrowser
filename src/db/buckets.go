@@ -18,6 +18,7 @@ func (db *BoltAPI) GetRoot() (data Data, err error) {
 	data.PrevRecords = false
 	data.NextRecords = (db.recordsAmount > maxOffset)
 	data.Path = "/"
+	data.RecordsAmount = db.recordsAmount
 
 	return data, err
 }
@@ -40,6 +41,7 @@ func (db *BoltAPI) GetCurrent() (data Data, err error) {
 	data.PrevRecords = (db.pages.top() > 1)
 	data.NextRecords = (db.recordsAmount > maxOffset*db.pages.top())
 	data.Path = "/" + strings.Join(db.currentBucket, "/")
+	data.RecordsAmount = db.recordsAmount
 
 	return data, err
 }
@@ -66,6 +68,7 @@ func (db *BoltAPI) Back() (data Data, err error) {
 	data.PrevRecords = (db.pages.top() > 1)
 	data.NextRecords = (db.recordsAmount > maxOffset*db.pages.top())
 	data.Path = "/" + strings.Join(db.currentBucket, "/")
+	data.RecordsAmount = db.recordsAmount
 
 	return data, err
 }
@@ -88,7 +91,8 @@ func (db *BoltAPI) Next(name string) (data Data, err error) {
 	data.PrevRecords = false
 	data.NextRecords = (db.recordsAmount > maxOffset)
 	data.Path = "/" + strings.Join(db.currentBucket, "/")
-
+	data.RecordsAmount = db.recordsAmount
+	
 	return data, err
 }
 
