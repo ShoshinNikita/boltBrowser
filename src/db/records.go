@@ -19,6 +19,7 @@ func (db *BoltAPI) NextRecords() (data Data, err error) {
 	})
 	data.PrevBucket = (len(db.currentBucket) != 0)
 	data.PrevRecords = true
+	data.RecordsAmount = db.recordsAmount
 
 	return data, err
 }
@@ -34,6 +35,7 @@ func (db *BoltAPI) PrevRecords() (data Data, err error) {
 	})
 	data.PrevBucket = (len(db.currentBucket) != 0)
 	data.NextRecords = true
+	data.RecordsAmount = db.recordsAmount
 
 	return data, err
 }

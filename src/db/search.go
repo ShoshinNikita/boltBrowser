@@ -9,7 +9,7 @@ import (
 )
 
 // Search use bytes.Contains()
-func (db *BoltAPI) Search(needle string) (records []Record, path string, err error) {
+func (db *BoltAPI) Search(needle string) (records []Record, path string, recordsAmount int, err error) {
 	bNeedle := []byte(needle)
 
 	err = db.db.View(func(tx *bolt.Tx) error {
@@ -33,16 +33,17 @@ func (db *BoltAPI) Search(needle string) (records []Record, path string, err err
 	})
 
 	path = "/" + strings.Join(db.currentBucket, "/")
+	recordsAmount = len(records)
 
 	sortRecords(records)
-	return records, path, err
+	return records, path, recordsAmount, err
 }
 
 // SearchRegexp use regexp.Match()
-func (db *BoltAPI) SearchRegexp(expr string) (records []Record, path string, err error) {
+func (db *BoltAPI) SearchRegexp(expr string) (records []Record, path string, recordsAmount int, err error) {
 	reg, err := regexp.Compile(expr)
 	if err != nil {
-		return []Record{}, "", err
+		return []Record{}, "", 0, err
 	}
 
 	err = db.db.View(func(tx *bolt.Tx) error {
@@ -66,7 +67,8 @@ func (db *BoltAPI) SearchRegexp(expr string) (records []Record, path string, err
 	})
 
 	path = "/" + strings.Join(db.currentBucket, "/")
+	recordsAmount = len(records)
 
 	sortRecords(records)
-	return records, path, err
+	return records, path, recordsAmount, err
 }

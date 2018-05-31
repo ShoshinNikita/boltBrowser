@@ -65,6 +65,7 @@ func closeDB(w http.ResponseWriter, r *http.Request) {
 //  "prevRecords": bool,
 //  "nextRecords": bool,
 //  "bucketsPath": string,
+//	"recordsAmount": int,
 // 	"records": [
 // 	  {
 // 		"type": "",
@@ -86,16 +87,18 @@ func next(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := struct {
-		PrevBucket  bool        `json:"prevBucket"`
-		PrevRecords bool        `json:"prevRecords"`
-		NextRecords bool        `json:"nextRecords"`
-		Path        string      `json:"bucketsPath"`
-		Records     []db.Record `json:"records"`
+		PrevBucket    bool        `json:"prevBucket"`
+		PrevRecords   bool        `json:"prevRecords"`
+		NextRecords   bool        `json:"nextRecords"`
+		Path          string      `json:"bucketsPath"`
+		RecordsAmount int         `json:"recordsAmount"`
+		Records       []db.Record `json:"records"`
 	}{
 		data.PrevBucket,
 		data.PrevRecords,
 		data.NextRecords,
 		data.Path,
+		data.RecordsAmount,
 		data.Records,
 	}
 
@@ -112,6 +115,7 @@ func next(w http.ResponseWriter, r *http.Request) {
 //  "prevRecords": bool,
 //  "nextRecords": bool,
 //  "bucketsPath": string,
+//	"recordsAmount": int,
 // 	"records": [
 //   {
 // 	   "type": "",
@@ -132,16 +136,18 @@ func back(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := struct {
-		PrevBucket  bool        `json:"prevBucket"`
-		PrevRecords bool        `json:"prevRecords"`
-		NextRecords bool        `json:"nextRecords"`
-		Path        string      `json:"bucketsPath"`
-		Records     []db.Record `json:"records"`
+		PrevBucket    bool        `json:"prevBucket"`
+		PrevRecords   bool        `json:"prevRecords"`
+		NextRecords   bool        `json:"nextRecords"`
+		Path          string      `json:"bucketsPath"`
+		RecordsAmount int         `json:"recordsAmount"`
+		Records       []db.Record `json:"records"`
 	}{
 		data.PrevBucket,
 		data.PrevRecords,
 		data.NextRecords,
 		data.Path,
+		data.RecordsAmount,
 		data.Records,
 	}
 
@@ -159,6 +165,7 @@ func back(w http.ResponseWriter, r *http.Request) {
 //  "prevRecords": bool,
 //  "nextRecords": bool,
 //  "bucketsPath": string,
+//	"recordsAmount": int,
 // 	"records": [
 // 	 {
 // 	   "type": "",
@@ -179,16 +186,18 @@ func root(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := struct {
-		PrevBucket  bool        `json:"prevBucket"`
-		PrevRecords bool        `json:"prevRecords"`
-		NextRecords bool        `json:"nextRecords"`
-		Path        string      `json:"bucketsPath"`
-		Records     []db.Record `json:"records"`
+		PrevBucket    bool        `json:"prevBucket"`
+		PrevRecords   bool        `json:"prevRecords"`
+		NextRecords   bool        `json:"nextRecords"`
+		Path          string      `json:"bucketsPath"`
+		RecordsAmount int         `json:"recordsAmount"`
+		Records       []db.Record `json:"records"`
 	}{
 		data.PrevBucket,
 		data.PrevRecords,
 		data.NextRecords,
 		data.Path,
+		data.RecordsAmount,
 		data.Records,
 	}
 
@@ -229,6 +238,7 @@ func databasesList(w http.ResponseWriter, r *http.Request) {
 //  "prevRecords": bool,
 //  "nextRecords": bool,
 //  "bucketsPath": string,
+//	"recordsAmount": int,
 // 	"records": [
 // 	  {
 // 	    "type": "",
@@ -249,22 +259,24 @@ func current(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := struct {
-		DB          dbs.DBInfo  `json:"db"`
-		PrevBucket  bool        `json:"prevBucket"`
-		PrevRecords bool        `json:"prevRecords"`
-		NextRecords bool        `json:"nextRecords"`
-		Path        string      `json:"bucketsPath"`
-		Records     []db.Record `json:"records"`
+		DB            dbs.DBInfo  `json:"db"`
+		PrevBucket    bool        `json:"prevBucket"`
+		PrevRecords   bool        `json:"prevRecords"`
+		NextRecords   bool        `json:"nextRecords"`
+		Path          string      `json:"bucketsPath"`
+		RecordsAmount int         `json:"recordsAmount"`
+		Records       []db.Record `json:"records"`
 	}{
 		dbs.DBInfo{
-			Name: info.Name,
+			Name:   info.Name,
 			DBPath: info.DBPath,
-			Size: info.Size,
+			Size:   info.Size,
 		},
 		data.PrevBucket,
 		data.PrevRecords,
 		data.NextRecords,
 		data.Path,
+		data.RecordsAmount,
 		data.Records,
 	}
 
@@ -280,6 +292,7 @@ func current(w http.ResponseWriter, r *http.Request) {
 //  "prevBucket": bool,
 //  "prevRecords": bool,
 //  "nextRecords": bool,
+//	"recordsAmount": int,
 // 	"records": [
 // 	  {
 // 	    "type": "",
@@ -300,14 +313,16 @@ func nextRecords(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := struct {
-		PrevBucket  bool        `json:"prevBucket"`
-		PrevRecords bool        `json:"prevRecords"`
-		NextRecords bool        `json:"nextRecords"`
-		Records     []db.Record `json:"records"`
+		PrevBucket    bool        `json:"prevBucket"`
+		PrevRecords   bool        `json:"prevRecords"`
+		NextRecords   bool        `json:"nextRecords"`
+		RecordsAmount int         `json:"recordsAmount"`
+		Records       []db.Record `json:"records"`
 	}{
 		data.PrevBucket,
 		data.PrevRecords,
 		data.NextRecords,
+		data.RecordsAmount,
 		data.Records,
 	}
 
@@ -324,6 +339,7 @@ func nextRecords(w http.ResponseWriter, r *http.Request) {
 //  "prevRecords": bool,
 //  "nextRecords": bool,
 //  "bucketsPath": string,
+//	"recordsAmount": int,
 // 	"records": [
 // 	  {
 // 	    "type": "",
@@ -344,14 +360,16 @@ func prevRecords(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := struct {
-		PrevBucket  bool        `json:"prevBucket"`
-		PrevRecords bool        `json:"prevRecords"`
-		NextRecords bool        `json:"nextRecords"`
-		Records     []db.Record `json:"records"`
+		PrevBucket    bool        `json:"prevBucket"`
+		PrevRecords   bool        `json:"prevRecords"`
+		NextRecords   bool        `json:"nextRecords"`
+		RecordsAmount int         `json:"recordsAmount"`
+		Records       []db.Record `json:"records"`
 	}{
 		data.PrevBucket,
 		data.PrevRecords,
 		data.NextRecords,
+		data.RecordsAmount,
 		data.Records,
 	}
 
@@ -368,6 +386,7 @@ func prevRecords(w http.ResponseWriter, r *http.Request) {
 //  "prevRecords": bool,
 //  "nextRecords": bool,
 //  "bucketsPath": string,
+//	"recordsAmount": int,
 // 	"records": [
 // 	  {
 // 	    "type": "",
@@ -383,23 +402,25 @@ func search(w http.ResponseWriter, r *http.Request) {
 	text := r.Form.Get("text")
 	mode := r.Form.Get("mode")
 
-	records, path, code, err := dbs.Search(dbPath, mode, text)
+	records, path, recordsAmount, code, err := dbs.Search(dbPath, mode, text)
 	if err != nil {
 		returnError(w, err, "", code)
 		return
 	}
 
 	response := struct {
-		PrevBucket  bool        `json:"prevBucket"`
-		PrevRecords bool        `json:"prevRecords"`
-		NextRecords bool        `json:"nextRecords"`
-		Path        string      `json:"bucketsPath"`
-		Records     []db.Record `json:"records"`
+		PrevBucket    bool        `json:"prevBucket"`
+		PrevRecords   bool        `json:"prevRecords"`
+		NextRecords   bool        `json:"nextRecords"`
+		Path          string      `json:"bucketsPath"`
+		RecordsAmount int         `json:"recordsAmount"`
+		Records       []db.Record `json:"records"`
 	}{
 		false,
 		false,
 		false,
 		path + " (Search \"" + text + "\")",
+		recordsAmount,
 		records,
 	}
 
@@ -423,4 +444,99 @@ func returnError(w http.ResponseWriter, err error, message string, code int) {
 	fmt.Printf("[ERR] %s\n", text)
 
 	http.Error(w, text, code)
+}
+
+// addBucket
+//
+// Params: dbPath, bucket
+// Return: -
+//
+func addBucket(w http.ResponseWriter, r *http.Request) {
+	dbPath := r.Form.Get("dbPath")
+	bucket := r.Form.Get("bucket")
+
+	code, err := dbs.AddBucket(dbPath, bucket)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
+	}
+
+	w.WriteHeader(code)
+}
+
+// deleteBucket
+//
+// Params: dbPath, bucket (int URI)
+// Return: -
+//
+func deleteBucket(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	dbPath := r.Form.Get("dbPath")
+	bucket := r.Form.Get("bucket")
+
+	code, err := dbs.DeleteBucket(dbPath, bucket)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
+	}
+
+	w.WriteHeader(code)
+}
+
+// addRecord
+//
+// Params: dbPath, key, value
+// Return: -
+//
+func addRecord(w http.ResponseWriter, r *http.Request) {
+	dbPath := r.Form.Get("dbPath")
+	key := r.Form.Get("key")
+	value := r.Form.Get("value")
+
+	code, err := dbs.AddRecord(dbPath, key, value)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
+	}
+
+	w.WriteHeader(code)
+}
+
+// editRecord
+//
+// Params: dbPath, oldKey, newKey, newValue
+// Return: -
+//
+func editRecord(w http.ResponseWriter, r *http.Request) {
+	dbPath := r.Form.Get("dbPath")
+	oldKey := r.Form.Get("oldKey")
+	newKey := r.Form.Get("newKey")
+	newValue := r.Form.Get("newValue")
+
+	code, err := dbs.EditRecord(dbPath, oldKey, newKey, newValue)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
+	}
+
+	w.WriteHeader(code)
+}
+
+// deleteRecord
+//
+// Params: dbPath, key (int URI)
+// Return: -
+//
+func deleteRecord(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	dbPath := r.Form.Get("dbPath")
+	key := r.Form.Get("key")
+
+	code, err := dbs.DeleteRecord(dbPath, key)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
+	}
+
+	w.WriteHeader(code)
 }

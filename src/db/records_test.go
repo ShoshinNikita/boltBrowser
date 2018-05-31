@@ -23,6 +23,8 @@ import (
 // 				| "name" - "TestUser"
 
 func TestNextRecords(t *testing.T) {
+	SetOffset(100)
+
 	tests := []struct {
 		offset      int
 		next        []string
@@ -67,6 +69,8 @@ func TestNextRecords(t *testing.T) {
 }
 
 func TestPrevRecords(t *testing.T) {
+	SetOffset(100)
+
 	tests := []struct {
 		offset      int
 		next        []string
@@ -116,6 +120,8 @@ func TestPrevRecords(t *testing.T) {
 }
 
 func TestSortRecords(t *testing.T) {
+	SetOffset(100)
+
 	tests := []struct {
 		slice  []Record
 		result []Record
