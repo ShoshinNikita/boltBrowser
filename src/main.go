@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"os/signal"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -44,10 +46,38 @@ func main() {
 
 	go web.Start(params.Port, stopSite)
 
+	err := openBrowser("http://localhost" + params.Port)
+	if err != nil {
+		fmt.Printf("[ERR] %s\n", err.Error())
+	}
+
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 	<-stop
 	close(stopSite)
 	time.Sleep(100 * time.Millisecond)
 	dbs.CloseDBs()
 	fmt.Println("[INFO] Program was stopped")
+}
+
+func openBrowser(url string) (err error) {
+	switch runtime.GOOS {
+	case "windows":
+		{
+			err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+		}
+	case "linux":
+		{
+			err = exec.Command("xdg-open", url).Start()
+		}
+	case "darwin":
+		{
+			err = exec.Command("open", url).Start()
+		}
+	default:
+		{
+			err = fmt.Errorf("unsupported platform")
+		}
+	}
+
+	return err
 }
