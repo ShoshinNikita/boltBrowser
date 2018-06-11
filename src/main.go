@@ -46,9 +46,11 @@ func main() {
 
 	go web.Start(params.Port, stopSite)
 
+	if params.OpenBrowser {
 	err := openBrowser("http://localhost" + params.Port)
 	if err != nil {
 		fmt.Printf("[ERR] %s\n", err.Error())
+	}
 	}
 
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)

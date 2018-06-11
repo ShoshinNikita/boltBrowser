@@ -11,6 +11,7 @@ var (
 	Offset      int
 	CheckVer    bool
 	IsWriteMode bool
+	OpenBrowser bool
 )
 
 func ParseFlags() {
@@ -19,6 +20,7 @@ func ParseFlags() {
 	flag.IntVar(&Offset, "offset", 100, "number of records on single page")
 	flag.BoolVar(&CheckVer, "checkVer", true, "should program check is there a new version")
 	flag.BoolVar(&IsWriteMode, "writeMode", true, "can program edit dbs")
+	flag.BoolVar(&OpenBrowser, "openBrowser", true, "should the program open a browser automatically")
 	flag.Parse()
 
 	// Checking of ':' before port
