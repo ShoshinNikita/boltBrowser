@@ -102,22 +102,21 @@ func (db *BoltAPI) EditBucketName(oldKey, newKey string) (err error) {
 		oldBucket := b.Bucket([]byte(oldKey))
 
 		// Copy data from a db to memory
-		err := copyDataToMemory(currentData, oldBucket)
-		if err != nil {
-			return err
-		}
+		copyDataToMemory(currentData, oldBucket)
 
 		// Delete old bucket and create new with refreshed name
 		b.DeleteBucket([]byte(oldKey))
 		newBucket, _ := b.CreateBucket([]byte(newKey))
 
 		// Copy data to the db
-		return copyDataToDB(currentData, newBucket)
+		copyDataToDB(currentData, newBucket)
+
+		return nil
 	})
 }
 
-func copyDataToMemory(d *data, bucket *bolt.Bucket) error {
-	return bucket.ForEach(func(k, v []byte) error {
+func copyDataToMemory(d *data, bucket *bolt.Bucket) {
+	bucket.ForEach(func(k, v []byte) error {
 		if v != nil {
 			// record
 			d.addRecord(k, v)
@@ -128,19 +127,16 @@ func copyDataToMemory(d *data, bucket *bolt.Bucket) error {
 			d.addBucket(k, ptr)
 			// Go to the nested bucket
 			nestedBucket := bucket.Bucket(k)
-			err := copyDataToMemory(ptr, nestedBucket)
-			if err != nil {
-				return err
-			}
+			copyDataToMemory(ptr, nestedBucket)
 		}
 		return nil
 	})
 }
 
-func copyDataToDB(d *data, bucket *bolt.Bucket) error {
+func copyDataToDB(d *data, bucket *bolt.Bucket) {
 	// Checking just in case
 	if d == nil {
-		return nil
+		return
 	}
 
 	// Add records
@@ -151,13 +147,8 @@ func copyDataToDB(d *data, bucket *bolt.Bucket) error {
 	// Add buckets
 	for _, b := range d.buckets {
 		newBucket, _ := bucket.CreateBucket(b.k)
-		err := copyDataToDB(b.nextLevel, newBucket)
-		if err != nil {
-			return err
-		}
+		copyDataToDB(b.nextLevel, newBucket)
 	}
-
-	return nil
 }
 
 func (db *BoltAPI) AddRecord(key, value string) (err error) {
