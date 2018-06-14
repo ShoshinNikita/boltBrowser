@@ -3,7 +3,8 @@
 const addMenuHTML = `<input type="button" class="popup_button" onclick="ShowAddModal('bucket');" value="Add bucket">
 <input type="button" class="popup_button" style="margin: auto;" onclick="ShowAddModal('record');" value="Add record">`;
 
-const bucketMenuHTML = `<input type="button" class="popup_button" style="margin: auto;" onclick="DeleteBucket('{0}');" value="Delete">`;
+const bucketMenuHTML = `<input type="button" class="popup_button" onclick="ShowEditModal('bucket', '{0}');" value="Edit name">
+<input type="button" class="popup_button" style="margin: auto;" onclick="DeleteBucket('{0}');" value="Delete">`;
 
 const recordMenuHTML = `<input type="button" class="popup_button" onclick="ShowEditModal('record', '{0}');" value="Edit">
 <input type="button" class="popup_button" style="margin: auto;" onclick="DeleteRecord('{0}');" value="Delete">`;
@@ -13,6 +14,12 @@ const addBucketTemplate = `
 <br>
 <input type="submit" class="button" onclick="AddBucket();" value="Add">`;
 
+const editBucketTemplate = `
+<div style="margin-bottom: 10px;">Old name: "{0}"</div>
+<input id="newName" required type="text" placeholder="New name" style="margin-bottom: 5px; width: 100%;">
+<br>
+<input type="submit" class="button" onclick="EditBucketName('{0}');" value="Edit">`;
+
 const addRecordTemplate = `
 <input id="newRecordKey" type="text" placeholder="Key" style="margin-bottom: 5px; width: 100%;">
 <br>
@@ -21,7 +28,7 @@ const addRecordTemplate = `
 <input type="submit" class="button" onclick="AddRecord();" value="Add">`;
 
 const editRecordTemplate = `
-<div style="margin-bottom: 10px;">Editing record "{0}"</div>
+<div style="margin-bottom: 10px;">Editing of record "{0}"</div>
 <input id="newRecordKey" type="text" placeholder="Key (leave empty if don't want to edit key)" style="margin-bottom: 5px; width: 100%; box-sizing: border-box;">
 <textarea id="newRecordValue" type="text" placeholder="Value" style="resize: none; margin-bottom: 5px; width: 100%; height: 150px; box-sizing: border-box;"></textarea>
 <input type="submit" class="button" onclick="EditRecord('{0}');" value="Edit">
@@ -47,6 +54,28 @@ function AddBucket() {
 			HideAddModal();
 			ShowDonePopup();
 			Next(bucketName);
+		},
+		error: function(result) {
+			ShowErrorPopup(result.responseText);
+		}
+	});
+}
+
+function EditBucketName(oldName) {
+	var newName = $("#newName").val();
+
+	$.ajax({
+		url: "/api/buckets",
+		type: "PUT",
+		data: {
+			"dbPath": currentDBPath,
+			"oldName": oldName,
+			"newName": newName,
+		},
+		success: function(result){
+			HideAddModal();
+			ShowDonePopup();
+			ChooseDB(currentDBPath);
 		},
 		error: function(result) {
 			ShowErrorPopup(result.responseText);
@@ -186,7 +215,9 @@ function ShowAddModal(type) {
 
 function ShowEditModal(type, target) {
 	if (type == "bucket") {
-		// Nothing
+		var html = editBucketTemplate.format(target)
+		$("#addItemWindow").html(html);
+		$("#addItemWindowBackground").css("display", "block");
 	} else if (type == "record") {
 		var html = editRecordTemplate.format(target)
 		$("#addItemWindow").html(html);
