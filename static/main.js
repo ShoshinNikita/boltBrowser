@@ -115,6 +115,33 @@ function OpenDB() {
 	;
 }
 
+function CreateDB() {
+	var path = $("#DBPathForCreating").val();
+	if (path == "" ) {
+		ShowErrorPopup("Error: path is empty");
+		return;
+	}
+
+	$("#DBPathForCreating").val("");
+	$.ajax({
+		url: "/api/databases/new",
+		type: "POST",
+		data: {
+			"path": path
+		},
+		success: function(result){
+			result= SafeParse(result)
+			putIntoLS(result.dbPath);
+			HideOpenDbWindow();
+			ShowDBList();
+		},
+		error: function(result) {
+			ShowErrorPopup(result.responseText);
+		}
+	});
+	;
+}
+
 function CloseDB(dbPath) {
 	$.ajax({
 		url: "/api/databases" + "?" + $.param({"dbPath": dbPath}),
