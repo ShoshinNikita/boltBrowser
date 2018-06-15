@@ -23,7 +23,7 @@ var routes = []struct {
 	{url: "/api/databases", method: "GET", handler: databasesList, writeMode: false},
 	{url: "/api/databases", method: "POST", handler: openDB, writeMode: false},
 	{url: "/api/databases", method: "DELETE", handler: closeDB, writeMode: false},
-	{url: "/api/databases/new", method: "POST", handler: createDB, writeMode: true},
+	{url: "/api/databases/new", method: "POST", handler: createDB, writeMode: false},
 	// buckets
 	{url: "/api/buckets", method: "POST", handler: addBucket, writeMode: true},
 	{url: "/api/buckets", method: "PUT", handler: editBucketName, writeMode: true},
