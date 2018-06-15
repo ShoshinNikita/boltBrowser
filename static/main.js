@@ -99,6 +99,7 @@ function OpenDB() {
 		success: function(result){
 			result= SafeParse(result)
 			putIntoLS(result.dbPath);
+			HideOpenDbWindow();
 			ShowDBList();
 		},
 		error: function(result) {
