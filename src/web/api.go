@@ -51,7 +51,7 @@ func createDB(w http.ResponseWriter, r *http.Request) {
 	path := r.Form.Get("path")
 
 	// We shouldn't replace '\\' and '\', because we will do it in db.Create()
-	
+
 	dbName, dbPath, code, err := dbs.CreateDB(path)
 	if err != nil {
 		returnError(w, err, "", code)

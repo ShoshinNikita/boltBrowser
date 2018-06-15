@@ -25,7 +25,6 @@ func Init() {
 	allDB = make(map[string]*db.BoltAPI)
 }
 
-// TODO return dbPath
 func OpenDB(dbPath string) (dbName string, code int, err error) {
 	// Check if db was opened
 	if _, ok := allDB[dbPath]; ok {
