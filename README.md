@@ -7,7 +7,8 @@ boltBrowser is a web-based explorer for BoltDB.
 + You can work with several databases in one time
 + You can visit nested buckets
 + Minimalistic and simple interface
-+ Opportunity to search records using regex
++ Opportunity to search records and buckets using regex
++ Opportunity to edit a db (create, delete, modify buckets and records)
 
 [Examples of using the program](Examples.md)
 
