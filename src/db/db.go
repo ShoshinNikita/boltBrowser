@@ -93,15 +93,15 @@ func Open(path string) (*BoltAPI, error) {
 }
 
 // Create a new db. If path consists only a name, the db will be created on the Desktop
-func Create(path string) (db *BoltAPI, err error) {
+func Create(path string) (*BoltAPI, error) {
 	// Add ".db" if path hasn't it
 	if !strings.HasSuffix(path, ".db") {
 		path += ".db"
 	}
 
-	nameRegex := regexp.MustCompile(`[\w_-]*\.db`)
+	nameRegex := regexp.MustCompile(`^[\w_-]*\.db$`)
 	if nameRegex.Match([]byte(path)) {
-		// Path consists only a name
+		// Path consists only a name, so we have to add the path to the Desktop
 		home, err := homedir.Dir()
 		if err != nil {
 			return nil, err
@@ -112,18 +112,13 @@ func Create(path string) (db *BoltAPI, err error) {
 		} else {
 			path = home + "/Desktop/" + path
 		}
-
-		_, err = bolt.Open(path, 0600, nil)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		// Path consists a full path
-		_, err = bolt.Open(path, 0600, nil)
-		if err != nil {
-			return nil, err
-		}
 	}
+
+	db, err := bolt.Open(path, 0600, nil)
+	if err != nil {
+		return nil, err
+	}
+	db.Close()
 
 	return Open(path)
 }
