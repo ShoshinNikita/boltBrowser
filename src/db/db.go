@@ -122,7 +122,7 @@ func Create(path string) (*BoltAPI, error) {
 
 	// Check if a db already exists
 	if _, err := os.Stat(path); err == nil {
-		return nil, fmt.Errorf("Db with path\"%s\" already exists", path)
+		return nil, fmt.Errorf("Database with path\"%s\" already exists", path)
 	}
 
 	db, err := bolt.Open(path, 0600, nil)
