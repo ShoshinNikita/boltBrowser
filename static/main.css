@@ -193,8 +193,8 @@ input[type=button] {
 /* Modal Box */
 .modal-content {
     background-color: #fefefe;
-    margin: auto;
-	padding: 20px;
+	margin: auto;
+	padding: 20px 10px 20px 10px;
 	text-align: center;
 	border: 1px solid #888;
 	border-radius: 5px;

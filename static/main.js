@@ -28,6 +28,12 @@ const prevRecordsButtonTemplate = `<div style="display: table;">
 	<span style="cursor: pointer;" onclick="PrevRecords();"><b>Previous page<\/b><\/span>
 <\/div>`;
 
+const pathForDeleting = `
+<div style="margin-bottom: 10px; text-align: left;">
+	<span>{0}</span>
+	<i class="material-icons btn" style="float: right; font-size: 22px !important; vertical-align: middle;" title="Delete" onclick="DeletePath('{0}');">close<\/i>
+<\/div>`;
+
 
 /* Global variables */
 var currentDBPath = "";
@@ -334,14 +340,11 @@ function ShowTree(data) {
 }
 
 function ShowPathsForDelete() {
-	const button = `<div style="margin-bottom: 10px; text-align: left;"><span>{0}</span>
-	<i class="material-icons btn" style="float: right; margin-right: 1vw; font-size: 25px !important;" title="Delete" onclick="DeletePath('{0}');">close<\/i><\/div>`;
-
 	var paths = getPaths();
 
 	var res = ""
 	for (var i = 0; i < paths.length; i++) {
-		res += button.format(paths[i]);
+		res += pathForDeleting.format(paths[i]);
 	}
 
 	if (res == "") {
