@@ -25,6 +25,7 @@ func Init() {
 	allDB = make(map[string]*db.BoltAPI)
 }
 
+// TODO return dbPath
 func OpenDB(dbPath string) (dbName string, code int, err error) {
 	// Check if db was opened
 	if _, ok := allDB[dbPath]; ok {
@@ -39,6 +40,17 @@ func OpenDB(dbPath string) (dbName string, code int, err error) {
 	allDB[dbPath] = newDB
 
 	return newDB.Name, http.StatusOK, nil
+}
+
+func CreateDB(path string) (dbName, dbPath string, code int, err error) {
+	newDB, err := db.Create(path)
+	if err != nil {
+		return "", "", http.StatusInternalServerError, err
+	}
+
+	allDB[newDB.DBPath] = newDB
+
+	return newDB.Name, newDB.DBPath, http.StatusCreated, nil
 }
 
 func CloseDB(dbPath string) (code int, err error) {

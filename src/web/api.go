@@ -41,6 +41,32 @@ func openDB(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// Params: path
+// Return:
+// {
+// 	"dbPath": str
+// }
+//
+func createDB(w http.ResponseWriter, r *http.Request) {
+	path := r.Form.Get("path")
+
+	// We shouldn't replace '\\' and '\', because we will do it in db.Create()
+	
+	dbName, dbPath, code, err := dbs.CreateDB(path)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
+	}
+
+	fmt.Printf("[INFO] DB \"%s\" (%s) was created\n", dbName, dbPath)
+
+	w.WriteHeader(code)
+	response := struct {
+		DBPath string `json:"dbPath"`
+	}{dbPath}
+	json.NewEncoder(w).Encode(response)
+}
+
 // Params: dbPath
 // Return: -
 //
