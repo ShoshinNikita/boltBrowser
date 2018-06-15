@@ -93,6 +93,7 @@ func Open(path string) (*BoltAPI, error) {
 }
 
 // Create a new db. If path consists only a name, the db will be created on the Desktop
+// The function calls Open() and returns result of this calling
 func Create(path string) (*BoltAPI, error) {
 	// Add ".db" if path hasn't it
 	if !strings.HasSuffix(path, ".db") {
