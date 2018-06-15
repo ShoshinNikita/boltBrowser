@@ -3,8 +3,12 @@ package db
 import (
 	"os"
 	"path/filepath"
+	"regexp"
+	"runtime"
+	"strings"
 
 	"github.com/boltdb/bolt"
+	"github.com/mitchellh/go-homedir"
 
 	"params"
 )
@@ -86,6 +90,42 @@ func Open(path string) (*BoltAPI, error) {
 	db.Size = file.Size()
 
 	return db, nil
+}
+
+// Create a new db. If path consists only a name, the db will be created on the Desktop
+func Create(path string) (db *BoltAPI, err error) {
+	// Add ".db" if path hasn't it
+	if !strings.HasSuffix(path, ".db") {
+		path += ".db"
+	}
+
+	nameRegex := regexp.MustCompile(`[\w_-]*\.db`)
+	if nameRegex.Match([]byte(path)) {
+		// Path consists only a name
+		home, err := homedir.Dir()
+		if err != nil {
+			return nil, err
+		}
+
+		if runtime.GOOS == "windows" {
+			path = home + "\\Desktop\\" + path
+		} else {
+			path = home + "/Desktop/" + path
+		}
+
+		_, err = bolt.Open(path, 0600, nil)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// Path consists a full path
+		_, err = bolt.Open(path, 0600, nil)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return Open(path)
 }
 
 // Close closes db
