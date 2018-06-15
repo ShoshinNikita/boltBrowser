@@ -7,6 +7,7 @@ import (
 )
 
 // Structures for saving data of a bucket in memory
+
 type record struct {
 	k []byte
 	v []byte
@@ -104,9 +105,12 @@ func (db *BoltAPI) EditBucketName(oldKey, newKey string) (err error) {
 		// Copy data from a db to memory
 		copyDataToMemory(currentData, oldBucket)
 
+		newBucket, err := b.CreateBucket([]byte(newKey))
+		if err != nil {
+			return err
+		}
 		// Delete old bucket and create new with refreshed name
 		b.DeleteBucket([]byte(oldKey))
-		newBucket, _ := b.CreateBucket([]byte(newKey))
 
 		// Copy data to the db
 		copyDataToDB(currentData, newBucket)
