@@ -464,6 +464,25 @@ func addBucket(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(code)
 }
 
+// editBucketName
+//
+// Params: dbPath, oldName, newName
+// Return: -
+//
+func editBucketName(w http.ResponseWriter, r *http.Request) {
+	dbPath := r.Form.Get("dbPath")
+	oldName := r.Form.Get("oldName")
+	newName := r.Form.Get("newName")
+
+	code, err := dbs.EditBucketName(dbPath, oldName, newName)
+	if err != nil {
+		returnError(w, err, "", code)
+		return
+	}
+
+	w.WriteHeader(code)
+}
+
 // deleteBucket
 //
 // Params: dbPath, bucket (int URI)

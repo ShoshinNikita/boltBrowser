@@ -25,6 +25,7 @@ var routes = []struct {
 	{url: "/api/databases", method: "DELETE", handler: closeDB, writeMode: false},
 	// buckets
 	{url: "/api/buckets", method: "POST", handler: addBucket, writeMode: true},
+	{url: "/api/buckets", method: "PUT", handler: editBucketName, writeMode: true},
 	{url: "/api/buckets", method: "DELETE", handler: deleteBucket, writeMode: true},
 	{url: "/api/buckets/current", method: "GET", handler: current, writeMode: false},
 	{url: "/api/buckets/root", method: "GET", handler: root, writeMode: false},

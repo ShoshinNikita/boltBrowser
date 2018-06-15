@@ -176,6 +176,19 @@ func AddBucket(dbPath, bucketName string) (code int, err error) {
 	return http.StatusCreated, nil
 }
 
+func EditBucketName(dbPath, oldName, newName string) (code int, err error) {
+	if _, ok := allDB[dbPath]; !ok {
+		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
+	}
+
+	err = allDB[dbPath].EditBucketName(oldName, newName)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	return http.StatusOK, nil
+}
+
 func DeleteBucket(dbPath, bucketName string) (code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
