@@ -96,13 +96,13 @@ input[type=button] {
 }
 
 
-/* Popup */
-.popup {
+/* Error popup */
+.error_popup {
 	position: absolute;
-	bottom: 0.5vh;
-	left: 0.5vw;
-	width: 300px;
-	height: 100px;
+	bottom: 1vh;
+	left: 1vw;
+	width: 400px;
+	height: 150px;
 	z-index: 2;
 	visibility: hidden;
 	cursor: pointer;
@@ -117,7 +117,7 @@ input[type=button] {
 	animation-duration: 2s;
 }
 @keyframes movePopup {
-	0% {margin-left: -300px;}
+	0% {margin-left: -400px;}
 	100% {margin-left: 0px;}
 }
 
