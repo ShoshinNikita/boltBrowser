@@ -83,7 +83,7 @@ function DeletePath(path) {
 	delete paths[path];
 	localStorage.setItem("paths", JSON.stringify(paths));
 
-	ShowPathsForDelete();
+	showPathsForDelete();
 }
 
 
@@ -366,7 +366,15 @@ function ShowTree(data) {
 	document.getElementById("dbTreeWrapper").scrollTop = 0;
 }
 
-function ShowPathsForDelete() {
+function SwitchPathsForDelete() {
+	if ($("#dbPathsList").css("display") == "none") {
+		showPathsForDelete();
+	} else {
+		$("#dbPathsList").css("display", "none");
+	}
+}
+
+function showPathsForDelete() {
 	var paths = getPaths();
 
 	var res = ""
