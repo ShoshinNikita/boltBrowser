@@ -41,6 +41,17 @@ func OpenDB(dbPath string) (dbName string, code int, err error) {
 	return newDB.Name, http.StatusOK, nil
 }
 
+func CreateDB(path string) (dbName, dbPath string, code int, err error) {
+	newDB, err := db.Create(path)
+	if err != nil {
+		return "", "", http.StatusInternalServerError, err
+	}
+
+	allDB[newDB.DBPath] = newDB
+
+	return newDB.Name, newDB.DBPath, http.StatusCreated, nil
+}
+
 func CloseDB(dbPath string) (code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")

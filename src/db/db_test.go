@@ -2,6 +2,7 @@ package db_test
 
 import (
 	"errors"
+	"os"
 	"testing"
 
 	. "db"
@@ -82,4 +83,40 @@ func TestOpen(t *testing.T) {
 	} else {
 		t.Log(err)
 	}
+}
+
+func TestCreate(t *testing.T) {
+	tests := []struct {
+		path            string
+		pathForDeleting string
+	}{
+		{"test.db", ""},
+		{"hello", ""},
+		{"132-321", ""},
+		// It's needed to create directories for testing of creating dbs with absolute path
+		// {"E:\\test\\test.db", ""},
+		// {"E:\\hello\\hello_world\\1.db", ""},
+	}
+
+	for i, tt := range tests {
+		db, err := Create(tt.path)
+		if err != nil {
+			t.Errorf("Test #%d Got error: %s", i, err.Error())
+		}
+		// Update path for deleting
+		tests[i].pathForDeleting = db.DBPath
+		db.Close()
+	}
+
+	// Remove created dbs
+	for _, tt := range tests {
+		err := deleteDB(tt.pathForDeleting)
+		if err != nil {
+			t.Logf("Got error when tried to remove a db: %s", err.Error())
+		}
+	}
+}
+
+func deleteDB(path string) error {
+	return os.Remove(path)
 }
