@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"dbs"
-	"params"
+	"flags"
 )
 
 var routes = []struct {
@@ -50,7 +50,7 @@ func Start(port string, stopChan chan struct{}) {
 	router := mux.NewRouter().StrictSlash(false)
 	router.Path("/favicon.ico").Methods("GET").Handler(http.FileServer(http.Dir("./static/")))
 	for _, r := range routes {
-		if !r.writeMode || (r.writeMode && params.IsWriteMode) {
+		if !r.writeMode || (r.writeMode && flags.IsWriteMode) {
 			router.Path(r.url).Methods(r.method).HandlerFunc(r.handler)
 		}
 	}
@@ -59,7 +59,7 @@ func Start(port string, stopChan chan struct{}) {
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	var handler http.Handler
-	if params.Debug {
+	if flags.Debug {
 		handler = debugHandler(router)
 	} else {
 		handler = router

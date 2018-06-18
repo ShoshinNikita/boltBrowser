@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"params"
+	"flags"
 )
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -15,7 +15,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "[ERR] %s\n", err.Error())
 		return
 	}
-	data := struct{ WriteMode bool }{params.IsWriteMode}
+	data := struct{ WriteMode bool }{flags.IsWriteMode}
 	t.Execute(w, data)
 }
 
@@ -28,7 +28,7 @@ func wrapper(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"URL": "http://localhost" + params.Port,
+		"URL": "http://localhost" + flags.Port,
 	}
 	t.Execute(w, data)
 }

@@ -4,12 +4,12 @@ import (
 	"os"
 	"testing"
 
-	"params"
+	"flags"
 )
 
 func TestMain(m *testing.M) {
 	// Turn WriteMode on
-	params.IsWriteMode = true
+	flags.IsWriteMode = true
 
 	m.Run()
 

@@ -11,7 +11,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/mitchellh/go-homedir"
 
-	"params"
+	"flags"
 )
 
 const (
@@ -70,7 +70,7 @@ func Open(path string) (*BoltAPI, error) {
 
 	var options *bolt.Options
 	// Check is ReadOnly mode
-	if !params.IsWriteMode {
+	if !flags.IsWriteMode {
 		options = &bolt.Options{ReadOnly: true}
 	} else {
 		options = nil

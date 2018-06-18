@@ -1,5 +1,5 @@
-// Package params serve as environment
-package params
+// Package flags serves as environment
+package flags
 
 import (
 	"flag"
