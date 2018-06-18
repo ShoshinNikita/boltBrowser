@@ -320,10 +320,15 @@ function ShowDBsList() {
 	$("#dbList").addClass("db_list_animation");
 }
 
-function ShowFullRecord(number) {
-	var currentPath = $("#currentPath").text();
-	$("#recordPath").html(currentData[number].key + " – <i>" + currentPath + "<\/i>");
-	$("#recordValue").html(currentData[number].value);
+function ShowFullRecord(key) {
+	// This 2 lines fix the bug, when #recordData disappeared after changing of #recordPath and #currentPath
+	$("#recordPath").html("");
+	$("#recordValue").html("");
+
+	$("#recordData").scrollTop(0);
+
+	$("#recordPath").html(key + " – <i>" + $("#currentPath").text() + "<\/i>");
+	$("#recordValue").html(currentData[key]);
 }
 
 function ShowTree(data) {
