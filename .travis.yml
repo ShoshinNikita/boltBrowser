@@ -1,7 +1,21 @@
+sudo: false
+
 language: go
+
 go:
   - "1.10"
+
+git:
+  depth: 1
+
+notifications:
+  email: false
+
 before_install:
   - go get github.com/mattn/goveralls
+
+install: true
+
 script:
+  # Run tests
   - $GOPATH/bin/goveralls -service=travis-ci
