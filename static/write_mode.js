@@ -29,8 +29,8 @@ const addRecordTemplate = `
 
 const editRecordTemplate = `
 <div style="margin-bottom: 10px;">Editing of record "{0}"</div>
-<input id="newRecordKey" type="text" placeholder="Key (leave empty if don't want to edit key)" style="margin-bottom: 5px; width: 100%; box-sizing: border-box;">
-<textarea id="newRecordValue" type="text" placeholder="Value" style="resize: none; margin-bottom: 5px; width: 100%; height: 150px; box-sizing: border-box;"></textarea>
+<input id="newRecordKey" type="text" placeholder="Key (leave empty if don't want to edit key)" style="margin-bottom: 5px; width: 100%; box-sizing: border-box;" value="{0}">
+<textarea id="newRecordValue" type="text" placeholder="Value" style="resize: none; margin-bottom: 5px; width: 100%; height: 150px; box-sizing: border-box;">{1}</textarea>
 <input type="submit" class="button" onclick="EditRecord('{0}');" value="Edit">
 `
 
@@ -214,12 +214,13 @@ function ShowAddModal(type) {
 }
 
 function ShowEditModal(type, target) {
+	// target == key of the record or bucket
 	if (type == "bucket") {
 		var html = editBucketTemplate.format(target)
 		$("#addItemWindow").html(html);
 		$("#addItemWindowBackground").css("display", "block");
 	} else if (type == "record") {
-		var html = editRecordTemplate.format(target)
+		var html = editRecordTemplate.format(target, currentData[target]);
 		$("#addItemWindow").html(html);
 		$("#addItemWindowBackground").css("display", "block");
 	}

@@ -6,7 +6,7 @@ const buttonTemplate = `<div>
 
 const recordTemplate = `<div style="display: table;">
 	<i class="material-icons" icon>assignment<\/i>
-	<span class="record" onclick="ShowFullRecord({0});"><b>{1}<\/b><\/span>: {2}
+	<span class="record" onclick="ShowFullRecord('{0}');"><b>{0}<\/b><\/span>: {1}
 <\/div>`;
 
 const bucketTemplate = `<div style="display: table;">
@@ -37,7 +37,8 @@ const pathForDeleting = `
 
 /* Global variables */
 var currentDBPath = "";
-var currentData = null;
+// Dictionary. It keeps data like "key of a record": "value of a record"
+var currentData = {};
 
 
 /* Local Storage */
@@ -342,19 +343,23 @@ function ShowTree(data) {
 		result = backButton;
 	}
 
+	// Update currentData
 	var records = data.records;
-	currentData = records;
+	currentData = {}
+	for (i in records) {
+		currentData[records[i].key] = records[i].value
+	}
 
 	for (i in records) {
 		if (records[i].type == "bucket") {
 			result += bucketTemplate.format(records[i].key);
 		} else if (records[i].type == "record") {
 			var value = records[i].value;
-			if (value.length > 40) {
+			if (value.length > 60) {
 				value = value.substring(0, 60);
 				value += "...";
 			}
-			result += recordTemplate.format(i, records[i].key, value);
+			result += recordTemplate.format(records[i].key, value);
 		}
 	}
 
