@@ -12,6 +12,7 @@ var (
 	CheckVer    bool
 	IsWriteMode bool
 	OpenBrowser bool
+	NeatWindow  bool
 )
 
 func ParseFlags() {
@@ -21,6 +22,7 @@ func ParseFlags() {
 	flag.BoolVar(&CheckVer, "checkVer", true, "should program check is there a new version")
 	flag.BoolVar(&IsWriteMode, "writeMode", true, "can program edit dbs")
 	flag.BoolVar(&OpenBrowser, "openBrowser", true, "should the program open a browser automatically")
+	flag.BoolVar(&NeatWindow, "neatWindow", true, "should the program open a neat window")
 	flag.Parse()
 
 	// Checking of ':' before port

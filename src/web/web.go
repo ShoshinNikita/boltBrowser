@@ -19,6 +19,7 @@ var routes = []struct {
 	writeMode bool
 }{
 	{url: "/", method: "GET", handler: index},
+	{url: "/wrapper", method: "GET", handler: wrapper},
 	// databases
 	{url: "/api/databases", method: "GET", handler: databasesList, writeMode: false},
 	{url: "/api/databases", method: "POST", handler: openDB, writeMode: false},

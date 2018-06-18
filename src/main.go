@@ -48,7 +48,11 @@ func main() {
 	go web.Start(params.Port, stopSite)
 
 	if params.OpenBrowser {
-		err := openBrowser("http://localhost" + params.Port)
+		url := "http://localhost" + params.Port
+		if params.NeatWindow {
+			url += "/wrapper"
+		}
+		err := openBrowser(url)
 		if err != nil {
 			fmt.Printf("[ERR] %s\n", err.Error())
 		}
@@ -105,6 +109,8 @@ func showParams() {
 	fmt.Printf("* offset - %d\n", params.Offset)
 	printSpaces(spaces)
 	fmt.Printf("* should open a browser - %t\n", params.OpenBrowser)
+	printSpaces(spaces)
+	fmt.Printf("* should open a neat window - %t\n", params.NeatWindow)
 	printSpaces(spaces)
 	fmt.Printf("* debug - %t\n", params.Debug)
 }

@@ -38,6 +38,7 @@ Flag | Default | Description
 `-checkVer` | `true` | should program check a new version
 `-writeMode` | `true` | can program edit databases
 `-openBrowser` | `true` | should the program open a browser automatically
+`-neatWindow` | `true` | should the program open a neat window
 
 ### Security
 
