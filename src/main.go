@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	const currentVersion = "v2.1"
+	const currentVersion = "v2.2"
 
 	flags.ParseFlags()
 
