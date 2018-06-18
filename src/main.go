@@ -12,21 +12,21 @@ import (
 
 	"db"
 	"dbs"
-	"params"
+	"flags"
 	"versioning"
 	"web"
 )
 
 func main() {
-	const currentVersion = "v2.1"
+	const currentVersion = "v2.2"
 
-	params.ParseFlags()
+	flags.ParseFlags()
 
 	fmt.Printf("boltBrowser %s\n", currentVersion)
-	fmt.Print("[INFO] Start. Params:\n")
-	showParams()
+	fmt.Print("[INFO] Start. flags:\n")
+	showFlags()
 
-	if params.CheckVer {
+	if flags.CheckVer {
 		// Checking is there a new version
 		data, err := versioning.CheckVersion(currentVersion)
 		if err != nil {
@@ -43,12 +43,16 @@ func main() {
 	stopSite := make(chan struct{})
 	stop := make(chan os.Signal, 1)
 
-	db.SetOffset(params.Offset)
+	db.SetOffset(flags.Offset)
 
-	go web.Start(params.Port, stopSite)
+	go web.Start(flags.Port, stopSite)
 
-	if params.OpenBrowser {
-		err := openBrowser("http://localhost" + params.Port)
+	if flags.OpenBrowser {
+		url := "http://localhost" + flags.Port
+		if flags.NeatWindow {
+			url += "/wrapper"
+		}
+		err := openBrowser(url)
 		if err != nil {
 			fmt.Printf("[ERR] %s\n", err.Error())
 		}
@@ -85,26 +89,28 @@ func openBrowser(url string) (err error) {
 	return err
 }
 
-func showParams() {
+func showFlags() {
 	printSpaces := func(n int) {
 		for i := 0; i < n; i++ {
 			fmt.Print(" ")
 		}
 	}
 
-	// params should be printed under "Params:"
+	// flags should be printed under "flags:"
 	const spaces = 14
 
 	printSpaces(spaces)
-	fmt.Printf("* port - %s\n", params.Port)
+	fmt.Printf("* port - %s\n", flags.Port)
 	printSpaces(spaces)
-	fmt.Printf("* should check version - %t\n", params.CheckVer)
+	fmt.Printf("* should check version - %t\n", flags.CheckVer)
 	printSpaces(spaces)
-	fmt.Printf("* write mode - %t\n", params.IsWriteMode)
+	fmt.Printf("* write mode - %t\n", flags.IsWriteMode)
 	printSpaces(spaces)
-	fmt.Printf("* offset - %d\n", params.Offset)
+	fmt.Printf("* offset - %d\n", flags.Offset)
 	printSpaces(spaces)
-	fmt.Printf("* should open a browser - %t\n", params.OpenBrowser)
+	fmt.Printf("* should open a browser - %t\n", flags.OpenBrowser)
 	printSpaces(spaces)
-	fmt.Printf("* debug - %t\n", params.Debug)
+	fmt.Printf("* should open a neat window - %t\n", flags.NeatWindow)
+	printSpaces(spaces)
+	fmt.Printf("* debug - %t\n", flags.Debug)
 }

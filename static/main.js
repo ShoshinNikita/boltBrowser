@@ -6,7 +6,7 @@ const buttonTemplate = `<div>
 
 const recordTemplate = `<div style="display: table;">
 	<i class="material-icons" icon>assignment<\/i>
-	<span class="record" onclick="ShowFullRecord({0});"><b>{1}<\/b><\/span>: {2}
+	<span class="record" onclick="ShowFullRecord('{0}');"><b>{0}<\/b><\/span>: {1}
 <\/div>`;
 
 const bucketTemplate = `<div style="display: table;">
@@ -28,10 +28,17 @@ const prevRecordsButtonTemplate = `<div style="display: table;">
 	<span style="cursor: pointer;" onclick="PrevRecords();"><b>Previous page<\/b><\/span>
 <\/div>`;
 
+const pathForDeleting = `
+<div style="margin-bottom: 10px; text-align: left;">
+	<span>{0}</span>
+	<i class="material-icons btn" style="float: right; font-size: 22px !important; vertical-align: middle;" title="Delete" onclick="DeletePath('{0}');">close<\/i>
+<\/div>`;
+
 
 /* Global variables */
 var currentDBPath = "";
-var currentData = null;
+// Dictionary. It keeps data like "key of a record": "value of a record"
+var currentData = {};
 
 
 /* Local Storage */
@@ -77,7 +84,7 @@ function DeletePath(path) {
 	delete paths[path];
 	localStorage.setItem("paths", JSON.stringify(paths));
 
-	ShowPathsForDelete();
+	showPathsForDelete();
 }
 
 
@@ -99,6 +106,34 @@ function OpenDB() {
 		success: function(result){
 			result= SafeParse(result)
 			putIntoLS(result.dbPath);
+			HideOpenDbWindow();
+			ShowDBList();
+		},
+		error: function(result) {
+			ShowErrorPopup(result.responseText);
+		}
+	});
+	;
+}
+
+function CreateDB() {
+	var path = $("#DBPathForCreating").val();
+	if (path == "" ) {
+		ShowErrorPopup("Error: path is empty");
+		return;
+	}
+
+	$("#DBPathForCreating").val("");
+	$.ajax({
+		url: "/api/databases/new",
+		type: "POST",
+		data: {
+			"path": path
+		},
+		success: function(result){
+			result= SafeParse(result)
+			putIntoLS(result.dbPath);
+			HideOpenDbWindow();
 			ShowDBList();
 		},
 		error: function(result) {
@@ -285,10 +320,15 @@ function ShowDBsList() {
 	$("#dbList").addClass("db_list_animation");
 }
 
-function ShowFullRecord(number) {
-	var currentPath = $("#currentPath").text();
-	$("#recordPath").html(currentData[number].key + " – <i>" + currentPath + "<\/i>");
-	$("#recordValue").html(currentData[number].value);
+function ShowFullRecord(key) {
+	// This 2 lines fix the bug, when #recordData disappeared after changing of #recordPath and #currentPath
+	$("#recordPath").html("");
+	$("#recordValue").html("");
+
+	$("#recordData").scrollTop(0);
+
+	$("#recordPath").html(key + " – <i>" + $("#currentPath").text() + "<\/i>");
+	$("#recordValue").html(currentData[key]);
 }
 
 function ShowTree(data) {
@@ -308,19 +348,23 @@ function ShowTree(data) {
 		result = backButton;
 	}
 
+	// Update currentData
 	var records = data.records;
-	currentData = records;
+	currentData = {}
+	for (i in records) {
+		currentData[records[i].key] = records[i].value
+	}
 
 	for (i in records) {
 		if (records[i].type == "bucket") {
 			result += bucketTemplate.format(records[i].key);
 		} else if (records[i].type == "record") {
 			var value = records[i].value;
-			if (value.length > 40) {
+			if (value.length > 60) {
 				value = value.substring(0, 60);
 				value += "...";
 			}
-			result += recordTemplate.format(i, records[i].key, value);
+			result += recordTemplate.format(records[i].key, value);
 		}
 	}
 
@@ -332,15 +376,20 @@ function ShowTree(data) {
 	document.getElementById("dbTreeWrapper").scrollTop = 0;
 }
 
-function ShowPathsForDelete() {
-	const button = `<div style="margin-bottom: 10px; text-align: left;"><span>{0}</span>
-	<i class="material-icons btn" style="float: right; margin-right: 1vw; font-size: 25px !important;" title="Delete" onclick="DeletePath('{0}');">close<\/i><\/div>`;
+function SwitchPathsForDelete() {
+	if ($("#dbPathsList").css("display") == "none") {
+		showPathsForDelete();
+	} else {
+		$("#dbPathsList").css("display", "none");
+	}
+}
 
+function showPathsForDelete() {
 	var paths = getPaths();
 
 	var res = ""
 	for (var i = 0; i < paths.length; i++) {
-		res += button.format(paths[i]);
+		res += pathForDeleting.format(paths[i]);
 	}
 
 	if (res == "") {

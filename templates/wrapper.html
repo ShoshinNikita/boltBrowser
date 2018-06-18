@@ -1,0 +1,29 @@
+<!-- This html file opens the main interface in a new tiny window -->
+<html>
+<head>
+	<title>Wrapper for opening main window</title>
+</head>
+<body>
+	<div id="Info" style="width: 700px;"></div>
+<script>
+	var config = "menubar=no,toolbar=no,location=no,directories=no,status=no";
+	var url = "{{.URL}}";
+	var mainWindow = window.open(url, "", config=config);
+
+	if (!mainWindow || mainWindow.closed || typeof mainWindow.closed == "undefined") {
+		var message = `
+		<h1>Error</h1>
+		<p>
+		Please, turn off Pop-Up blocking for this site and refresh the page. It will let the program open main interface in neat window (without bookmarks, tabs and etc.) Or just visit <a href='{{.URL}}'>{{.URL}}</a>
+		</p>
+		<p>
+		If you want to turn off this feature set flag <i>-neatWindow=false</i>
+		</p>`
+		
+		document.getElementById("Info").innerHTML = message
+	} else {
+		window.close();
+	}
+</script>
+</body>
+</html>

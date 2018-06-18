@@ -6,6 +6,35 @@ import (
 	"github.com/boltdb/bolt"
 )
 
+// Structures for saving data of a bucket in memory
+
+type record struct {
+	k []byte
+	v []byte
+}
+
+type bucket struct {
+	k         []byte
+	nextLevel *data
+}
+
+type data struct {
+	records []record
+	buckets []bucket
+}
+
+func (d *data) addRecord(k, v []byte) {
+	r := record{k, v}
+	d.records = append(d.records, r)
+}
+
+func (d *data) addBucket(k []byte, pointer *data) {
+	b := bucket{k, pointer}
+	d.buckets = append(d.buckets, b)
+}
+
+// End of structures declaration
+
 func (db *BoltAPI) AddBucket(bucketName string) (err error) {
 	err = db.db.Update(func(tx *bolt.Tx) error {
 		var err error
@@ -53,6 +82,77 @@ func (db *BoltAPI) DeleteBucket(key string) (err error) {
 	}
 
 	return err
+}
+
+// EditBucketName renames buckets
+// Proccess:
+// * firstly, data of a bucket is copied to memory (it is a tree);
+// * secondary, bucket with old name is deleted, bucket with new name is created;
+// * thirdly, the data from memory is copied to the new bucket.
+// Copying  works recursively.
+func (db *BoltAPI) EditBucketName(oldKey, newKey string) (err error) {
+	currentData := new(data)
+
+	return db.db.Update(func(tx *bolt.Tx) error {
+		b := db.getCurrentBucket(tx)
+		// Check is there a bucket with newKey
+		if temp := b.Bucket([]byte(newKey)); temp != nil {
+			return errors.New("Bucket " + newKey + " already exists")
+		}
+
+		oldBucket := b.Bucket([]byte(oldKey))
+
+		// Copy data from a db to memory
+		copyDataToMemory(currentData, oldBucket)
+
+		newBucket, err := b.CreateBucket([]byte(newKey))
+		if err != nil {
+			return err
+		}
+		// Delete old bucket and create new with refreshed name
+		b.DeleteBucket([]byte(oldKey))
+
+		// Copy data to the db
+		copyDataToDB(currentData, newBucket)
+
+		return nil
+	})
+}
+
+func copyDataToMemory(d *data, bucket *bolt.Bucket) {
+	bucket.ForEach(func(k, v []byte) error {
+		if v != nil {
+			// record
+			d.addRecord(k, v)
+		} else {
+			// bucket
+			// Create a new element
+			ptr := new(data)
+			d.addBucket(k, ptr)
+			// Go to the nested bucket
+			nestedBucket := bucket.Bucket(k)
+			copyDataToMemory(ptr, nestedBucket)
+		}
+		return nil
+	})
+}
+
+func copyDataToDB(d *data, bucket *bolt.Bucket) {
+	// Checking just in case
+	if d == nil {
+		return
+	}
+
+	// Add records
+	for _, r := range d.records {
+		bucket.Put(r.k, r.v)
+	}
+
+	// Add buckets
+	for _, b := range d.buckets {
+		newBucket, _ := bucket.CreateBucket(b.k)
+		copyDataToDB(b.nextLevel, newBucket)
+	}
 }
 
 func (db *BoltAPI) AddRecord(key, value string) (err error) {
