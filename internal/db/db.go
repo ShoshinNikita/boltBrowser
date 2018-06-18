@@ -11,7 +11,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/mitchellh/go-homedir"
 
-	"flags"
+	"github.com/ShoshinNikita/boltBrowser/internal/flags"
 )
 
 const (

@@ -5,7 +5,7 @@ import (
 
 	"github.com/boltdb/bolt"
 
-	"converters"
+	"github.com/ShoshinNikita/boltBrowser/internal/converters"
 )
 
 // NextRecords return next part of records and bool, which shows is there next records

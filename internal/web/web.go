@@ -8,8 +8,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"dbs"
-	"flags"
+	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
+	"github.com/ShoshinNikita/boltBrowser/internal/flags"
 )
 
 var routes = []struct {

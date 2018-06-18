@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"flags"
+	"github.com/ShoshinNikita/boltBrowser/internal/flags"
 )
 
 func index(w http.ResponseWriter, r *http.Request) {

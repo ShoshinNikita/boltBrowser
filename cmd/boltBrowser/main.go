@@ -10,11 +10,11 @@ import (
 	"syscall"
 	"time"
 
-	"db"
-	"dbs"
-	"flags"
-	"versioning"
-	"web"
+	"github.com/ShoshinNikita/boltBrowser/internal/db"
+	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
+	"github.com/ShoshinNikita/boltBrowser/internal/flags"
+	"github.com/ShoshinNikita/boltBrowser/internal/versioning"
+	"github.com/ShoshinNikita/boltBrowser/internal/web"
 )
 
 func main() {

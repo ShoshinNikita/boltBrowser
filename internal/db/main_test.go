@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"flags"
+	"github.com/ShoshinNikita/boltBrowser/internal/flags"
 )
 
 func TestMain(m *testing.M) {

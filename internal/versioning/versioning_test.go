@@ -3,7 +3,7 @@ package versioning_test
 import (
 	"testing"
 
-	"versioning"
+	"github.com/ShoshinNikita/boltBrowser/internal/versioning"
 )
 
 func TestGetChanges(t *testing.T) {

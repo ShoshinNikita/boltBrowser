@@ -3,7 +3,7 @@ package db_test
 import (
 	"testing"
 
-	. "db"
+	. "github.com/ShoshinNikita/boltBrowser/internal/db"
 )
 
 // benchmark

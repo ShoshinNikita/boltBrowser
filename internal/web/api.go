@@ -1,13 +1,13 @@
 package web
 
 import (
-	"db"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"regexp"
 
-	"dbs"
+	"github.com/ShoshinNikita/boltBrowser/internal/db"
+	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
 )
 
 // openDB open db. It also adds db.DBApi to allDB

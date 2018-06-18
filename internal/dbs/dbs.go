@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"db"
+	"github.com/ShoshinNikita/boltBrowser/internal/db"
 )
 
 // allDB keeps all opened databases. string – the path to the db
