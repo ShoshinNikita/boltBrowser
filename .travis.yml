@@ -12,6 +12,8 @@ notifications:
   email: false
 
 before_install:
+  # For testing of creating dbs on the Desktop
+  - mkdir /home/travis/Desktop
   - go get github.com/mattn/goveralls
 
 install: true
