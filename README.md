@@ -1,5 +1,11 @@
 # boltBrowser
 
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/ShoshinNikita/boltBrowser/graphs/commit-activity)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ShoshinNikita/boltBrowser)](https://goreportcard.com/report/github.com/ShoshinNikita/boltBrowser)
+[![Coverage Status](https://coveralls.io/repos/github/ShoshinNikita/boltBrowser/badge.svg?branch=add-travis)](https://coveralls.io/github/ShoshinNikita/boltBrowser?branch=master)
+[![GitHub license](https://img.shields.io/github/license/ShoshinNikita/boltBrowser.svg)](https://github.com/ShoshinNikita/boltBrowser)
+[![Github all releases](https://img.shields.io/github/downloads/ShoshinNikita/boltBrowser/total.svg)](https://github.com/ShoshinNikita/boltBrowser/releases/)
+
 boltBrowser is a web-based explorer for BoltDB.
 
 ## Features
