@@ -16,8 +16,12 @@ before_install:
   - mkdir /home/travis/Desktop
   - go get github.com/mattn/goveralls
 
-install: true
+install:
+- curl -sLOf https://raw.githubusercontent.com/rafecolton/fmtpolice/master/coverage
+- go get -u code.google.com/p/go.tools/cmd/cover || go get -u golang.org/x/tools/cmd/cover
+- go get -u github.com/axw/gocov/gocov github.com/mattn/goveralls
 
 script:
-  # Run tests
-  - $GOPATH/bin/goveralls -service=travis-ci
+- go test ./...
+- bash coverage
+- ${GOPATH%%:*}/bin/goveralls -coverprofile=gover.coverprofile
