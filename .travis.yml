@@ -16,6 +16,7 @@ before_install:
   - mkdir /home/travis/Desktop
   - go get github.com/mattn/goveralls
 
+# Based on https://github.com/rafecolton/fmtpolice#example-coverage-usage-with-goveralls
 install:
 - curl -sLOf https://raw.githubusercontent.com/rafecolton/fmtpolice/master/coverage
 - go get -u code.google.com/p/go.tools/cmd/cover || go get -u golang.org/x/tools/cmd/cover
