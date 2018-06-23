@@ -85,7 +85,7 @@ func (db *BoltAPI) DeleteBucket(key string) (err error) {
 }
 
 // EditBucketName renames buckets
-// Proccess:
+// Process:
 // * firstly, data of a bucket is copied to memory (it is a tree);
 // * secondary, bucket with old name is deleted, bucket with new name is created;
 // * thirdly, the data from memory is copied to the new bucket.
