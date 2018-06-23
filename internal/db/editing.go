@@ -35,21 +35,25 @@ func (d *data) addBucket(k []byte, pointer *data) {
 
 // End of structures declaration
 
+// AddBucket adds a new bucket.
+// Function returns an error if:
+// * the bucket already exists - "bucket already exists"
+// * there's a record with same key - "it's a record"
 func (db *BoltAPI) AddBucket(bucketName string) (err error) {
 	err = db.db.Update(func(tx *bolt.Tx) error {
-		var err error
-
 		b := db.getCurrentBucket(tx)
+
+		// Bucket already exists
 		if b.Bucket([]byte(bucketName)) != nil {
-			// Bucket already exists
-			err = errors.New("bucket already exist")
-		} else if b.Get([]byte(bucketName)) != nil {
-			// There's a record with same key
-			err = errors.New("\"" + bucketName + "\" is a record")
-		} else {
-			_, err = b.CreateBucket([]byte(bucketName))
+			return errors.New("bucket already exists")
 		}
 
+		// There's a record with same key
+		if b.Get([]byte(bucketName)) != nil {
+			return errors.New("it's a record")
+		}
+
+		_, err := b.CreateBucket([]byte(bucketName))
 		return err
 	})
 
@@ -60,21 +64,25 @@ func (db *BoltAPI) AddBucket(bucketName string) (err error) {
 	return err
 }
 
+// DeleteBucket deletes a bucket.
+// Function returns an error if:
+// * it's a record, not bucket - "it's a record"
+// * there's no such bucket - "there's no such bucket"
 func (db *BoltAPI) DeleteBucket(key string) (err error) {
 	err = db.db.Update(func(tx *bolt.Tx) error {
-		var err error
-
 		b := db.getCurrentBucket(tx)
 
-		if b.Bucket([]byte(key)) != nil {
-			// Bucket can be deleted
-			err = b.DeleteBucket([]byte(key))
-		} else if b.Get([]byte(key)) != nil {
-			// It is a record
-			err = errors.New("\"" + key + "\" is a record")
+		// It's a record, not bucket
+		if b.Get([]byte(key)) != nil {
+			return errors.New("it's a record")
 		}
 
-		return err
+		// There's no such bucket
+		if b.Bucket([]byte(key)) == nil {
+			return errors.New("there's no such bucket")
+		}
+
+		return b.DeleteBucket([]byte(key))
 	})
 
 	if err == nil {
@@ -109,6 +117,7 @@ func (db *BoltAPI) EditBucketName(oldKey, newKey string) (err error) {
 		if err != nil {
 			return err
 		}
+
 		// Delete old bucket and create new with refreshed name
 		b.DeleteBucket([]byte(oldKey))
 
@@ -155,23 +164,25 @@ func copyDataToDB(d *data, bucket *bolt.Bucket) {
 	}
 }
 
+// AddRecord adds a new record.
+// Function returns an error if:
+// * there's a bucket with same key - "it's a bucket"
+// * the record already exists - "record already exists"
 func (db *BoltAPI) AddRecord(key, value string) (err error) {
 	err = db.db.Update(func(tx *bolt.Tx) error {
-		var err error
-
 		b := db.getCurrentBucket(tx)
+
+		// If it is a bucket
 		if b.Bucket([]byte(key)) != nil {
-			// If it is bucket
-			err = errors.New("\"" + key + "\" is a bucket")
-		} else if b.Get([]byte(key)) == nil {
-			// If record doesn't exist
-			err = b.Put([]byte(key), []byte(value))
-		} else {
-			// If record exist
-			err = errors.New("\"" + key + "\" already exists")
+			return errors.New("it's a bucket")
 		}
 
-		return err
+		// If record exist
+		if b.Get([]byte(key)) != nil {
+			return errors.New("record already exists")
+		}
+
+		return b.Put([]byte(key), []byte(value))
 	})
 
 	if err == nil {
@@ -181,23 +192,26 @@ func (db *BoltAPI) AddRecord(key, value string) (err error) {
 	return err
 }
 
+// DeleteRecord deletes a record
+// Function returns an error if:
+// * it's a bucket, nor record - "it's a bucket"
+// * there's no such record - "there's no such record"
 func (db *BoltAPI) DeleteRecord(key string) (err error) {
 	err = db.db.Update(func(tx *bolt.Tx) error {
-		var err error
-
 		b := db.getCurrentBucket(tx)
-		if b.Get([]byte(key)) != nil {
-			// If record exists
-			b.Delete([]byte(key))
-		} else if b.Bucket([]byte(key)) != nil {
-			// If it is bucket
-			err = errors.New("\"" + key + "\" is a bucket")
-		} else {
-			// If record doesn't exist
-			err = errors.New("\"" + key + "\" doesn't exist")
+
+		// If it is bucket
+		if b.Bucket([]byte(key)) != nil {
+			return errors.New("it's a bucket")
 		}
 
-		return err
+		// If there's no such record
+		if b.Get([]byte(key)) == nil {
+			return errors.New("there's no such record")
+		}
+
+		// If record exists
+		return b.Delete([]byte(key))
 	})
 
 	if err == nil {
@@ -207,31 +221,43 @@ func (db *BoltAPI) DeleteRecord(key string) (err error) {
 	return err
 }
 
+// EditRecord edits a record
+// Function returns an error if:
+// * there's a bucket with key == oldKey - "it's a bucket"
+// * there's no record with key == oldKey - "there's no such record"
+// * there's a bucket with key == newKey - "there's a bucket with key == newKey"
+// * there's a record with key == newKey - "there's a record with key == newKey"
 func (db *BoltAPI) EditRecord(oldKey, newKey, newValue string) error {
 	return db.db.Update(func(tx *bolt.Tx) error {
-		var err error
 		b := db.getCurrentBucket(tx)
 
+		// If there's a bucket with key == oldKey
 		if b.Bucket([]byte(oldKey)) != nil {
-			// If it is bucket
-			err = errors.New("\"" + oldKey + "\" is a bucket")
-		} else if b.Get([]byte(oldKey)) != nil {
-			if oldKey == newKey {
-				err = b.Put([]byte(oldKey), []byte(newValue))
-			} else {
-				if b.Get([]byte(newKey)) != nil {
-					// If newKey already exists
-					err = errors.New("\"" + newKey + "\" already exists")
-				} else {
-					b.Delete([]byte(oldKey))
-					err = b.Put([]byte(newKey), []byte(newValue))
-				}
-			}
-		} else {
-			// If record doesn't exist
-			err = errors.New("\"" + oldKey + "\" doesn't exist")
+			return errors.New("it's a bucket")
 		}
 
-		return err
+		// If there's no record with key == oldKey
+		if b.Get([]byte(oldKey)) == nil {
+			return errors.New("there's no such record")
+		}
+
+		// If there's a bucket with key == newKey
+		if b.Bucket([]byte(newKey)) != nil {
+			return errors.New("there's a bucket with key == newKey")
+		}
+
+		// If there's a record with key == newKey
+		if oldKey != newKey && b.Get([]byte(newKey)) != nil {
+			return errors.New("there's a record with key == newKey")
+		}
+
+		// We can overwrite the existing record
+		if oldKey == newKey {
+			return b.Put([]byte(oldKey), []byte(newValue))
+		}
+
+		// We have to delete old record and create new one
+		b.Delete([]byte(oldKey))
+		return b.Put([]byte(newKey), []byte(newValue))
 	})
 }
