@@ -25,6 +25,7 @@ func Init() {
 	allDB = make(map[string]*db.BoltAPI)
 }
 
+// OpenDB is a wrapper for *BoltAPI.Open()
 func OpenDB(dbPath string) (dbName string, code int, err error) {
 	// Check if db was opened
 	if _, ok := allDB[dbPath]; ok {
@@ -41,6 +42,7 @@ func OpenDB(dbPath string) (dbName string, code int, err error) {
 	return newDB.Name, http.StatusOK, nil
 }
 
+// CreateDB is a wrapper for *BoltAPI.Create()
 func CreateDB(path string) (dbName, dbPath string, code int, err error) {
 	newDB, err := db.Create(path)
 	if err != nil {
@@ -52,6 +54,7 @@ func CreateDB(path string) (dbName, dbPath string, code int, err error) {
 	return newDB.Name, newDB.DBPath, http.StatusCreated, nil
 }
 
+// CloseDB is a wrapper for *BoltAPI.Close()
 func CloseDB(dbPath string) (code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
@@ -65,6 +68,7 @@ func CloseDB(dbPath string) (code int, err error) {
 	return http.StatusOK, nil
 }
 
+// NextBucket is a wrapper for *BoltAPI.Next()
 func NextBucket(dbPath, bucket string) (data db.Data, code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return data, http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
@@ -78,6 +82,7 @@ func NextBucket(dbPath, bucket string) (data db.Data, code int, err error) {
 	return data, http.StatusOK, nil
 }
 
+// PrevBucket is a wrapper for *BoltAPI.Back()
 func PrevBucket(dbPath string) (data db.Data, code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return data, http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
@@ -91,6 +96,7 @@ func PrevBucket(dbPath string) (data db.Data, code int, err error) {
 	return data, http.StatusOK, nil
 }
 
+// GetRoot is a wrapper for *BoltAPI.GetRoot()
 func GetRoot(dbPath string) (data db.Data, code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return data, http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
@@ -104,6 +110,7 @@ func GetRoot(dbPath string) (data db.Data, code int, err error) {
 	return data, http.StatusOK, nil
 }
 
+// GetDBsList returns all opened BoltAPI
 func GetDBsList() (list []DBInfo) {
 	for _, v := range allDB {
 		info := DBInfo{Name: v.Name, DBPath: v.DBPath, Size: v.Size}
@@ -113,6 +120,7 @@ func GetDBsList() (list []DBInfo) {
 	return list
 }
 
+// GetCurrent is a wrapper for *BoltAPI.GetCurrent()
 func GetCurrent(dbPath string) (info DBInfo, data db.Data, code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return info, data, http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
@@ -130,6 +138,7 @@ func GetCurrent(dbPath string) (info DBInfo, data db.Data, code int, err error) 
 	return info, data, http.StatusOK, nil
 }
 
+// GetNextRecords is a wrapper for *BoltAPI.NextRecords()
 func GetNextRecords(dbPath string) (data db.Data, code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return data, http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
@@ -143,6 +152,7 @@ func GetNextRecords(dbPath string) (data db.Data, code int, err error) {
 	return data, http.StatusOK, nil
 }
 
+// GetPrevRecrods is a wrapper for *BoltAPI.PrevRecords()
 func GetPrevRecrods(dbPath string) (data db.Data, code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return data, http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
@@ -156,6 +166,7 @@ func GetPrevRecrods(dbPath string) (data db.Data, code int, err error) {
 	return data, http.StatusOK, nil
 }
 
+// Search is a wrapper for *BoltAPI.SearchRegexp() and *BoltAPI.Search()
 func Search(dbPath, mode, text string) (records []db.Record, path string, recordsAmount int, code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return records, "", 0, http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
@@ -174,6 +185,7 @@ func Search(dbPath, mode, text string) (records []db.Record, path string, record
 	return records, path, recordsAmount, http.StatusOK, nil
 }
 
+// AddBucket is a wrapper for *BoltAPI.AddBucket()
 func AddBucket(dbPath, bucketName string) (code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
@@ -187,6 +199,7 @@ func AddBucket(dbPath, bucketName string) (code int, err error) {
 	return http.StatusCreated, nil
 }
 
+// EditBucketName is a wrapper for *BoltAPI.EditBucketName()
 func EditBucketName(dbPath, oldName, newName string) (code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
@@ -200,6 +213,7 @@ func EditBucketName(dbPath, oldName, newName string) (code int, err error) {
 	return http.StatusOK, nil
 }
 
+// DeleteBucket is a wrapper for *BoltAPI.DeleteBucket()
 func DeleteBucket(dbPath, bucketName string) (code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
@@ -213,6 +227,7 @@ func DeleteBucket(dbPath, bucketName string) (code int, err error) {
 	return http.StatusOK, nil
 }
 
+// AddRecord is a wrapper for *BoltAPI.AddRecord()
 func AddRecord(dbPath, key, value string) (code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
@@ -226,6 +241,7 @@ func AddRecord(dbPath, key, value string) (code int, err error) {
 	return http.StatusCreated, nil
 }
 
+// EditRecord is a wrapper for *BoltAPI.EditRecord()
 func EditRecord(dbPath, oldKey, newKey, newValue string) (code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")
@@ -239,6 +255,7 @@ func EditRecord(dbPath, oldKey, newKey, newValue string) (code int, err error) {
 	return http.StatusOK, nil
 }
 
+// DeleteRecord is a wrapper for *BoltAPI.DeleteRecord()
 func DeleteRecord(dbPath, key string) (code int, err error) {
 	if _, ok := allDB[dbPath]; !ok {
 		return http.StatusBadRequest, errors.New("There's no any db with such path (" + dbPath + ")")

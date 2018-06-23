@@ -6,15 +6,23 @@ import (
 )
 
 var (
-	Port        string
-	Debug       bool
-	Offset      int
-	CheckVer    bool
+	// Port for website (with ':')
+	Port string
+	// Debug mode
+	Debug bool
+	// Offset - number of records on single screen
+	Offset int
+	// CheckVer - should the program check check is there a new version
+	CheckVer bool
+	// IsWriteMode - can program edit databases
 	IsWriteMode bool
+	// OpenBrowser - should the program open a browser automatically
 	OpenBrowser bool
-	NeatWindow  bool
+	// NeatWindow - should the program open the special neat window
+	NeatWindow bool
 )
 
+// ParseFlags parses flags like -port, -debug, -offset and etc.
 func ParseFlags() {
 	flag.StringVar(&Port, "port", ":500", "port for website (with ':')")
 	flag.BoolVar(&Debug, "debug", false, "debug mode")

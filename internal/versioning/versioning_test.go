@@ -17,7 +17,7 @@ func TestGetChanges(t *testing.T) {
 			[]string{"Added pages (issue #8)", "Code was refactored", "Updated README.md"}},
 		{"+ Another test.", []string{"Another test."}},
 		{"+ ?!\"#$%&'()*+,-./0123456789:;< = >?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz{}|",
-		[]string{"?!\"#$%&'()*+,-./0123456789:;< = >?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz{}|"}},
+			[]string{"?!\"#$%&'()*+,-./0123456789:;< = >?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz{}|"}},
 	}
 
 	for i, test := range tests {

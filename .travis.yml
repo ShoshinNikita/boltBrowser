@@ -14,7 +14,6 @@ notifications:
 before_install:
   # For testing of creating dbs on the Desktop
   - mkdir /home/travis/Desktop
-  - go get github.com/mattn/goveralls
 
 # Based on https://github.com/rafecolton/fmtpolice#example-coverage-usage-with-goveralls
 install:

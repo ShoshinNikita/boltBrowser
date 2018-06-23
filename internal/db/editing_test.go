@@ -42,9 +42,9 @@ func TestBucketsEditing(t *testing.T) {
 			[]Record{bckt("546")}},
 		{[]string{"hello", "546"}, "1", newErr(""),
 			[]Record{bckt("1")}},
-		{[]string{"xyz"}, "byte", newErr("\"byte\" is a record"),
+		{[]string{"xyz"}, "byte", newErr("it's a record"),
 			[]Record{rcrd("byte", "15"), rcrd("hi", "yeah")}},
-		{[]string{}, "hello", newErr("bucket already exist"),
+		{[]string{}, "hello", newErr("bucket already exists"),
 			[]Record{bckt("123"), bckt("hello"), bckt("xyz")}},
 	}
 
@@ -56,7 +56,7 @@ func TestBucketsEditing(t *testing.T) {
 		{[]string{}, "123", newErr("")},
 		{[]string{"hello", "546"}, "1", newErr("")},
 		{[]string{"hello"}, "546", newErr("")},
-		{[]string{"xyz"}, "byte", newErr("\"byte\" is a record")},
+		{[]string{"xyz"}, "byte", newErr("it's a record")},
 	}
 
 	testDB, err := Open("testdata/edit.db")
@@ -156,9 +156,9 @@ func TestRecordEditing(t *testing.T) {
 	}{
 		{[]string{}, "123", "15", newErr(""),
 			[]Record{bckt("hello"), bckt("xyz"), rcrd("123", "15")}},
-		{[]string{}, "123", "16", newErr("\"123\" already exists"),
+		{[]string{}, "123", "16", newErr("record already exists"),
 			[]Record{bckt("hello"), bckt("xyz"), rcrd("123", "15")}},
-		{[]string{}, "hello", "5", newErr("\"hello\" is a bucket"),
+		{[]string{}, "hello", "5", newErr("it's a bucket"),
 			[]Record{bckt("hello"), bckt("xyz"), rcrd("123", "15")}},
 		{[]string{"xyz"}, "hello", "1", newErr(""),
 			[]Record{rcrd("byte", "15"), rcrd("hello", "1"), rcrd("hi", "yeah")}},
@@ -171,8 +171,8 @@ func TestRecordEditing(t *testing.T) {
 	}{
 		{[]string{}, "123", newErr("")},
 		{[]string{"xyz"}, "hello", newErr("")},
-		{[]string{}, "hello", newErr("\"hello\" is a bucket")},
-		{[]string{"hello"}, "123", newErr("\"123\" doesn't exist")},
+		{[]string{}, "hello", newErr("it's a bucket")},
+		{[]string{"hello"}, "123", newErr("there's no such record")},
 	}
 
 	testDB, err := Open("testdata/edit.db")
@@ -275,9 +275,9 @@ func TestEditRecord(t *testing.T) {
 			[]Record{rcrd("byte", "35"), rcrd("hi", "yeah")}},
 		{[]string{"xyz"}, "hi", "hello", "88", newErr(""),
 			[]Record{rcrd("byte", "35"), rcrd("hello", "88")}},
-		{[]string{}, "hello", "hi", "35", newErr("\"hello\" is a bucket"),
+		{[]string{}, "hello", "hi", "35", newErr("it's a bucket"),
 			[]Record{bckt("hello"), bckt("xyz")}},
-		{[]string{}, "test", "test1", "15", newErr("\"test\" doesn't exist"),
+		{[]string{}, "test", "test1", "15", newErr("there's no such record"),
 			[]Record{bckt("hello"), bckt("xyz")}},
 		// return default values
 		{[]string{"xyz"}, "byte", "byte", "15", newErr(""),
