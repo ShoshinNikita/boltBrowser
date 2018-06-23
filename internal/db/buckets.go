@@ -92,7 +92,7 @@ func (db *BoltAPI) Next(name string) (data Data, err error) {
 	data.NextRecords = (db.recordsAmount > maxOffset)
 	data.Path = "/" + strings.Join(db.currentBucket, "/")
 	data.RecordsAmount = db.recordsAmount
-	
+
 	return data, err
 }
 
