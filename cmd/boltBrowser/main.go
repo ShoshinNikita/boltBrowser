@@ -17,9 +17,9 @@ import (
 	"github.com/ShoshinNikita/boltBrowser/internal/web"
 )
 
-func main() {
-	const currentVersion = "v2.2"
+const currentVersion = "v2.2"
 
+func main() {
 	flags.ParseFlags()
 
 	fmt.Printf("boltBrowser %s\n", currentVersion)
@@ -52,6 +52,7 @@ func main() {
 		if flags.NeatWindow {
 			url += "/wrapper"
 		}
+
 		err := openBrowser(url)
 		if err != nil {
 			fmt.Printf("[ERR] %s\n", err.Error())
@@ -60,9 +61,12 @@ func main() {
 
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 	<-stop
+
 	close(stopSite)
-	time.Sleep(100 * time.Millisecond)
 	dbs.CloseDBs()
+
+	// Wait just in case
+	time.Sleep(100 * time.Millisecond)
 	fmt.Println("[INFO] Program was stopped")
 }
 
