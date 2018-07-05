@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/mitchellh/go-homedir"
@@ -68,12 +69,11 @@ func Open(path string) (*BoltAPI, error) {
 		return nil, err
 	}
 
-	var options *bolt.Options
+	options := &bolt.Options{Timeout: time.Second}
+
 	// Check is ReadOnly mode
 	if !flags.IsWriteMode {
-		options = &bolt.Options{ReadOnly: true}
-	} else {
-		options = nil
+		options.ReadOnly = true
 	}
 
 	db.db, err = bolt.Open(path, 0600, options)
