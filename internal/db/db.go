@@ -78,6 +78,10 @@ func Open(path string) (*BoltAPI, error) {
 
 	db.db, err = bolt.Open(path, 0600, options)
 	if err != nil {
+		if err == bolt.ErrTimeout {
+			return nil, fmt.Errorf("The database is already opened")
+		}
+
 		return nil, err
 	}
 
