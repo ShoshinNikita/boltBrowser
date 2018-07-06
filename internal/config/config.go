@@ -25,6 +25,11 @@ var Opts struct {
 	NeatWindow bool `default:"true"`
 }
 
+type field struct {
+	name  string
+	value interface{}
+}
+
 // ParseConfig parses flags like -port, -debug, -offset and etc.
 // If there's no any flags, it tries to parse config file "config.ini"
 func ParseConfig() (err error) {
@@ -54,20 +59,19 @@ func ParseConfig() (err error) {
 // If tag default was missed it panics
 // If type of field isn't [int, string, bool] it panics
 func setDefaultValues() {
-	// For change value
-	v := reflect.ValueOf(&Opts).Elem()
+	var defValues []field
 	// For getting tags
-	t := v.Type()
+	t := reflect.TypeOf(Opts)
 
 	// Opts is always struct, so we shouldn't check if tp.Kind() == reflect.Struct
-	for i := 0; i < v.NumField(); i++ {
-		f := v.Field(i)
-		def := t.Field(i).Tag.Get("default")
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		def := f.Tag.Get("default")
 		if def == "" {
 			panicf("default tag of field %s is empty", t.Field(i).Name)
 		}
 
-		switch f.Kind() {
+		switch f.Type.Kind() {
 		case reflect.Bool:
 			b := func() bool {
 				if def == "true" {
@@ -75,15 +79,35 @@ func setDefaultValues() {
 				}
 				return false
 			}()
-			f.SetBool(b)
+			defValues = append(defValues, field{name: f.Name, value: b})
 		case reflect.String:
-			f.SetString(def)
+			defValues = append(defValues, field{name: f.Name, value: def})
 		case reflect.Int:
 			i, _ := strconv.ParseInt(def, 10, 64)
-			f.SetInt(i)
+			defValues = append(defValues, field{name: f.Name, value: int(i)})
 		default:
-			panicf("Bad type of a field if Opts. Type: %s", f.Kind().String())
+			panicf("Bad type of a field if Opts. Type: %s", f.Type.Kind())
 		}
+	}
+
+	setValues(defValues)
+}
+
+func setValues(values []field) {
+	opts := reflect.ValueOf(&Opts).Elem()
+
+	if len(values) != opts.NumField() {
+		panicf("number of values and fields are different.\nValues: %v", values)
+	}
+
+	for _, v := range values {
+		f := opts.FieldByName(v.name)
+
+		if f.Kind() != reflect.TypeOf(v.value).Kind() {
+			panicf("Different types of field and value: field type - %s, value type - %s", f.Kind().String(), reflect.TypeOf(v.value).Kind().String())
+		}
+
+		f.Set(reflect.ValueOf(v.value))
 	}
 }
 
@@ -108,5 +132,3 @@ func parseFlags() {
 func panicf(format string, v ...interface{}) {
 	panic(fmt.Sprintf(format, v))
 }
-
-
