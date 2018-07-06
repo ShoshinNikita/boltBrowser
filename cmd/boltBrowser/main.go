@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/ShoshinNikita/boltBrowser/internal/config"
 	"github.com/ShoshinNikita/boltBrowser/internal/db"
 	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
-	"github.com/ShoshinNikita/boltBrowser/internal/config"
 	"github.com/ShoshinNikita/boltBrowser/internal/versioning"
 	"github.com/ShoshinNikita/boltBrowser/internal/web"
 )
@@ -20,7 +20,11 @@ import (
 const currentVersion = "v2.2"
 
 func main() {
-	config.ParseConfig()
+	err := config.ParseConfig()
+	if err != nil {
+		fmt.Printf("[ERR] Couldn't parse config: %s\n", err.Error())
+		os.Exit(2)
+	}
 
 	fmt.Printf("boltBrowser %s\n", currentVersion)
 	fmt.Print("[INFO] Start. flags:\n")

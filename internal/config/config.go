@@ -27,10 +27,17 @@ var Opts struct {
 
 // ParseConfig parses flags like -port, -debug, -offset and etc.
 // If there's no any flags, it tries to parse config file "config.ini"
-func ParseConfig() {
+func ParseConfig() (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			exit(r)
+			switch r.(type) {
+			case string:
+				err = fmt.Errorf(r.(string))
+			case error:
+				err = r.(error)
+			default:
+				err = fmt.Errorf("undefined error")
+			}
 		}
 	}()
 
@@ -39,6 +46,8 @@ func ParseConfig() {
 	if len(os.Args) > 1 {
 		parseFlags()
 	}
+
+	return nil
 }
 
 // setDefaultValues sets default values of Opts's fields.
@@ -100,7 +109,4 @@ func panicf(format string, v ...interface{}) {
 	panic(fmt.Sprintf(format, v))
 }
 
-func exit(v ...interface{}) {
-	fmt.Println(v...)
-	os.Exit(2)
-}
+
