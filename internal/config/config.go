@@ -1,3 +1,12 @@
+// Package config
+//
+// Program can get Opts from:
+// 1. Command line flags
+// 2. config.ini
+//    Types of lines:
+//      * # - comment
+//      * some option=value of the option
+//
 package config
 
 import (
@@ -7,21 +16,27 @@ import (
 	"strconv"
 )
 
+// Opts keeps vars for global use
+//
+// Tags:
+// * default - default value
+// * name - name in the file config.ini
+// * comment - comment in the file config.ini
 var Opts struct {
 	// Port for website (with ':')
-	Port string `default:":500"`
+	Port string `default:":500" name:"port" comment:"Port for website"`
 	// Debug mode
-	Debug bool `default:"false"`
+	Debug bool `default:"false" name:"debug"`
 	// Offset - number of records on single screen
-	Offset int `default:"100"`
+	Offset int `default:"100" name:"offset" comment:"number of records on a single screen"`
 	// CheckVer - should the program check check is there a new version
-	CheckVer bool `default:"true"`
+	CheckVer bool `default:"true" name:"should_check_version"`
 	// IsWriteMode - can program edit databases
-	IsWriteMode bool `default:"true"`
+	IsWriteMode bool `default:"true" name:"is_write_mode"`
 	// OpenBrowser - should the program open a browser automatically
-	OpenBrowser bool `default:"true"`
+	OpenBrowser bool `default:"true" name:"open_browser"`
 	// NeatWindow - should the program open the special neat window
-	NeatWindow bool `default:"true"`
+	NeatWindow bool `default:"true" name:"open_neat_window" comment:"has effect only if 'open browser' is true"`
 }
 
 type field struct {
@@ -47,8 +62,12 @@ func ParseConfig() (err error) {
 
 	setDefaultValues()
 
+	// TODO
+	// Parse the file at first. Then check is there any args. If len(os.Args) > 1, parse flags and overwrite current values
 	if len(os.Args) > 1 {
 		parseFlags()
+	} else {
+		parseFile()
 	}
 
 	return nil

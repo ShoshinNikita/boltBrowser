@@ -1,4 +1,5 @@
 pkg
+*.ini
 program
 .vscode
 *.bat
