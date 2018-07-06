@@ -1,7 +1,6 @@
 package config
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"reflect"
@@ -86,7 +85,7 @@ func setDefaultValues() {
 			i, _ := strconv.ParseInt(def, 10, 64)
 			defValues = append(defValues, field{name: f.Name, value: int(i)})
 		default:
-			panicf("Bad type of a field if Opts. Type: %s", f.Type.Kind())
+			panicf("Bad type of a field of Opts. Type: %s", f.Type.Kind())
 		}
 	}
 
@@ -96,18 +95,15 @@ func setDefaultValues() {
 func setValues(values []field) {
 	opts := reflect.ValueOf(&Opts).Elem()
 
-	if len(values) != opts.NumField() {
-		panicf("number of values and fields are different.\nValues: %v", values)
-	}
-
 	for _, v := range values {
 		f := opts.FieldByName(v.name)
+		if f.IsValid() {
+			if f.Kind() != reflect.TypeOf(v.value).Kind() {
+				panicf("Different types of field and value: field type - %s, value type - %s", f.Kind().String(), reflect.TypeOf(v.value).Kind().String())
+			}
 
-		if f.Kind() != reflect.TypeOf(v.value).Kind() {
-			panicf("Different types of field and value: field type - %s, value type - %s", f.Kind().String(), reflect.TypeOf(v.value).Kind().String())
+			f.Set(reflect.ValueOf(v.value))
 		}
-
-		f.Set(reflect.ValueOf(v.value))
 	}
 }
 
