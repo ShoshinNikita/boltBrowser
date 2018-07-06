@@ -12,7 +12,7 @@ import (
 
 	"github.com/ShoshinNikita/boltBrowser/internal/db"
 	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
-	"github.com/ShoshinNikita/boltBrowser/internal/flags"
+	"github.com/ShoshinNikita/boltBrowser/internal/config"
 	"github.com/ShoshinNikita/boltBrowser/internal/versioning"
 	"github.com/ShoshinNikita/boltBrowser/internal/web"
 )
@@ -20,13 +20,13 @@ import (
 const currentVersion = "v2.2"
 
 func main() {
-	flags.ParseFlags()
+	config.ParseConfig()
 
 	fmt.Printf("boltBrowser %s\n", currentVersion)
 	fmt.Print("[INFO] Start. flags:\n")
 	showFlags()
 
-	if flags.CheckVer {
+	if config.Opts.CheckVer {
 		// Checking is there a new version
 		data, err := versioning.CheckVersion(currentVersion)
 		if err != nil {
@@ -43,13 +43,13 @@ func main() {
 	stopSite := make(chan struct{})
 	stop := make(chan os.Signal, 1)
 
-	db.SetOffset(flags.Offset)
+	db.SetOffset(config.Opts.Offset)
 
-	go web.Start(flags.Port, stopSite)
+	go web.Start(config.Opts.Port, stopSite)
 
-	if flags.OpenBrowser {
-		url := "http://localhost" + flags.Port
-		if flags.NeatWindow {
+	if config.Opts.OpenBrowser {
+		url := "http://localhost" + config.Opts.Port
+		if config.Opts.NeatWindow {
 			url += "/wrapper"
 		}
 
@@ -104,17 +104,17 @@ func showFlags() {
 	const spaces = 14
 
 	printSpaces(spaces)
-	fmt.Printf("* port - %s\n", flags.Port)
+	fmt.Printf("* port - %s\n", config.Opts.Port)
 	printSpaces(spaces)
-	fmt.Printf("* should check version - %t\n", flags.CheckVer)
+	fmt.Printf("* should check version - %t\n", config.Opts.CheckVer)
 	printSpaces(spaces)
-	fmt.Printf("* write mode - %t\n", flags.IsWriteMode)
+	fmt.Printf("* write mode - %t\n", config.Opts.IsWriteMode)
 	printSpaces(spaces)
-	fmt.Printf("* offset - %d\n", flags.Offset)
+	fmt.Printf("* offset - %d\n", config.Opts.Offset)
 	printSpaces(spaces)
-	fmt.Printf("* should open a browser - %t\n", flags.OpenBrowser)
+	fmt.Printf("* should open a browser - %t\n", config.Opts.OpenBrowser)
 	printSpaces(spaces)
-	fmt.Printf("* should open a neat window - %t\n", flags.NeatWindow)
+	fmt.Printf("* should open a neat window - %t\n", config.Opts.NeatWindow)
 	printSpaces(spaces)
-	fmt.Printf("* debug - %t\n", flags.Debug)
+	fmt.Printf("* debug - %t\n", config.Opts.Debug)
 }
