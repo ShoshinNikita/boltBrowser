@@ -86,10 +86,14 @@ func createFile() error {
 	v := reflect.ValueOf(Opts) // for values
 	t := v.Type()              // for tags
 
+	optsLits := "# List of all opts:\n" // contains list of all opts
+	opts := ""                          // contains useful payload
+
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 
 		configName := f.Tag.Get("name")
+		optsLits += "# " + configName + "\n"
 		comment := f.Tag.Get("comment")
 		defValue := fmt.Sprint(v.Field(i).Interface())
 
@@ -100,8 +104,15 @@ func createFile() error {
 
 		line += configName + "=" + defValue + "\n"
 
-		file.Write([]byte(line))
+		opts += line
 	}
 
-	return nil
+	// For readability
+	optsLits += "\n"
+
+	// Write default values and comments
+	file.Write([]byte(optsLits))
+	file.Write([]byte(opts))
+
+	return file.Close()
 }
