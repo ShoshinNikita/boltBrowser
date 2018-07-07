@@ -62,12 +62,12 @@ func ParseConfig() (err error) {
 
 	setDefaultValues()
 
-	// TODO
-	// Parse the file at first. Then check is there any args. If len(os.Args) > 1, parse flags and overwrite current values
+	// At first, we parse the file
+	parseFile()
+
+	// If user set any flag, the program will overwrite Opts 
 	if len(os.Args) > 1 {
 		parseFlags()
-	} else {
-		parseFile()
 	}
 
 	return nil

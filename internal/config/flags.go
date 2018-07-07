@@ -4,7 +4,7 @@ import "flag"
 
 // parseFlags parses command line flags
 func parseFlags() {
-	// We can use fields of Opts as default, because we already set default values by calling of setDefaultValues()
+	// We use fields of Opts as default, because we want to overwrite values of only setted flags
 	flag.StringVar(&Opts.Port, "port", Opts.Port, "port for website (with ':')")
 	flag.BoolVar(&Opts.Debug, "debug", Opts.Debug, "debug mode")
 	flag.IntVar(&Opts.Offset, "offset", Opts.Offset, "number of records on single page")
