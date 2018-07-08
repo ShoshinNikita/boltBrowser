@@ -6,10 +6,18 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gobuffalo/packr"
 	"github.com/gorilla/mux"
 
 	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
 	"github.com/ShoshinNikita/boltBrowser/internal/flags"
+)
+
+// For embedding files
+var (
+	// "../../" for correct embedding of static files
+	templates = packr.NewBox("../../templates")
+	static    = packr.NewBox("../../static")
 )
 
 var routes = []struct {
@@ -56,7 +64,7 @@ func Start(port string, stopChan chan struct{}) {
 	}
 
 	// For static files
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(static)))
 
 	var handler http.Handler
 	if flags.Debug {
@@ -67,7 +75,7 @@ func Start(port string, stopChan chan struct{}) {
 	srv := http.Server{Addr: port, Handler: middleware(handler)}
 	go srv.ListenAndServe()
 
-	// Wait signal
+	// Wait for signal
 	<-stopChan
 	srv.Shutdown(context.Background())
 	fmt.Println("[INFO] Website was stopped")
