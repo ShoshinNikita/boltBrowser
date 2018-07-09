@@ -60,12 +60,12 @@ func ParseConfig() (err error) {
 		}
 	}()
 
-	setDefaultValues()
+	setDefaultValues(&Opts)
 
 	// At first, we parse the file
 	parseFile()
 
-	// If user set any flag, the program will overwrite Opts 
+	// If user set any flag, the program will overwrite Opts
 	if len(os.Args) > 1 {
 		parseFlags()
 	}
@@ -74,14 +74,27 @@ func ParseConfig() (err error) {
 }
 
 // setDefaultValues sets default values of Opts's fields.
+// s - pointer to a struct.
 // If tag default was missed it panics
 // If type of field isn't [int, string, bool] it panics
-func setDefaultValues() {
-	var defValues []field
-	// For getting tags
-	t := reflect.TypeOf(Opts)
+func setDefaultValues(s interface{}) {
+	// value of a pointer
+	value := reflect.ValueOf(s)
+	t := value.Type()
+	if t.Kind() != reflect.Ptr {
+		panicf("s must be a pointer")
+	}
 
-	// Opts is always struct, so we shouldn't check if tp.Kind() == reflect.Struct
+	// value of struct (ptr -> struct)
+	value = value.Elem()
+	t = value.Type()
+
+	if t.Kind() != reflect.Struct {
+		panicf("s isn't structure, but ", t.Kind().String())
+	}
+
+	var defValues []field
+
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		def := f.Tag.Get("default")
@@ -108,11 +121,26 @@ func setDefaultValues() {
 		}
 	}
 
-	setValues(defValues)
+	setValues(s, defValues)
 }
 
-func setValues(values []field) {
-	opts := reflect.ValueOf(&Opts).Elem()
+// s - pointer to a struct
+func setValues(s interface{}, values []field) {
+	// Checking of type
+	// value of a pointer
+	value := reflect.ValueOf(s)
+	t := value.Type()
+	if t.Kind() != reflect.Ptr {
+		panicf("s must be a pointer")
+	}
+
+	// value of struct (ptr -> struct)
+	if value.Elem().Type().Kind() != reflect.Struct {
+		panicf("s isn't structure, but ", t.Kind().String())
+	}
+
+	// value of the struct (ptr -> struct)
+	opts := reflect.ValueOf(s).Elem()
 
 	for _, v := range values {
 		f := opts.FieldByName(v.name)

@@ -72,7 +72,7 @@ func parseFile() {
 
 	}
 
-	setValues(values)
+	setValues(&Opts, values)
 }
 
 // createFile creates config.ini and writes Opts.
