@@ -98,8 +98,9 @@ func setDefaultValues(s interface{}) {
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		def := f.Tag.Get("default")
+		// If there's no tag default, skip this field
 		if def == "" {
-			panicf("default tag of field %s is empty", t.Field(i).Name)
+			continue
 		}
 
 		switch f.Type.Kind() {
