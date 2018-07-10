@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/ShoshinNikita/boltBrowser/internal/flags"
+	"github.com/ShoshinNikita/boltBrowser/internal/config"
 )
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -15,8 +15,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "[ERR] %s\n", err.Error())
 		return
 	}
-	
-	data := struct{ WriteMode bool }{flags.IsWriteMode}
+	data := struct{ WriteMode bool }{config.Opts.IsWriteMode}
 	t.Execute(w, data)
 }
 
@@ -29,7 +28,7 @@ func wrapper(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"URL": "http://localhost" + flags.Port,
+		"URL": "http://localhost" + config.Opts.Port,
 	}
 	t.Execute(w, data)
 }

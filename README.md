@@ -30,21 +30,59 @@ boltBrowser is a web-based explorer for BoltDB.
 
 ## Settings
 
-You can change mode of converting `[]byte`. Just change functions `ConvertKey(b []byte) string` (or `ConvertValue()`) in [src/converters/converter.go](src/converters/converters.go)
+Setting | Default value | Description
+---- | ---- | ----
+`port` | `:500` | port of the website
+`offset` | `100` | number of records on a single page
+`debug` | `false` | mode of debugging
+`check version` | `true` | should program check a new version
+`write mode` | `true` | can program edit databases
+`open browser` | `true` | should the program open a browser automatically
+`neat window` | `true` | should the program open a neat window
 
-__Note__: function will be used for converting all keys (or values). So, if your keys (or values) were converted from either `string` or `uint` program will crash.
+You can change settings by editing a config file or using command line flags.
+
+### Config file
+
+The config file – `config.ini`. The default content:
+
+```ini
+# List of all opts:
+# port
+# debug
+# offset
+# should_check_version
+# is_write_mode
+# open_browser
+# open_neat_window
+
+# Port for website
+port=:500
+debug=false
+# number of records on a single screen
+offset=100
+should_check_version=true
+is_write_mode=true
+open_browser=true
+# has effect only if 'open browser' is true
+open_neat_window=true
+```
+
+You can overwrite values from the config file by setting flags.
 
 ### Flags
 
-Flag | Default | Description
----- | ------ | -------
-`-port` | `:500` | port of the website
-`-offset` | `100` | number of records on single page
-`-debug` | `false` | mode of debugging
-`-checkVer` | `true` | should program check a new version
-`-writeMode` | `true` | can program edit databases
-`-openBrowser` | `true` | should the program open a browser automatically
-`-neatWindow` | `true` | should the program open a neat window
+The default values are the same as values in the config file.
+
+Flag  | Description
+----  | ----
+`-port` | port of the website
+`-offset` | number of records on single page
+`-debug` | mode of debugging
+`-checkVer` | should program check a new version
+`-writeMode` | can program edit databases
+`-openBrowser` | should the program open a browser automatically
+`-neatWindow` | should the program open a neat window
 
 ### Security
 
@@ -64,6 +102,12 @@ Scheme of work:
 1. Program get info from a db
 1. Program sends a response
 1. Program changes all old symbols to new (frontend – function `SafeParse()`)
+
+### Other
+
+You can change mode of converting `[]byte`. Just change functions `ConvertKey(b []byte) string` (or `ConvertValue()`) in [src/converters/converter.go](src/converters/converters.go)
+
+__Note__: function will be used for converting all keys (or values). So, if your keys (or values) were converted from either `string` or `uint` program will crash.
 
 ## Additional info
 

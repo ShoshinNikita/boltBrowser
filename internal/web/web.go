@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
-	"github.com/ShoshinNikita/boltBrowser/internal/flags"
+	"github.com/ShoshinNikita/boltBrowser/internal/config"
 )
 
 // For embedding files
@@ -58,7 +58,7 @@ func Start(port string, stopChan chan struct{}) {
 	router := mux.NewRouter().StrictSlash(false)
 	router.Path("/favicon.ico").Methods("GET").Handler(http.FileServer(http.Dir("./static/")))
 	for _, r := range routes {
-		if !r.writeMode || (r.writeMode && flags.IsWriteMode) {
+		if !r.writeMode || (r.writeMode && config.Opts.IsWriteMode) {
 			router.Path(r.url).Methods(r.method).HandlerFunc(r.handler)
 		}
 	}
@@ -67,7 +67,7 @@ func Start(port string, stopChan chan struct{}) {
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(static)))
 
 	var handler http.Handler
-	if flags.Debug {
+	if config.Opts.Debug {
 		handler = debugHandler(router)
 	} else {
 		handler = router
