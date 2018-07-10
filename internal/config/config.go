@@ -106,10 +106,7 @@ func setDefaultValues(s interface{}) {
 		switch f.Type.Kind() {
 		case reflect.Bool:
 			b := func() bool {
-				if def == "true" {
-					return true
-				}
-				return false
+				return def == "true"
 			}()
 			defValues = append(defValues, field{name: f.Name, value: b})
 		case reflect.String:

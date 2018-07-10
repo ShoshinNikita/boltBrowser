@@ -60,7 +60,6 @@ func newErr(err string) error {
 func TestOpen(t *testing.T) {
 	// Try to open correct db
 	testDB, err := Open("testdata/test.db")
-	defer testDB.Close()
 	if err != nil {
 		t.Error(err)
 	}
@@ -74,6 +73,11 @@ func TestOpen(t *testing.T) {
 	// in Kv
 	if testDB.Size/1024 != 32 {
 		t.Errorf("Wrong Size Want: 32 Got: %d", testDB.Size/1024)
+	}
+
+	err = testDB.Close()
+	if err != nil {
+		t.Error(err)
 	}
 
 	// Try to open wrong db
