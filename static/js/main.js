@@ -1,7 +1,7 @@
 /* Constants */
 const buttonTemplate = `<div>
 	<input type="button" class="db_button" value="{0}" onclick="ChooseDB('{1}')" title="Choose">
-	<i class="material-icons btn" style="float: right; margin-right: 1vw; font-size: 30px !important;" title="Close" onclick="CloseDB('{1}');">close<\/i>
+	<i class="material-icons btn" style="float: right; margin-right: 10px; font-size: 30px !important;" title="Close" onclick="CloseDB('{1}');">close<\/i>
 <\/div>`;
 
 const recordTemplate = `<div style="display: table;">

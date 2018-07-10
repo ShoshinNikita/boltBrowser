@@ -9,7 +9,7 @@ import (
 )
 
 func index(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("templates/index.html")
+	t, err := template.New("").Parse(templates.String("index.html"))
 	if err != nil {
 		fmt.Printf("[ERR] %s\n", err.Error())
 		fmt.Fprintf(w, "[ERR] %s\n", err.Error())
@@ -20,7 +20,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 
 func wrapper(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("templates/wrapper.html")
+	t, err := template.New("").Parse(templates.String("wrapper.html"))
 	if err != nil {
 		fmt.Printf("[ERR] %s\n", err.Error())
 		fmt.Fprintf(w, "[ERR] %s\n", err.Error())

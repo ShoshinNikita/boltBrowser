@@ -57,10 +57,10 @@ input[type=button] {
 	border: 2px solid #555555;
 	outline: none;
 	float: left;
-	height: 4vh;
+	height: 30px;
 	width: 75%;
 	font-size: 20px;
-	margin-left: 1vw;
+	margin-left: 10px;
 }
 
 /* Consist info about the current db and records */
@@ -71,7 +71,7 @@ input[type=button] {
 }
 .db_info {
 	font-size: 25px;
-	height: 10vh;
+	height: 80px;
 }
 .db_tree_wrapper {
 	height: 100%;
@@ -99,8 +99,8 @@ input[type=button] {
 /* Error popup */
 .error_popup {
 	position: absolute;
-	bottom: 1vh;
-	left: 1vw;
+	bottom: 10px;
+	left: 10px;
 	width: 400px;
 	height: 150px;
 	z-index: 2;
@@ -198,7 +198,7 @@ input[type=button] {
 	text-align: center;
 	border: 1px solid #888;
 	border-radius: 5px;
-    width: 40vw;
+    width: 500px;
 }
 .background {
 	display: none; /* Hidden by default */
