@@ -1,5 +1,5 @@
-pkg
-program
 .vscode
+app
+*.ini
 *.bat
 jsconfig.json

@@ -38,7 +38,6 @@ func TestNextRecords(t *testing.T) {
 	}
 
 	testDB, err := Open("testdata/test.db")
-	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,6 +65,11 @@ func TestNextRecords(t *testing.T) {
 
 		testDB.ClearPath()
 	}
+
+	err = testDB.Close()
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestPrevRecords(t *testing.T) {
@@ -85,7 +89,6 @@ func TestPrevRecords(t *testing.T) {
 	}
 
 	testDB, err := Open("testdata/test.db")
-	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -116,6 +119,11 @@ func TestPrevRecords(t *testing.T) {
 		}
 
 		testDB.ClearPath()
+	}
+
+	err = testDB.Close()
+	if err != nil {
+		t.Error(err)
 	}
 }
 

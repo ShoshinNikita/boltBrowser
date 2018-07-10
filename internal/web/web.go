@@ -6,10 +6,18 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gobuffalo/packr"
 	"github.com/gorilla/mux"
 
 	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
-	"github.com/ShoshinNikita/boltBrowser/internal/flags"
+	"github.com/ShoshinNikita/boltBrowser/internal/config"
+)
+
+// For embedding files
+var (
+	// "../../" for correct embedding of static files
+	templates = packr.NewBox("../../templates")
+	static    = packr.NewBox("../../static")
 )
 
 var routes = []struct {
@@ -50,16 +58,16 @@ func Start(port string, stopChan chan struct{}) {
 	router := mux.NewRouter().StrictSlash(false)
 	router.Path("/favicon.ico").Methods("GET").Handler(http.FileServer(http.Dir("./static/")))
 	for _, r := range routes {
-		if !r.writeMode || (r.writeMode && flags.IsWriteMode) {
+		if !r.writeMode || (r.writeMode && config.Opts.IsWriteMode) {
 			router.Path(r.url).Methods(r.method).HandlerFunc(r.handler)
 		}
 	}
 
 	// For static files
-	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(static)))
 
 	var handler http.Handler
-	if flags.Debug {
+	if config.Opts.Debug {
 		handler = debugHandler(router)
 	} else {
 		handler = router
@@ -67,7 +75,7 @@ func Start(port string, stopChan chan struct{}) {
 	srv := http.Server{Addr: port, Handler: middleware(handler)}
 	go srv.ListenAndServe()
 
-	// Wait signal
+	// Wait for signal
 	<-stopChan
 	srv.Shutdown(context.Background())
 	fmt.Println("[INFO] Website was stopped")

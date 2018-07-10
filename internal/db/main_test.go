@@ -4,12 +4,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ShoshinNikita/boltBrowser/internal/flags"
+	"github.com/ShoshinNikita/boltBrowser/internal/config"
 )
 
 func TestMain(m *testing.M) {
 	// Turn WriteMode on
-	flags.IsWriteMode = true
+	config.Opts.IsWriteMode = true
 
 	m.Run()
 

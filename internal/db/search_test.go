@@ -64,7 +64,6 @@ func TestSearch(t *testing.T) {
 	}
 
 	testDB, err := Open("testdata/search.db")
-	defer testDB.Close()
 	if err != nil {
 		t.Error(err)
 	}
@@ -89,6 +88,11 @@ func TestSearch(t *testing.T) {
 			t.Errorf("Test #%d Not equal. Want: %v Got: %v", i, test.answer, result)
 			break
 		}
+	}
+
+	err = testDB.Close()
+	if err != nil {
+		t.Error(err)
 	}
 }
 
@@ -117,7 +121,6 @@ func TestSearchRegex(t *testing.T) {
 	}
 
 	testDB, err := Open("testdata/search.db")
-	defer testDB.Close()
 	if err != nil {
 		t.Error(err)
 	}
@@ -144,5 +147,10 @@ func TestSearchRegex(t *testing.T) {
 			t.Errorf("Test #%d Not equal. Want: %v Got: %v", i, test.answer, result)
 			break
 		}
+	}
+
+	err = testDB.Close()
+	if err != nil {
+		t.Error(err)
 	}
 }

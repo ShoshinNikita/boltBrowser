@@ -35,7 +35,6 @@ func TestGetRoot(t *testing.T) {
 	}
 
 	testDB, err := Open("testdata/test.db")
-	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,6 +49,11 @@ func TestGetRoot(t *testing.T) {
 		if !equal(test.answer, data.Records) {
 			t.Errorf("Test #%d Not equal. Want: %v Got: %v", i, test.answer, data.Records)
 		}
+	}
+
+	err = testDB.Close()
+	if err != nil {
+		t.Error(err)
 	}
 }
 
@@ -78,7 +82,6 @@ func TestNext(t *testing.T) {
 	}
 
 	testDB, err := Open("testdata/test.db")
-	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,6 +104,10 @@ func TestNext(t *testing.T) {
 		testDB.ClearPath()
 	}
 
+	err = testDB.Close()
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestBack(t *testing.T) {
@@ -123,7 +130,6 @@ func TestBack(t *testing.T) {
 	}
 
 	testDB, err := Open("testdata/test.db")
-	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -150,6 +156,10 @@ func TestBack(t *testing.T) {
 		testDB.ClearPath()
 	}
 
+	err = testDB.Close()
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestGetCurrent(t *testing.T) {
@@ -169,7 +179,6 @@ func TestGetCurrent(t *testing.T) {
 	}
 
 	testDB, err := Open("testdata/test.db")
-	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -192,4 +201,8 @@ func TestGetCurrent(t *testing.T) {
 		testDB.ClearPath()
 	}
 
+	err = testDB.Close()
+	if err != nil {
+		t.Error(err)
+	}
 }
