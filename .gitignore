@@ -1,7 +1,5 @@
-app
-pkg
-*.ini
-program
 .vscode
+app
+*.ini
 *.bat
 jsconfig.json
