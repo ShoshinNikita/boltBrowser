@@ -49,7 +49,7 @@ func TestBucketRenaming(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// hello -> hello1
+	// hello -> 123
 	t.Log("hello -> 123")
 	err = testDB.EditBucketName(oldName, newName)
 	if err != nil {
