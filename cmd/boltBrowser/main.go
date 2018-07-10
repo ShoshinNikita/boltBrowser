@@ -6,7 +6,6 @@ import (
 	"os/exec"
 	"os/signal"
 	"runtime"
-	"strings"
 	"syscall"
 	"time"
 
@@ -36,8 +35,7 @@ func main() {
 		if err != nil {
 			fmt.Printf("[ERR] Can't check is there a new version: %s", err.Error())
 		} else if data.IsNewVersion {
-			changes := "+ " + strings.Join(data.Changes, "\n+ ")
-			fmt.Printf("\n[INFO] New version (%s) is available.\nChanges:\n%s\nLink: %s\n\n", data.LastVersion, changes, data.Link)
+			fmt.Printf("\n[INFO] New version (%s) is available.\nChanges:\n%s\nLink: %s\n\n", data.LastVersion, data.Changes, data.Link)
 		} else {
 			fmt.Printf("[INFO] You use the last version of boltBrowser\n")
 		}
