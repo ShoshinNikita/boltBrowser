@@ -1,4 +1,6 @@
+app
 pkg
+*.ini
 program
 .vscode
 *.bat

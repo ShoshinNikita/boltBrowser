@@ -60,7 +60,6 @@ func TestBucketsEditing(t *testing.T) {
 	}
 
 	testDB, err := Open("testdata/edit.db")
-	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -142,6 +141,11 @@ func TestBucketsEditing(t *testing.T) {
 
 		testDB.ClearPath()
 	}
+
+	err = testDB.Close()
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestRecordEditing(t *testing.T) {
@@ -176,7 +180,6 @@ func TestRecordEditing(t *testing.T) {
 	}
 
 	testDB, err := Open("testdata/edit.db")
-	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -258,6 +261,11 @@ func TestRecordEditing(t *testing.T) {
 
 		testDB.ClearPath()
 	}
+
+	err = testDB.Close()
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestEditRecord(t *testing.T) {
@@ -287,7 +295,6 @@ func TestEditRecord(t *testing.T) {
 	}
 
 	testDB, err := Open("testdata/edit.db")
-	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -339,5 +346,10 @@ func TestEditRecord(t *testing.T) {
 		}
 
 		testDB.ClearPath()
+	}
+
+	err = testDB.Close()
+	if err != nil {
+		t.Error(err)
 	}
 }

@@ -45,7 +45,6 @@ func TestBucketRenaming(t *testing.T) {
 	)
 
 	testDB, err := db.Open("testdata/rename.db")
-	defer testDB.Close()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -144,5 +143,10 @@ func TestBucketRenaming(t *testing.T) {
 			t.Errorf("Want: %v Got: %v", secondBucket, data.Records)
 			return
 		}
+	}
+
+	err = testDB.Close()
+	if err != nil {
+		t.Error(err)
 	}
 }

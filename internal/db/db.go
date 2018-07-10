@@ -12,7 +12,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/mitchellh/go-homedir"
 
-	"github.com/ShoshinNikita/boltBrowser/internal/flags"
+	"github.com/ShoshinNikita/boltBrowser/internal/config"
 )
 
 const (
@@ -72,7 +72,7 @@ func Open(path string) (*BoltAPI, error) {
 	options := &bolt.Options{Timeout: time.Second}
 
 	// Check is ReadOnly mode
-	if !flags.IsWriteMode {
+	if !config.Opts.IsWriteMode {
 		options.ReadOnly = true
 	}
 
