@@ -37,6 +37,8 @@ func openDB(w http.ResponseWriter, r *http.Request) {
 	response := struct {
 		DBPath string `json:"dbPath"`
 	}{dbPath}
+	escapeRecords(&response)
+
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -63,6 +65,8 @@ func createDB(w http.ResponseWriter, r *http.Request) {
 	response := struct {
 		DBPath string `json:"dbPath"`
 	}{dbPath}
+	escapeRecords(&response)
+	
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -124,6 +128,7 @@ func next(w http.ResponseWriter, r *http.Request) {
 		data.RecordsAmount,
 		data.Records,
 	}
+	escapeRecords(&response)
 
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(response)
@@ -172,6 +177,7 @@ func back(w http.ResponseWriter, r *http.Request) {
 		data.RecordsAmount,
 		data.Records,
 	}
+	escapeRecords(&response)
 
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(response)
@@ -221,6 +227,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 		data.RecordsAmount,
 		data.Records,
 	}
+	escapeRecords(&response)
 
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(response)
@@ -299,6 +306,7 @@ func current(w http.ResponseWriter, r *http.Request) {
 		data.RecordsAmount,
 		data.Records,
 	}
+	escapeRecords(&response)
 
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(response)
@@ -344,6 +352,7 @@ func nextRecords(w http.ResponseWriter, r *http.Request) {
 		data.RecordsAmount,
 		data.Records,
 	}
+	escapeRecords(&response)
 
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(response)
@@ -390,6 +399,7 @@ func prevRecords(w http.ResponseWriter, r *http.Request) {
 		data.RecordsAmount,
 		data.Records,
 	}
+	escapeRecords(&response)
 
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(response)
@@ -440,6 +450,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 		recordsAmount,
 		records,
 	}
+	escapeRecords(&response)
 
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(response)
