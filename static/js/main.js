@@ -50,7 +50,7 @@ function PrepareLS() {
 }
 
 function putIntoLS(dbPath) {
-	var paths = SafeParse(localStorage.getItem("paths"));
+	var paths = JSON.parse(localStorage.getItem("paths"));
 	if (paths[dbPath] == null) {
 		paths[dbPath] = {
 			"uses": 1
@@ -63,7 +63,7 @@ function putIntoLS(dbPath) {
 }
 
 function getPaths() {
-	var paths = SafeParse(localStorage.getItem("paths"));
+	var paths = JSON.parse(localStorage.getItem("paths"));
 
 	// Sorting. Return only keys;
 	var sortedPaths = Object.keys(paths).sort(function(a, b){
@@ -80,7 +80,7 @@ function getPaths() {
 }
 
 function DeletePath(path) {
-	var paths = SafeParse(localStorage.getItem("paths"));
+	var paths = JSON.parse(localStorage.getItem("paths"));
 	delete paths[path];
 	localStorage.setItem("paths", JSON.stringify(paths));
 
@@ -104,7 +104,7 @@ function OpenDB() {
 			"dbPath": dbPath
 		},
 		success: function(result){
-			result= SafeParse(result)
+			result= JSON.parse(result)
 			putIntoLS(result.dbPath);
 			HideOpenDbWindow();
 			ShowDBList();
@@ -131,7 +131,7 @@ function CreateDB() {
 			"path": path
 		},
 		success: function(result){
-			result= SafeParse(result)
+			result= JSON.parse(result)
 			putIntoLS(result.dbPath);
 			HideOpenDbWindow();
 			ShowDBList();
@@ -173,7 +173,7 @@ function ShowDBList() {
 		url: "/api/databases",
 		type: "GET",
 		success: function(result){
-			allDB = SafeParse(result);
+			allDB = JSON.parse(result);
 			var result = "";
 			for (i in allDB) {
 				result += buttonTemplate.format(allDB[i].name, allDB[i].dbPath);
@@ -195,7 +195,7 @@ function ChooseDB(dbPath) {
 			"dbPath": dbPath,
 		},
 		success: function(result){
-			result = SafeParse(result);
+			result = JSON.parse(result);
 
 			$("#dbName").html("<i>Name:<\/i> " + result.db.name);
 			$("#dbPath").html("<i>Path:<\/i> " + result.db.dbPath);
@@ -221,7 +221,7 @@ function Next(bucket) {
 			"bucket": bucket
 		},
 		success: function(result){
-			result = SafeParse(result);
+			result = JSON.parse(result);
 			ShowTree(result);
 		},
 		error: function(result) {
@@ -238,7 +238,7 @@ function Back() {
 			"dbPath": currentDBPath,
 		},
 		success: function(result){
-			result = SafeParse(result);
+			result = JSON.parse(result);
 			ShowTree(result);
 		},
 		error: function(result) {
@@ -255,7 +255,7 @@ function NextRecords() {
 			"dbPath": currentDBPath,
 		},
 		success: function(result){
-			result = SafeParse(result);
+			result = JSON.parse(result);
 
 			ShowTree(result);
 		},
@@ -273,7 +273,7 @@ function PrevRecords() {
 			"dbPath": currentDBPath,
 		},
 		success: function(result){
-			result = SafeParse(result);
+			result = JSON.parse(result);
 
 			ShowTree(result);
 		},
@@ -303,7 +303,7 @@ function Search() {
 			"mode": mode
 		},
 		success: function(result){
-			result = SafeParse(result);
+			result = JSON.parse(result);
 			
 			ShowTree(result);
 		},
@@ -444,27 +444,6 @@ function ShowDonePopup() {
 
 
 /* Secondary functions */
-
-// Return parsed object with "good" symbols
-function SafeParse(text) {
-	var object = JSON.parse(text);
-	makeSafe(object);
-	return object
-}
-
-// Erase all "bad" symbols from object like '<', '>', '\'', '"'
-// Works recursively
-function makeSafe(object) {
-	if (typeof object === 'object') {
-		for (i in object) {
-			object[i] = makeSafe(object[i]);
-		}
-	} else if (typeof object === 'string') {
-		object = object.replaceAll("<", "❮").replaceAll(">", "❯").replaceAll("\"", "＂").replaceAll("'", "ߴ")
-	}
-	return object
-}
-
 window.onclick = function(event) {
     if (event.target == openDbWindow) {
 		HideOpenDbWindow();
