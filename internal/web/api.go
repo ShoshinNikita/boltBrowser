@@ -19,7 +19,7 @@ import (
 // }
 //
 func openDB(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
+	dbPath := r.FormValue("dbPath")
 
 	// From C:\\users\\help (or C:\users\help) to C:/users/help
 	reg := regexp.MustCompile(`\\\\|\\`)
@@ -47,7 +47,7 @@ func openDB(w http.ResponseWriter, r *http.Request) {
 // }
 //
 func createDB(w http.ResponseWriter, r *http.Request) {
-	path := r.Form.Get("path")
+	path := r.FormValue("path")
 
 	// We shouldn't replace '\\' and '\', because we will do it in db.Create()
 
@@ -70,7 +70,7 @@ func createDB(w http.ResponseWriter, r *http.Request) {
 // Return: -
 //
 func closeDB(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
+	dbPath := r.FormValue("dbPath")
 
 	code, err := dbs.CloseDB(dbPath)
 	if err != nil {
@@ -100,8 +100,8 @@ func closeDB(w http.ResponseWriter, r *http.Request) {
 // }
 //
 func next(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
-	nextBucket := r.Form.Get("bucket")
+	dbPath := r.FormValue("dbPath")
+	nextBucket := r.FormValue("bucket")
 
 	data, code, err := dbs.NextBucket(dbPath, nextBucket)
 	if err != nil {
@@ -149,7 +149,7 @@ func next(w http.ResponseWriter, r *http.Request) {
 // }
 //
 func back(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
+	dbPath := r.FormValue("dbPath")
 
 	data, code, err := dbs.PrevBucket(dbPath)
 	if err != nil {
@@ -198,7 +198,7 @@ func back(w http.ResponseWriter, r *http.Request) {
 // }
 //
 func root(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
+	dbPath := r.FormValue("dbPath")
 
 	data, code, err := dbs.GetRoot(dbPath)
 	if err != nil {
@@ -270,7 +270,7 @@ func databasesList(w http.ResponseWriter, r *http.Request) {
 // }
 //
 func current(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
+	dbPath := r.FormValue("dbPath")
 
 	info, data, code, err := dbs.GetCurrent(dbPath)
 	if err != nil {
@@ -323,7 +323,7 @@ func current(w http.ResponseWriter, r *http.Request) {
 // }
 //
 func nextRecords(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
+	dbPath := r.FormValue("dbPath")
 
 	data, code, err := dbs.GetNextRecords(dbPath)
 	if err != nil {
@@ -369,7 +369,7 @@ func nextRecords(w http.ResponseWriter, r *http.Request) {
 // }
 //
 func prevRecords(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
+	dbPath := r.FormValue("dbPath")
 
 	data, code, err := dbs.GetPrevRecrods(dbPath)
 	if err != nil {
@@ -415,9 +415,9 @@ func prevRecords(w http.ResponseWriter, r *http.Request) {
 // }
 //
 func search(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
-	text := r.Form.Get("text")
-	mode := r.Form.Get("mode")
+	dbPath := r.FormValue("dbPath")
+	text := r.FormValue("text")
+	mode := r.FormValue("mode")
 
 	records, path, recordsAmount, code, err := dbs.Search(dbPath, mode, text)
 	if err != nil {
@@ -469,8 +469,8 @@ func returnError(w http.ResponseWriter, err error, message string, code int) {
 // Return: -
 //
 func addBucket(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
-	bucket := r.Form.Get("bucket")
+	dbPath := r.FormValue("dbPath")
+	bucket := r.FormValue("bucket")
 
 	code, err := dbs.AddBucket(dbPath, bucket)
 	if err != nil {
@@ -487,9 +487,9 @@ func addBucket(w http.ResponseWriter, r *http.Request) {
 // Return: -
 //
 func editBucketName(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
-	oldName := r.Form.Get("oldName")
-	newName := r.Form.Get("newName")
+	dbPath := r.FormValue("dbPath")
+	oldName := r.FormValue("oldName")
+	newName := r.FormValue("newName")
 
 	code, err := dbs.EditBucketName(dbPath, oldName, newName)
 	if err != nil {
@@ -506,8 +506,8 @@ func editBucketName(w http.ResponseWriter, r *http.Request) {
 // Return: -
 //
 func deleteBucket(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
-	bucket := r.Form.Get("bucket")
+	dbPath := r.FormValue("dbPath")
+	bucket := r.FormValue("bucket")
 
 	code, err := dbs.DeleteBucket(dbPath, bucket)
 	if err != nil {
@@ -524,9 +524,9 @@ func deleteBucket(w http.ResponseWriter, r *http.Request) {
 // Return: -
 //
 func addRecord(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
-	key := r.Form.Get("key")
-	value := r.Form.Get("value")
+	dbPath := r.FormValue("dbPath")
+	key := r.FormValue("key")
+	value := r.FormValue("value")
 
 	code, err := dbs.AddRecord(dbPath, key, value)
 	if err != nil {
@@ -543,10 +543,10 @@ func addRecord(w http.ResponseWriter, r *http.Request) {
 // Return: -
 //
 func editRecord(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
-	oldKey := r.Form.Get("oldKey")
-	newKey := r.Form.Get("newKey")
-	newValue := r.Form.Get("newValue")
+	dbPath := r.FormValue("dbPath")
+	oldKey := r.FormValue("oldKey")
+	newKey := r.FormValue("newKey")
+	newValue := r.FormValue("newValue")
 
 	code, err := dbs.EditRecord(dbPath, oldKey, newKey, newValue)
 	if err != nil {
@@ -563,8 +563,8 @@ func editRecord(w http.ResponseWriter, r *http.Request) {
 // Return: -
 //
 func deleteRecord(w http.ResponseWriter, r *http.Request) {
-	dbPath := r.Form.Get("dbPath")
-	key := r.Form.Get("key")
+	dbPath := r.FormValue("dbPath")
+	key := r.FormValue("key")
 
 	code, err := dbs.DeleteRecord(dbPath, key)
 	if err != nil {
