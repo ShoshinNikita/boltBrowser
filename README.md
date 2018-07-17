@@ -4,9 +4,11 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/ShoshinNikita/boltBrowser)](https://goreportcard.com/report/github.com/ShoshinNikita/boltBrowser)
 [![Coverage Status](https://coveralls.io/repos/github/ShoshinNikita/boltBrowser/badge.svg?branch=add-travis)](https://coveralls.io/github/ShoshinNikita/boltBrowser?branch=master)
 [![GitHub license](https://img.shields.io/github/license/ShoshinNikita/boltBrowser.svg)](https://github.com/ShoshinNikita/boltBrowser)
-[![Github all releases](https://img.shields.io/github/downloads/ShoshinNikita/boltBrowser/total.svg)](https://github.com/ShoshinNikita/boltBrowser/releases/)
+[![Github all releases](https://img.shields.io/github/downloads/ShoshinNikita/boltBrowser/total.svg)](https://github.com/ShoshinNikita/boltBrowser/releases)
 
 boltBrowser is a web-based explorer for BoltDB.
+
+**Warning!** I need your help. For details see [help wanted](#help-wanted)
 
 ## Features
 
@@ -112,6 +114,12 @@ __Note__: function will be used for converting all keys (or values). So, if your
 ## Additional info
 
 Initial work was undertaken on [Bitbucket](https://bitbucket.org/ShoshinNikita/boltbrowser).
+
+## Help wanted
+
+Unfortunately, I'm not a good frontend and UI developer. So, it would be great, if you decide to help me.
+
+If you want to help, you can check [Issues](https://github.com/ShoshinNikita/boltBrowser/issues) or you can skim through the source code.
 
 ## License
 
