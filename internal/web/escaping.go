@@ -6,45 +6,55 @@ import (
 	"reflect"
 )
 
-// escapeRecords escapes fields "Key" and "Value" of a field "Records"
+// escapeRecords escapes fields "Key" and "Value" of a field "Records" and field "Path".
+// s must be a pointer to a struct.
+//
+// Only fields "Records" and "Path" can have js-injected data
 // See tests for details
 func escapeRecords(s interface{}) error {
 	v := reflect.ValueOf(s)
+	if v.Kind() != reflect.Ptr {
+		return errors.New("s isn't a ptr")
+	}
+
+	v = v.Elem()
 	if v.Kind() != reflect.Struct {
 		return errors.New("s isn't a struct")
 	}
 
-	// We want to change only field "Records"
+	// Change the field "Records"
 	field := v.FieldByName("Records")
-	if !field.IsValid() {
-		return errors.New("Field 'Records' isn't valid")
-	}
-	if field.Kind() != reflect.Slice {
-		return errors.New("Field 'Records' isn't a slice")
-	}
-	if field.Type().Elem().Kind() != reflect.Struct {
-		return errors.New("Field 'Recrod' isn't a slice of structs")
-	}
+	// Skip if the field isn't valid and it isn't slice of structs
+	if field.IsValid() && field.Kind() == reflect.Slice &&
+		field.Type().Elem().Kind() == reflect.Struct {
 
-	for i := 0; i < field.Len(); i++ {
-		elem := field.Index(i)
+		for i := 0; i < field.Len(); i++ {
+			elem := field.Index(i)
 
-		// Change fields "Key" and "Value"
-		key := elem.FieldByName("Key")
-		if err := checkString(key); err != nil {
-			return err
+			// Change fields "Key" and "Value"
+			key := elem.FieldByName("Key")
+			if err := checkString(key); err != nil {
+				return err
+			}
+
+			// We can use SetString(), because we already have checked kind of 'key'
+			key.SetString(escape(key.String()))
+
+			value := elem.FieldByName("Value")
+			if err := checkString(value); err != nil {
+				return err
+			}
+
+			// We can use SetString(), because we already have checked kind of 'value'
+			value.SetString(escape(value.String()))
 		}
+	}
 
-		// We can use SetString(), because we already have checked kind of 'key'
-		key.SetString(escape(key.String()))
-
-		value := elem.FieldByName("Value")
-		if err := checkString(value); err != nil {
-			return err
-		}
-
-		// We can use SetString(), because we already have checked kind of 'value'
-		value.SetString(escape(value.String()))
+	// Change the field "Path"
+	field = v.FieldByName("Path")
+	// Skip if the field isn't valid and it isn't string
+	if field.IsValid() && field.Kind() == reflect.String && field.CanSet() {
+		field.SetString(escape(field.String()))
 	}
 
 	return nil

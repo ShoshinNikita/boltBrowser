@@ -23,10 +23,14 @@ func test1(t *testing.T) {
 	tt := struct {
 		SomeField    string
 		AnotherField int
+		Path         string
+		pathAnswer   string
 		Records      []record
 	}{
 		"Hello",
 		1515,
+		"Hello world Some <script>alert(5);</script>",
+		"Hello world Some &lt;script&gt;alert(5);&lt;/script&gt;",
 		[]record{
 			record{"bucket", "Some key", "Some key", "Some value", "Some value"},
 			record{"bucket",
@@ -37,7 +41,7 @@ func test1(t *testing.T) {
 		},
 	}
 
-	err := web.EscapeRecords(tt)
+	err := web.EscapeRecords(&tt)
 	if err != nil {
 		t.Error(err)
 		return
@@ -47,8 +51,11 @@ func test1(t *testing.T) {
 			t.Errorf("Bad key. Want: %s Got: %s", r.keyAnswer, r.Key)
 		}
 		if r.Value != r.valueAnswer {
-			t.Errorf("Bad key. Want: %s Got: %s", r.valueAnswer, r.Value)
+			t.Errorf("Bad value. Want: %s Got: %s", r.valueAnswer, r.Value)
 		}
+	}
+	if tt.Path != tt.pathAnswer {
+		t.Errorf("Bad path. Want: %s Got: %s", tt.pathAnswer, tt.Path)
 	}
 }
 
@@ -72,16 +79,17 @@ func test2(t *testing.T) {
 		},
 	}
 
-	err := web.EscapeRecords(tt)
+	err := web.EscapeRecords(&tt)
 	if err != nil {
 		t.Error(err)
+		return
 	}
 	for _, r := range tt.Records {
 		if r.Key != r.keyAnswer {
 			t.Errorf("Bad key. Want: %s Got: %s", r.keyAnswer, r.Key)
 		}
 		if r.Value != r.valueAnswer {
-			t.Errorf("Bad key. Want: %s Got: %s", r.valueAnswer, r.Value)
+			t.Errorf("Bad value. Want: %s Got: %s", r.valueAnswer, r.Value)
 		}
 	}
 }
