@@ -3,7 +3,7 @@ package db
 import (
 	"errors"
 
-	"github.com/boltdb/bolt"
+	"github.com/ShoshinNikita/bolt"
 )
 
 // Structures for saving data of a bucket in memory

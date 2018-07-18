@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/boltdb/bolt"
+	"github.com/ShoshinNikita/bolt"
 	"github.com/mitchellh/go-homedir"
 
 	"github.com/ShoshinNikita/boltBrowser/internal/config"
