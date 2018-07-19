@@ -71,7 +71,7 @@ func Start(port string, stopChan chan struct{}) {
 	} else {
 		handler = router
 	}
-	srv := http.Server{Addr: port, Handler: handler}
+	srv := http.Server{Addr: port, Handler: unescapingMiddleware(handler)}
 	go srv.ListenAndServe()
 
 	// Wait for signal
