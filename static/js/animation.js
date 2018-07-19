@@ -25,9 +25,9 @@ function ShowTree(data) {
 
 	for (i in records) {
 		if (records[i].type == "bucket") {
-			$("#dbTree").append(getBucket(records[i].key));
+			$("#dbTree").append(getBucketButton(records[i].key));
 		} else if (records[i].type == "record") {
-			$("#dbTree").append(getRecord(records[i].key, records[i].value));
+			$("#dbTree").append(getRecordButton(records[i].key, records[i].value));
 		}
 	}
 
@@ -72,15 +72,15 @@ function HideOpenDbWindow() {
 	$("#dbPathsList").css("display", "none");
 }
 
-function SwitchPathsForDelete() {
+function SwitchPathsForDeleting() {
 	if ($("#dbPathsList").css("display") == "none") {
-		ShowPathsForDelete();
+		ShowPathsForDeleting();
 	} else {
 		$("#dbPathsList").css("display", "none");
 	}
 }
 
-function ShowPathsForDelete() {
+function ShowPathsForDeleting() {
 	var paths = GetPaths();
 	$("#dbPathsList").empty();
 
@@ -149,6 +149,7 @@ function showAddMenu(event) {
 
 
 /* Windows */
+// Write mode only
 function ShowAddModal(type) {
 	$("#addItemWindow").empty();
 	if (type == "bucket") {

@@ -38,5 +38,5 @@ function DeletePath(path) {
 	delete paths[path];
 	localStorage.setItem("paths", JSON.stringify(paths));
 
-	ShowPathsForDelete();
+	ShowPathsForDeleting();
 }

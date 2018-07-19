@@ -11,10 +11,7 @@ function getDbButton(dbPath, dbName) {
 			ChooseDB(event.data.dbPath);
 		});
 
-	var attr = {class: "material-icons btn",
-				style: "float: right; margin-right: 10px; font-size: 30px !important;",
-				title: "Close"};
-	var $closeBtn = $("<i>", attr).text("close").
+	var $closeBtn = $("<i>", {class: "material-icons btn", style: "float: right; margin-right: 10px; font-size: 30px !important;", title: "Close"}).text("close").
 		click({dbPath: dbPath}, function(event){
 			CloseDB(event.data.dbPath);
 		});
@@ -22,7 +19,7 @@ function getDbButton(dbPath, dbName) {
 	return $("<div>").append($input).append($closeBtn);
 }
 
-function getRecord(key, value) {
+function getRecordButton(key, value) {
 	var $icon = $("<i>", {class: "material-icons"}).text("assignment");
 	var $key = $("<span>", {class: "record", id: "key", style: "font-weight: bold;"}).html(key).
 		click({key: key}, function(event) {
@@ -33,12 +30,13 @@ function getRecord(key, value) {
 	return $("<div>", {style: "display: table;"}).append($icon).append($key).append($value);
 }
 
-function getBucket(key) {
+function getBucketButton(key) {
 	var $icon = $("<i>", {class: "material-icons"}).text("folder");
 	var $key = $("<span>", {class: "bucket", style: "font-weight: bold;"}).html(key).
 		click({key: key}, function(event) {
 			Next(event.data.key);
 		});
+
 	return $("<div>", {style: "display: table;"}).append($icon).append($key);
 }
 
@@ -71,6 +69,7 @@ function getPrevRecordsButton() {
 	return $("<div>", {style: "display: table;"}).append($icon).append($btn);
 }
 
+// For creating list of paths for deleting
 function getPathForDeleting(path) {
 	var $path = $("<span>").text(path);
 	var $btn = $("<i>", {class: "material-icons btn", style: "float: right; font-size: 22px !important; vertical-align: middle;", title: "Delete"}).text("close").
@@ -200,16 +199,3 @@ window.onkeydown = function(event) {
 		}
 	}
 }
-
-String.prototype.format = function () {
-	var a = this;
-	for (var k in arguments) {
-		a = a.replace(new RegExp("\\{" + k + "\\}", 'g'), arguments[k]);
-	}
-	return a;
-}
-
-String.prototype.replaceAll = function(search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, 'g'), replacement);
-};
