@@ -219,3 +219,136 @@ function Search() {
 		}
 	});
 }
+
+// Write mode only
+function AddBucket() {
+	var bucketName = $("#newBucketName").val();
+	if (bucketName == "") {
+		ShowErrorPopup("Error: bucketName is empty")
+		return
+	}
+
+	$.ajax({
+		url: "/api/buckets",
+		type: "POST",
+		data: {
+			"dbPath": currentDBPath,
+			"bucket": bucketName,
+		},
+		success: function(result){
+			HideAddModal();
+			ShowDonePopup();
+			Next(bucketName);
+		},
+		error: function(result) {
+			ShowErrorPopup(result.responseText);
+		}
+	});
+}
+
+function EditBucketName(oldName) {
+	var newName = $("#newName").val();
+
+	$.ajax({
+		url: "/api/buckets",
+		type: "PUT",
+		data: {
+			"dbPath": currentDBPath,
+			"oldName": oldName,
+			"newName": newName,
+		},
+		success: function(result){
+			HideAddModal();
+			ShowDonePopup();
+			ChooseDB(currentDBPath);
+		},
+		error: function(result) {
+			ShowErrorPopup(result.responseText);
+		}
+	});
+}
+
+function DeleteBucket(bucket) {
+	var query = $.param({"dbPath": currentDBPath, "bucket": bucket})
+	$.ajax({
+		url: "/api/buckets" + "?" + query,
+		type: "DELETE",
+		success: function(result){
+			ShowDonePopup();
+			ChooseDB(currentDBPath)
+		},
+		error: function(result) {
+			ShowErrorPopup(result.responseText);
+		}
+	});
+}
+
+function AddRecord() {
+	var key = $("#newRecordKey").val();
+	var value = $("#newRecordValue").val();
+	if (key == "" || value == "") {
+		ShowErrorPopup("Error: key or value is empty")
+		return
+	}
+
+	$.ajax({
+		url: "/api/records",
+		type: "POST",
+		data: {
+			"dbPath": currentDBPath,
+			"key": key,
+			"value": value,
+		},
+		success: function(result){
+			HideAddModal();
+			ShowDonePopup();
+			ChooseDB(currentDBPath)
+		},
+		error: function(result) {
+			ShowErrorPopup(result.responseText);
+		}
+	});
+}
+
+function EditRecord(oldKey) {
+	var newKey = $("#newRecordKey").val();
+	if (newKey == "") {
+		newKey = oldKey
+	}
+
+	var newValue = $("#newRecordValue").val();
+
+	$.ajax({
+		url: "/api/records",
+		type: "PUT",
+		data: {
+			"dbPath": currentDBPath,
+			"oldKey": oldKey,
+			"newKey": newKey,
+			"newValue": newValue,
+		},
+		success: function(result){
+			HideAddModal();
+			ShowDonePopup();
+			ChooseDB(currentDBPath)
+		},
+		error: function(result) {
+			ShowErrorPopup(result.responseText);
+		}
+	});
+}
+
+function DeleteRecord(key) {
+	var query = $.param({"dbPath": currentDBPath, "key": key})
+	$.ajax({
+		url: "/api/records" + "?" + query,
+		type: "DELETE",
+		success: function(result){
+			ShowDonePopup();
+			ChooseDB(currentDBPath)
+		},
+		error: function(result) {
+			ShowErrorPopup(result.responseText);
+		}
+	});
+}

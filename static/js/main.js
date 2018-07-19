@@ -3,6 +3,7 @@ var currentDBPath = "";
 // Dictionary. It keeps data like "key of a record": "value of a record"
 var currentData = {};
 
+
 /* Functions for getting html elements */
 function getDbButton(dbPath, dbName) {
 	var $input = $("<input>", {type: "button", class:"db_button", title: "Choose", value: dbName}).
@@ -78,6 +79,91 @@ function getPathForDeleting(path) {
 		});
 
 	return $("<div>", {style: "margin-bottom: 10px; text-align: left;"}).append($path).append($btn);
+}
+
+// Write mode only
+function getAddMenu() {
+	var $bucket = $("<input>", {type: "button", class: "popup_button", value: "Add bucket"}).
+		click(function() {
+			ShowAddModal("bucket");
+		});
+	var $record =  $("<input>", {type: "button", class: "popup_button", value: "Add record"}).
+	click(function() {
+		ShowAddModal("record");
+	});
+
+	return $("<div>").append($bucket).append($record);
+}
+
+function getBucketMenu(bucketKey) {
+	var $editBtn = $("<input>", {type: "button", class: "popup_button", value: "Edit name"}).
+		click({key: bucketKey}, function(event) {
+			ShowEditModal("bucket", event.data.key);
+		});
+	var $delBtn =  $("<input>", {type: "button", class: "popup_button", value: "Delete", style: "margin: auto;"}).
+	click({key: bucketKey}, function(event) {
+		DeleteBucket(event.data.key);
+	});
+
+	return $("<div>").append($editBtn).append($delBtn);
+}
+
+function getRecordMenu(recordKey) {
+	var $editBtn = $("<input>", {type: "button", class: "popup_button", value: "Edit"}).
+		click({key: recordKey}, function(event) {
+			ShowEditModal("record", event.data.key);
+		});
+	var $delBtn =  $("<input>", {type: "button", class: "popup_button", value: "Delete", style: "margin: auto;"}).
+	click({key: recordKey}, function(event) {
+		DeleteRecord(event.data.key);
+	});
+
+	return $("<div>").append($editBtn).append($delBtn);
+}
+
+function getAddBucketWindow() {
+	var $nameInput = $("<input>", {id: "newBucketName", "type": "text", placeholder: "Bucket", style: "margin-bottom: 5px; width: 100%;"}).prop("required", true);
+	var $btn = $("<input>", {type: "submit", "class": "button", value: "Add"}).
+		click(function() {
+			AddBucket();
+		});
+
+	return $("<div>").append($nameInput).append($btn);
+}
+
+function getEditBucketWindow(bucketName) {
+	var $title = $("<div>", {style: "margin-bottom: 10px;"}).text("The old name: " + bucketName);
+	var $nameInput = $("<input>", {id: "newName", type: "text", placeholder: "New name", style: "margin-bottom: 5px; width: 100%;"}).prop("required", true);
+	var $btn = $("<input>", {type: "submit", class: "button", value: "Edit"}).
+		click({key: bucketName}, function(event) {
+			EditBucketName(event.data.key);
+		});
+
+	return $("<div>").append($title).append($nameInput).append($("<br>")).append($btn);
+}
+
+function getAddRecordWindow() {
+	var $key = $("<input>", {id: "newRecordKey", type: "text", placeholder: "Key", style: "margin-bottom: 5px; width: 100%;"});
+	var $br = $("<br>");
+	var $value = $("<input>", {id: "newRecordValue", type: "text", placeholder: "Value", style: "margin-bottom: 5px; width: 100%;"});
+	var $btn = $("<input>", {type: "submit", class: "button", value: "Add"}).
+		click({key: bucketName}, function(event) {
+			AddRecord();
+		});
+
+	return $("<div>").append($key).append($br).append($value).append($br).append($btn);
+}
+
+function getEditRecordWindow(recordKey, recordValue) {
+	var $title = $("<div>", {style: "margin-bottom: 10px;"}).text("Editing of record \"" + recordKey + "\"");
+	var $newKey = $("<input>", {id: "newRecordKey", type: "text", placeholder: "Key (leave empty if don't want to edit key)", style: "margin-bottom: 5px; width: 100%; box-sizing: border-box;", value: recordKey});
+	var $newValue = $("<textarea>", {id: "newRecordValue", placeholder: "Value", style: "resize: none; margin-bottom: 5px; width: 100%; height: 150px; box-sizing: border-box;"}).val(recordValue);
+	var $btn = $("<input>", {type: "submit", class: "button", value: "Edit"}).
+		click({key: recordKey}, function(event) {
+			EditRecord(event.data.key);
+		});
+	
+	return $("<div>").append($title).append($newKey).append($newValue).append($btn);
 }
 
 

@@ -54,6 +54,24 @@ function ShowFullRecord(key) {
 	$("#recordValue").html(currentData[key]);
 }
 
+// For offering of already opened before dbs
+function ShowOpenedDBsPaths() {
+	var sortedPaths = GetPaths();
+
+	$("#paths").empty();
+	for (var i = 0; i < sortedPaths.length; i++) {
+		$("#paths").append($("<option>", {value: sortedPaths[i]}));
+	}
+
+	$("#openDbWindow").css("display", "block");
+	$("#DBPath").focus();
+}
+
+function HideOpenDbWindow() {
+	$("#openDbWindow").css("display", "none");
+	$("#dbPathsList").css("display", "none");
+}
+
 function SwitchPathsForDelete() {
 	if ($("#dbPathsList").css("display") == "none") {
 		ShowPathsForDelete();
@@ -77,7 +95,8 @@ function ShowPathsForDelete() {
 	$("#dbPathsList").css("display", "block");
 }
 
-// ErrorPopup
+
+/* Popups */
 function ShowErrorPopup(message) {
 	$("#popupMessage").html(message);
 	$("#errorPopup").addClass("popup_animation");
@@ -87,28 +106,6 @@ function HideErrorPopup() {
 	$("#errorPopup").removeClass("popup_animation");
 }
 
-// OpenDbWindow
-function ShowOpenDbWindow() {
-	const template = `<option value="{0}">`;
-
-	var sortedPaths = GetPaths();
-
-	var options = "";
-	for (var i = 0; i < sortedPaths.length && i < 5; i++) {
-		options += template.format(sortedPaths[i]);
-	}
-
-	$("#paths").html(options);
-	$("#openDbWindow").css("display", "block");
-	$("#DBPath").focus();
-}
-
-function HideOpenDbWindow() {
-	$("#openDbWindow").css("display", "none");
-	$("#dbPathsList").css("display", "none");
-}
-
-// DonePopup
 function ShowDonePopup() {
 	$("#donePopup").css("display", "block")
 	$("#donePopup").addClass("done_popup_animation")
@@ -117,4 +114,64 @@ function ShowDonePopup() {
 		$("#donePopup").css("display", "none")
 		$("#donePopup").removeClass("done_popup_animation")
 	}, 2000)
+}
+
+
+/* Menus */
+function showPopupMenu(x, y, htmlElem) {
+	$("#popupMenu").css("top", y + 10 + "px");
+	$("#popupMenu").css("left", x + 10 + "px");
+	$("#popupMenu").empty();
+	$("#popupMenu").append(htmlElem);
+	$("#popupMenu").css("visibility", "visible");
+}
+
+function showBucketMenu(event) {
+	showPopupMenu(event.clientX, event.clientY, getBucketMenu(event.target.innerText));
+	return false;
+}
+
+function showRecordMenu(event) {
+	showPopupMenu(event.clientX, event.clientY, getRecordMenu(event.target.innerText));
+	return false;
+}
+
+function showAddMenu(event) {
+	// Magic. Program shows addMenu only if target is dbTreeWrapper and isn't anything else
+	if ((event.target == dbTreeWrapper || event.target == dbTree) && event.which == 3) {
+		// Show menu only if db was chosen
+		if (currentDBPath != "") {
+			showPopupMenu(event.clientX, event.clientY, getAddMenu());
+			return false;
+		}
+	}
+}
+
+
+/* Windows */
+function ShowAddModal(type) {
+	$("#addItemWindow").empty();
+	if (type == "bucket") {
+		$("#addItemWindow").append(getAddBucketWindow());
+		$("#addItemWindowBackground").css("display", "block");
+	} else if (type == "record") {
+		$("#addItemWindow").append(getAddRecordWindow());
+		$("#addItemWindowBackground").css("display", "block");
+	}
+}
+
+function ShowEditModal(type, target) {
+	// target == key of the record or bucket
+	$("#addItemWindow").empty();
+	if (type == "bucket") {
+		$("#addItemWindow").append(getEditBucketWindow(target));
+		$("#addItemWindowBackground").css("display", "block");
+	} else if (type == "record") {
+		$("#addItemWindow").append(getEditRecordWindow(target));
+		$("#addItemWindowBackground").css("display", "block");
+	}
+}
+
+function HideAddModal() {
+	$("#addItemWindowBackground").css("display", "none");
 }
