@@ -1,0 +1,30 @@
+.db {
+	height: 95vh;
+	width: 96%;
+	margin: auto;
+}
+.db_info {
+	font-size: 25px;
+	height: 80px;
+}
+.db_tree_wrapper {
+	height: 100%;
+	width: 55%;
+	float: left;
+	overflow-y: scroll;
+}
+.record_data {
+	float: right;
+	width: 42%;
+	height: 100%;
+	padding: 10px 10px 10px 10px;
+	overflow-y: auto;
+
+    background-color: white;/* Black w/ opacity */
+}
+.record {
+	cursor: help;
+}
+.bucket {
+	cursor: pointer;
+}
