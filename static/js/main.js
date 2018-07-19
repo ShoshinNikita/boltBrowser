@@ -1,38 +1,78 @@
-/* Constants */
-const buttonTemplate = `<div>
-	<input type="button" class="db_button" value="{0}" onclick="ChooseDB('{1}')" title="Choose">
-	<i class="material-icons btn" style="float: right; margin-right: 10px; font-size: 30px !important;" title="Close" onclick="CloseDB('{1}');">close<\/i>
-<\/div>`;
+function getDbButton(dbPath, dbName) {
+	var $input = $("<input>", {type: "button", class:"db_button", title: "Choose", value: dbName}).
+		click({dbPath: dbPath}, function(event) {
+			ChooseDB(event.data.dbPath);
+		});
 
-const recordTemplate = `<div style="display: table;">
-	<i class="material-icons" icon>assignment<\/i>
-	<span class="record" onclick="ShowFullRecord('{0}');"><b>{0}<\/b><\/span>: {1}
-<\/div>`;
+	var attr = {class: "material-icons btn",
+				style: "float: right; margin-right: 10px; font-size: 30px !important;",
+				title: "Close"};
+	var $closeBtn = $("<i>", attr).text("close").
+		click({dbPath: dbPath}, function(event){
+			CloseDB(event.data.dbPath);
+		});
 
-const bucketTemplate = `<div style="display: table;">
-	<i class="material-icons" icon>folder<\/i>
-	<span class="bucket" onclick="Next('{0}');"><b>{0}<\/b><\/span>
-<\/div>`;
+	return $("<div>").append($input).append($closeBtn);
+}
 
-const backButton = `<div style="display: table;">
-	<i class="material-icons btn" icon onclick="Back();" title="Back">more_horiz<\/i>
-<\/div>`;
+function getRecord(key, value) {
+	var $icon = $("<i>", {class: "material-icons"}).text("assignment");
+	var $key = $("<span>", {class: "record", id: "key", style: "font-weight: bold;"}).html(key).
+		click({key: key}, function(event) {
+			ShowFullRecord(event.data.key);
+		});
+	var $value = $("<span>", {id: "value"}).html(" – " + value);
+	
+	return $("<div>", {style: "display: table;"}).append($icon).append($key).append($value);
+}
 
-const nextRecordsButtonTemplate = `<div style="display: table;">
-	<i class="material-icons" icon>arrow_forward_ios<\/i>
-	<span style="cursor: pointer;" onclick="NextRecords();"><b>Next page<\/b><\/span>
-<\/div>`;
+function getBucket(key) {
+	var $icon = $("<i>", {class: "material-icons"}).text("folder");
+	var $key = $("<span>", {class: "bucket", style: "font-weight: bold;"}).html(key).
+		click({key: key}, function(event) {
+			Next(event.data.key);
+		});
+	return $("<div>", {style: "display: table;"}).append($icon).append($key);
+}
 
-const prevRecordsButtonTemplate = `<div style="display: table;">
-	<i class="material-icons" icon>arrow_back_ios<\/i>
-	<span style="cursor: pointer;" onclick="PrevRecords();"><b>Previous page<\/b><\/span>
-<\/div>`;
+function getBackButton() {
+	var $icon = $("<i>", {class: "material-icons btn", title: "Back"}).text("more_horiz").
+		click(function(){
+			Back();
+		})
 
-const pathForDeleting = `
-<div style="margin-bottom: 10px; text-align: left;">
-	<span>{0}</span>
-	<i class="material-icons btn" style="float: right; font-size: 22px !important; vertical-align: middle;" title="Delete" onclick="DeletePath('{0}');">close<\/i>
-<\/div>`;
+	return $("<div>", {style: "display: table;"}).append($icon);
+}
+
+function getNextRecordsButton() {
+	var $icon = $("<i>", {class: "material-icons"}).text("arrow_forward_ios");
+	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Next page")
+		click(function() {
+			NextRecords();
+		});
+
+	return $("<div>", {style: "display: table;"}).append($icon).append($btn);
+}
+
+function getPrevRecordsButton() {
+	var $icon = $("<i>", {class: "material-icons"}).text("arrow_back_ios");
+	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Previous page")
+		click(function() {
+			NextRecords();
+		});
+
+	return $("<div>", {style: "display: table;"}).append($icon).append($btn);
+}
+
+function getPathForDeleting(path) {
+	var $path = $("<span>").text(path)
+	var $btn = $("<i>", {class: "material-icons btn", style: "float: right; font-size: 22px !important; vertical-align: middle;", title: "Delete"}).text("close").
+		click({path: path}, function(event) {
+			DeletePath(event.data.path);
+		});
+
+	return $("<div>", {style: "margin-bottom: 10px; text-align: left;"}).append($path).append($btn);
+}
 
 
 /* Global variables */
@@ -174,11 +214,11 @@ function ShowDBList() {
 		type: "GET",
 		success: function(result){
 			allDB = JSON.parse(result);
-			var result = "";
+			
+			$("#list").empty();
 			for (i in allDB) {
-				result += buttonTemplate.format(allDB[i].name, allDB[i].dbPath);
+				$("#list").append(getDbButton(allDB[i].dbPath, allDB[i].name));
 			}
-			$("#list").html(result);
 		},
 		error: function(result) {
 			ShowErrorPopup(result.responseText);
@@ -327,25 +367,26 @@ function ShowFullRecord(key) {
 
 	$("#recordData").scrollTop(0);
 
-	$("#recordPath").html(key + " – <i>" + $("#currentPath").text() + "<\/i>");
+	$("#recordPath").html(key);
 	$("#recordValue").html(currentData[key]);
 }
 
 function ShowTree(data) {
 	$("#currentPath").html(data.bucketsPath);
 	if (data.recordsAmount == 0) {
-		$("#recordsAmount").html("(empty)")
+		$("#recordsAmount").text("(empty)")
 	} else if (data.recordsAmount == 1) {
-		$("#recordsAmount").html("(" + data.recordsAmount + " item)")
+		$("#recordsAmount").text("(" + data.recordsAmount + " item)")
 	} else {
-		$("#recordsAmount").html("(" + data.recordsAmount + " items)")
+		$("#recordsAmount").text("(" + data.recordsAmount + " items)")
 	}
 	
-	var result = "";
+	$("#dbTree").empty();
+
 	if (data.prevRecords) {
 		result += prevRecordsButtonTemplate;
 	} else if (data.prevBucket) {
-		result = backButton;
+		$("#dbTree").append(getBackButton());
 	}
 
 	// Update currentData
@@ -357,21 +398,15 @@ function ShowTree(data) {
 
 	for (i in records) {
 		if (records[i].type == "bucket") {
-			result += bucketTemplate.format(records[i].key);
+			$("#dbTree").append(getBucket(records[i].key));
 		} else if (records[i].type == "record") {
-			var value = records[i].value;
-			if (value.length > 60) {
-				value = value.substring(0, 60);
-				value += "...";
-			}
-			result += recordTemplate.format(records[i].key, value);
+			$("#dbTree").append(getRecord(records[i].key, records[i].value));
 		}
 	}
 
 	if (data.nextRecords) {
-		result += nextRecordsButtonTemplate;
+		$("#dbTree").append(getNextRecordsButton());
 	}
-	$("#dbTree").html(result);
 
 	document.getElementById("dbTreeWrapper").scrollTop = 0;
 }
@@ -386,17 +421,16 @@ function SwitchPathsForDelete() {
 
 function showPathsForDelete() {
 	var paths = getPaths();
+	$("#dbPathsList").empty();
 
-	var res = ""
-	for (var i = 0; i < paths.length; i++) {
-		res += pathForDeleting.format(paths[i]);
+	if (paths.length == 0) {
+		$("#dbPathsList").append($("<span>").text("Empty"));
+	} else {
+		for (var i = 0; i < paths.length; i++) {
+			$("#dbPathsList").append(getPathForDeleting(paths[i]));
+		}
 	}
 
-	if (res == "") {
-		res = "Empty"
-	}
-
-	$("#dbPathsList").html(res);
 	$("#dbPathsList").css("display", "block");
 }
 
