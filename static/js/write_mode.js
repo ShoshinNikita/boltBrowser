@@ -1,38 +1,86 @@
-/* Templates */
-// Reset margin for last element
-const addMenuHTML = `<input type="button" class="popup_button" onclick="ShowAddModal('bucket');" value="Add bucket">
-<input type="button" class="popup_button" style="margin: auto;" onclick="ShowAddModal('record');" value="Add record">`;
+function getAddMenu() {
+	var $bucket = $("<input>", {type: "button", class: "popup_button", value: "Add bucket"}).
+		click(function() {
+			ShowAddModal("bucket");
+		});
+	var $record =  $("<input>", {type: "button", class: "popup_button", value: "Add record"}).
+	click(function() {
+		ShowAddModal("record");
+	});
 
-const bucketMenuHTML = `<input type="button" class="popup_button" onclick="ShowEditModal('bucket', '{0}');" value="Edit name">
-<input type="button" class="popup_button" style="margin: auto;" onclick="DeleteBucket('{0}');" value="Delete">`;
+	return $("<div>").append($bucket).append($record);
+}
 
-const recordMenuHTML = `<input type="button" class="popup_button" onclick="ShowEditModal('record', '{0}');" value="Edit">
-<input type="button" class="popup_button" style="margin: auto;" onclick="DeleteRecord('{0}');" value="Delete">`;
+function getBucketMenu(bucketKey) {
+	var $editBtn = $("<input>", {type: "button", class: "popup_button", value: "Edit name"}).
+		click({key: bucketKey}, function(event) {
+			ShowEditModal("bucket", event.data.key);
+		});
+	var $delBtn =  $("<input>", {type: "button", class: "popup_button", value: "Delete", style: "margin: auto;"}).
+	click({key: bucketKey}, function(event) {
+		DeleteBucket(event.data.key);
+	});
 
-const addBucketTemplate = `
-<input id="newBucketName" required type="text" placeholder="Bucket" style="margin-bottom: 5px; width: 100%;">
-<br>
-<input type="submit" class="button" onclick="AddBucket();" value="Add">`;
+	return $("<div>").append($editBtn).append($delBtn);
+}
 
-const editBucketTemplate = `
-<div style="margin-bottom: 10px;">Old name: "{0}"</div>
-<input id="newName" required type="text" placeholder="New name" style="margin-bottom: 5px; width: 100%;">
-<br>
-<input type="submit" class="button" onclick="EditBucketName('{0}');" value="Edit">`;
+function getRecordMenu(recordKey) {
+	var $editBtn = $("<input>", {type: "button", class: "popup_button", value: "Edit"}).
+		click({key: recordKey}, function(event) {
+			ShowEditModal("record", event.data.key);
+		});
+	var $delBtn =  $("<input>", {type: "button", class: "popup_button", value: "Delete", style: "margin: auto;"}).
+	click({key: recordKey}, function(event) {
+		DeleteRecord(event.data.key);
+	});
 
-const addRecordTemplate = `
-<input id="newRecordKey" type="text" placeholder="Key" style="margin-bottom: 5px; width: 100%;">
-<br>
-<input id="newRecordValue" type="text" placeholder="Value" style="margin-bottom: 5px; width: 100%;">
-<br>
-<input type="submit" class="button" onclick="AddRecord();" value="Add">`;
+	return $("<div>").append($editBtn).append($delBtn);
+}
 
-const editRecordTemplate = `
-<div style="margin-bottom: 10px;">Editing of record "{0}"</div>
-<input id="newRecordKey" type="text" placeholder="Key (leave empty if don't want to edit key)" style="margin-bottom: 5px; width: 100%; box-sizing: border-box;" value="{0}">
-<textarea id="newRecordValue" type="text" placeholder="Value" style="resize: none; margin-bottom: 5px; width: 100%; height: 150px; box-sizing: border-box;">{1}</textarea>
-<input type="submit" class="button" onclick="EditRecord('{0}');" value="Edit">
-`
+function getAddBucketWindow() {
+	var $nameInput = $("<input>", {id: "newBucketName", "type": "text", placeholder: "Bucket", style: "margin-bottom: 5px; width: 100%;"}).prop("required", true);
+	var $btn = $("<input>", {type: "submit", "class": "button", value: "Add"}).
+		click(function() {
+			AddBucket();
+		});
+
+	return $("<div>").append($nameInput).append($btn);
+}
+
+function getEditBucketWindow(bucketName) {
+	var $title = $("<div>", {style: "margin-bottom: 10px;"}).text("The old name: " + bucketName);
+	var $nameInput = $("<input>", {id: "newName", type: "text", placeholder: "New name", style: "margin-bottom: 5px; width: 100%;"}).prop("required", true);
+	var $btn = $("<input>", {type: "submit", class: "button", value: "Edit"}).
+		click({key: bucketName}, function(event) {
+			EditBucketName(event.data.key);
+		});
+
+	return $("<div>").append($title).append($nameInput).append($("<br>")).append($btn);
+}
+
+function getAddRecordWindow() {
+	var $key = $("<input>", {id: "newRecordKey", type: "text", placeholder: "Key", style: "margin-bottom: 5px; width: 100%;"});
+	var $br = $("<br>");
+	var $value = $("<input>", {id: "newRecordValue", type: "text", placeholder: "Value", style: "margin-bottom: 5px; width: 100%;"});
+	var $btn = $("<input>", {type: "submit", class: "button", value: "Add"}).
+		click({key: bucketName}, function(event) {
+			AddRecord();
+		});
+
+	return $("<div>").append($key).append($br).append($value).append($br).append($btn);
+}
+
+function getEditRecordWindow(recordKey, recordValue) {
+	var $title = $("<div>", {style: "margin-bottom: 10px;"}).text("Editing of record \"" + recordKey + "\"");
+	var $newKey = $("<input>", {id: "newRecordKey", type: "text", placeholder: "Key (leave empty if don't want to edit key)", style: "margin-bottom: 5px; width: 100%; box-sizing: border-box;", value: recordKey});
+	var $newValue = $("<textarea>", {id: "newRecordValue", placeholder: "Value", style: "resize: none; margin-bottom: 5px; width: 100%; height: 150px; box-sizing: border-box;"}).val(recordValue);
+	var $btn = $("<input>", {type: "submit", class: "button", value: "Edit"}).
+		click({key: recordKey}, function(event) {
+			EditRecord(event.data.key);
+		});
+	
+	return $("<div>").append($title).append($newKey).append($newValue).append($btn);
+}
 
 
 /* API */
@@ -170,24 +218,21 @@ function DeleteRecord(key) {
 
 
 /* Menus */
-function showPopupMenu(x, y, html) {
+function showPopupMenu(x, y, htmlElem) {
 	$("#popupMenu").css("top", y + 10 + "px");
 	$("#popupMenu").css("left", x + 10 + "px");
-	$("#popupMenu").html(html);
+	$("#popupMenu").empty();
+	$("#popupMenu").append(htmlElem);
 	$("#popupMenu").css("visibility", "visible");
 }
 
 function showBucketMenu(event) {
-	// Reset margin for last element
-	var html =  bucketMenuHTML.format(event.target.innerHTML);
-	showPopupMenu(event.clientX, event.clientY, html);
+	showPopupMenu(event.clientX, event.clientY, getBucketMenu(event.target.innerText));
 	return false;
 }
 
 function showRecordMenu(event) {
-	// Reset margin for last element
-	var html = recordMenuHTML.format(event.target.innerHTML)
-	showPopupMenu(event.clientX, event.clientY, html);
+	showPopupMenu(event.clientX, event.clientY, getRecordMenu(event.target.innerText));
 	return false;
 }
 
@@ -196,7 +241,7 @@ function showAddMenu(event) {
 	if ((event.target == dbTreeWrapper || event.target == dbTree) && event.which == 3) {
 		// Show menu only if db was chosen
 		if (currentDBPath != "") {
-			showPopupMenu(event.clientX, event.clientY, addMenuHTML);
+			showPopupMenu(event.clientX, event.clientY, getAddMenu());
 			return false;
 		}
 	}
@@ -204,24 +249,24 @@ function showAddMenu(event) {
 
 // AddModal
 function ShowAddModal(type) {
+	$("#addItemWindow").empty();
 	if (type == "bucket") {
-		$("#addItemWindow").html(addBucketTemplate);
+		$("#addItemWindow").append(getAddBucketWindow());
 		$("#addItemWindowBackground").css("display", "block");
 	} else if (type == "record") {
-		$("#addItemWindow").html(addRecordTemplate);
+		$("#addItemWindow").append(getAddRecordWindow());
 		$("#addItemWindowBackground").css("display", "block");
 	}
 }
 
 function ShowEditModal(type, target) {
 	// target == key of the record or bucket
+	$("#addItemWindow").empty();
 	if (type == "bucket") {
-		var html = editBucketTemplate.format(target)
-		$("#addItemWindow").html(html);
+		$("#addItemWindow").append(getEditBucketWindow(target));
 		$("#addItemWindowBackground").css("display", "block");
 	} else if (type == "record") {
-		var html = editRecordTemplate.format(target, currentData[target]);
-		$("#addItemWindow").html(html);
+		$("#addItemWindow").append(getEditRecordWindow(target));
 		$("#addItemWindowBackground").css("display", "block");
 	}
 }
