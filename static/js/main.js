@@ -22,7 +22,7 @@ function getRecord(key, value) {
 			ShowFullRecord(event.data.key);
 		});
 	var $value = $("<span>", {id: "value"}).html(" – " + value);
-	
+
 	return $("<div>", {style: "display: table;"}).append($icon).append($key).append($value);
 }
 
@@ -39,14 +39,14 @@ function getBackButton() {
 	var $icon = $("<i>", {class: "material-icons btn", title: "Back"}).text("more_horiz").
 		click(function(){
 			Back();
-		})
+		});
 
 	return $("<div>", {style: "display: table;"}).append($icon);
 }
 
 function getNextRecordsButton() {
 	var $icon = $("<i>", {class: "material-icons"}).text("arrow_forward_ios");
-	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Next page")
+	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Next page");
 		click(function() {
 			NextRecords();
 		});
@@ -56,7 +56,7 @@ function getNextRecordsButton() {
 
 function getPrevRecordsButton() {
 	var $icon = $("<i>", {class: "material-icons"}).text("arrow_back_ios");
-	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Previous page")
+	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Previous page");
 		click(function() {
 			NextRecords();
 		});
@@ -65,7 +65,7 @@ function getPrevRecordsButton() {
 }
 
 function getPathForDeleting(path) {
-	var $path = $("<span>").text(path)
+	var $path = $("<span>").text(path);
 	var $btn = $("<i>", {class: "material-icons btn", style: "float: right; font-size: 22px !important; vertical-align: middle;", title: "Delete"}).text("close").
 		click({path: path}, function(event) {
 			DeletePath(event.data.path);
@@ -84,7 +84,7 @@ var currentData = {};
 /* Local Storage */
 function PrepareLS() {
 	if (localStorage.getItem("paths") === null) {
-		var paths = {}
+		var paths = {};
 		localStorage.setItem("paths", JSON.stringify(paths));
 	}
 }
@@ -92,9 +92,7 @@ function PrepareLS() {
 function putIntoLS(dbPath) {
 	var paths = JSON.parse(localStorage.getItem("paths"));
 	if (paths[dbPath] == null) {
-		paths[dbPath] = {
-			"uses": 1
-		}
+		paths[dbPath] = {"uses": 1};
 	} else {
 		paths[dbPath].uses += 1;
 	}
@@ -144,7 +142,7 @@ function OpenDB() {
 			"dbPath": dbPath
 		},
 		success: function(result){
-			result= JSON.parse(result)
+			result= JSON.parse(result);
 			putIntoLS(result.dbPath);
 			HideOpenDbWindow();
 			ShowDBList();
@@ -153,7 +151,6 @@ function OpenDB() {
 			ShowErrorPopup(result.responseText);
 		}
 	});
-	;
 }
 
 function CreateDB() {
@@ -171,7 +168,7 @@ function CreateDB() {
 			"path": path
 		},
 		success: function(result){
-			result= JSON.parse(result)
+			result= JSON.parse(result);
 			putIntoLS(result.dbPath);
 			HideOpenDbWindow();
 			ShowDBList();
@@ -180,7 +177,6 @@ function CreateDB() {
 			ShowErrorPopup(result.responseText);
 		}
 	});
-	;
 }
 
 function CloseDB(dbPath) {
@@ -214,7 +210,7 @@ function ShowDBList() {
 		type: "GET",
 		success: function(result){
 			allDB = JSON.parse(result);
-			
+
 			$("#list").empty();
 			for (i in allDB) {
 				$("#list").append(getDbButton(allDB[i].dbPath, allDB[i].name));
@@ -344,7 +340,7 @@ function Search() {
 		},
 		success: function(result){
 			result = JSON.parse(result);
-			
+
 			ShowTree(result);
 		},
 		error: function(result) {
@@ -380,7 +376,7 @@ function ShowTree(data) {
 	} else {
 		$("#recordsAmount").text("(" + data.recordsAmount + " items)")
 	}
-	
+
 	$("#dbTree").empty();
 
 	if (data.prevRecords) {
