@@ -88,7 +88,14 @@ function getPathForDeleting(path) {
 	return $("<div>", {style: "margin-bottom: 10px; text-align: left;"}).append($path).append($btn);
 }
 
-// Write mode only
+/* Write mode only */
+// disable disables all child elements and add a title
+function disable($htmlElem) {	
+	$htmlElem.find("*").attr("disabled", true).css("cursor", "default");
+	$htmlElem.attr("title", "Need 'Read & Write' mode");
+}
+
+// Menus
 function getAddMenu() {
 	var $bucket = $("<input>", {type: "button", class: "popup_button", value: "Add bucket"}).
 		click(function() {
@@ -99,7 +106,13 @@ function getAddMenu() {
 			ShowAddModal("record");
 		});
 
-	return $("<div>").append($bucket).append($record);
+	var $div = $("<div>").append($bucket).append($record);
+
+	if (currentDB.readOnly) {
+		disable($div);
+	}
+
+	return $div
 }
 
 function getBucketMenu(bucketKey) {
@@ -112,7 +125,13 @@ function getBucketMenu(bucketKey) {
 			DeleteBucket(event.data.key);
 		});
 
-	return $("<div>").append($editBtn).append($delBtn);
+	var $div = $("<div>").append($editBtn).append($delBtn);
+
+	if (currentDB.readOnly) {
+		disable($div);
+	}
+
+	return $div
 }
 
 function getRecordMenu(recordKey) {
@@ -125,9 +144,16 @@ function getRecordMenu(recordKey) {
 		DeleteRecord(event.data.key);
 	});
 
-	return $("<div>").append($editBtn).append($delBtn);
+	var $div = $("<div>").append($editBtn).append($delBtn);
+
+	if (currentDB.readOnly) {
+		disable($div);
+	}
+
+	return $div;
 }
 
+// Windows
 function getAddBucketWindow() {
 	var $nameInput = $("<input>", {id: "newBucketName", "type": "text", placeholder: "Bucket", style: "margin-bottom: 5px; width: 100%;"}).prop("required", true);
 	var $btn = $("<input>", {type: "submit", "class": "button", value: "Add"}).
