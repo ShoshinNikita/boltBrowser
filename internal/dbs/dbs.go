@@ -15,9 +15,10 @@ var allDB map[string]*db.BoltAPI
 
 // DBInfo consist main info about db
 type DBInfo struct {
-	Name   string `json:"name"`
-	DBPath string `json:"dbPath"`
-	Size   int64  `json:"size"`
+	Name     string `json:"name"`
+	DBPath   string `json:"dbPath"`
+	Size     int64  `json:"size"`
+	ReadOnly bool   `json:"readOnly"`
 }
 
 // Init – initializing allDB
@@ -129,6 +130,7 @@ func GetCurrent(dbPath string) (info DBInfo, data db.Data, code int, err error) 
 	info.DBPath = dbPath
 	info.Name = allDB[dbPath].Name
 	info.Size = allDB[dbPath].Size
+	info.ReadOnly = allDB[dbPath].ReadOnly
 
 	data, err = allDB[dbPath].GetCurrent()
 	if err != nil {

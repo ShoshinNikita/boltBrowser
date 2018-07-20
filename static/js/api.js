@@ -112,10 +112,27 @@ function ChooseDB(dbPath) {
 		},
 		success: function(result){
 			result = JSON.parse(result);
+			var getDiv = function(field, text) {
+				var $field = $("<i>").text(field + ": ");
+				return $("<div>").append($field).append(text);
+			}
+			
+			$("#dbName").empty();
+			$("#dbName").append(getDiv("Name", result.db.name));
 
-			$("#dbName").html("<i>Name:<\/i> " + result.db.name);
-			$("#dbPath").html("<i>Path:<\/i> " + result.db.dbPath);
-			$("#dbSize").html("<i>Size:<\/i> " + result.db.size / 1024 + " Kb");
+			$("#dbPath").empty();
+			$("#dbPath").html(getDiv("Path", result.db.dbPath));
+
+			$("#dbSize").empty();
+			$("#dbSize").html(getDiv("Size", result.db.size / 1024 + " Kb"));
+
+			$("#dbMode").empty();
+			var mode = "Read & Write"
+			if (result.db.readOnly) {
+				mode = "Read-Only"
+			}
+			$("#dbMode").append(getDiv("Mode", mode));
+
 			$("#recordPath").html("?");
 			$("#recordValue").html("?");
 			$("#searchBox").css("visibility", "visible");

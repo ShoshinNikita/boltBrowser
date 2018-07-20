@@ -12,11 +12,10 @@ import (
 
 // openDB open db. It also adds db.DBApi to allDB
 //
-// Params: dbPath
+// Params: dbPath, readOnly
 // Return:
 // {
 //  "dbPath": str
-//  "readOnly": bool
 // }
 //
 func openDB(w http.ResponseWriter, r *http.Request) {
@@ -263,6 +262,7 @@ func databasesList(w http.ResponseWriter, r *http.Request) {
 //    "name": "",
 // 	  "dbPath": "",
 //    "size": 0,
+//    "readOnly": bool
 //  },
 //  "prevBucket": bool,
 //  "prevRecords": bool,
@@ -296,11 +296,7 @@ func current(w http.ResponseWriter, r *http.Request) {
 		RecordsAmount int         `json:"recordsAmount"`
 		Records       []db.Record `json:"records"`
 	}{
-		dbs.DBInfo{
-			Name:   info.Name,
-			DBPath: info.DBPath,
-			Size:   info.Size,
-		},
+		info,
 		data.PrevBucket,
 		data.PrevRecords,
 		data.NextRecords,
