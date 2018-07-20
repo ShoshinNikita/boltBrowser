@@ -5,14 +5,23 @@ function OpenDB() {
 		return;
 	}
 
+	var readOnly = false;
+	if ($("#readOnlyCheckbox").prop("checked")) {
+		readOnly = true;
+	}
+
 	$("#DBPath").val("");
 	$.ajax({
 		url: "/api/databases",
 		type: "POST",
 		data: {
-			"dbPath": dbPath
+			"dbPath": dbPath,
+			"readOnly": readOnly
 		},
 		success: function(result){
+			// Uncheck the checkbox
+			$("#readOnlyCheckbox").prop("checked", false);
+
 			result= JSON.parse(result);
 			PutIntoLS(result.dbPath);
 			HideOpenDbWindow();

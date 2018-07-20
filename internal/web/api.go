@@ -15,18 +15,19 @@ import (
 // Params: dbPath
 // Return:
 // {
-// 	"dbPath": str
+//  "dbPath": str
+//  "readOnly": bool
 // }
 //
 func openDB(w http.ResponseWriter, r *http.Request) {
 	dbPath := r.FormValue("dbPath")
+	readOnly := (r.FormValue("readOnly") == "true")
 
 	// From C:\\users\\help (or C:\users\help) to C:/users/help
 	reg := regexp.MustCompile(`\\\\|\\`)
 	dbPath = reg.ReplaceAllString(dbPath, "/")
 
-	// TODO r.FormValue("readOnly")
-	dbName, code, err := dbs.OpenDB(dbPath, false)
+	dbName, code, err := dbs.OpenDB(dbPath, readOnly)
 	if err != nil {
 		returnError(w, err, "", code)
 		return
