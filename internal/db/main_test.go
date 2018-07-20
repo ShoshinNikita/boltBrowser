@@ -8,9 +8,6 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	// Turn WriteMode on
-	config.Opts.IsWriteMode = true
-
 	m.Run()
 
 	os.Exit(0)

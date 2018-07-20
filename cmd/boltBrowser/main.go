@@ -110,8 +110,6 @@ func showFlags() {
 	printSpaces(spaces)
 	fmt.Printf("* should check version - %t\n", config.Opts.CheckVer)
 	printSpaces(spaces)
-	fmt.Printf("* write mode - %t\n", config.Opts.IsWriteMode)
-	printSpaces(spaces)
 	fmt.Printf("* offset - %d\n", config.Opts.Offset)
 	printSpaces(spaces)
 	fmt.Printf("* should open a browser - %t\n", config.Opts.OpenBrowser)
