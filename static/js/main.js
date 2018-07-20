@@ -94,10 +94,10 @@ function getAddMenu() {
 		click(function() {
 			ShowAddModal("bucket");
 		});
-	var $record =  $("<input>", {type: "button", class: "popup_button", value: "Add record"}).
-	click(function() {
-		ShowAddModal("record");
-	});
+	var $record =  $("<input>", {type: "button", class: "popup_button", value: "Add record", style: "margin: auto;"}).
+		click(function() {
+			ShowAddModal("record");
+		});
 
 	return $("<div>").append($bucket).append($record);
 }
@@ -108,9 +108,9 @@ function getBucketMenu(bucketKey) {
 			ShowEditModal("bucket", event.data.key);
 		});
 	var $delBtn =  $("<input>", {type: "button", class: "popup_button", value: "Delete", style: "margin: auto;"}).
-	click({key: bucketKey}, function(event) {
-		DeleteBucket(event.data.key);
-	});
+		click({key: bucketKey}, function(event) {
+			DeleteBucket(event.data.key);
+		});
 
 	return $("<div>").append($editBtn).append($delBtn);
 }
