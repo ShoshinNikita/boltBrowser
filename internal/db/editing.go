@@ -6,6 +6,10 @@ import (
 	"github.com/ShoshinNikita/bolt"
 )
 
+var (
+	ErrNeedWriteMode = errors.New("Need WriteMode. Mode of the db is ReadOnly")
+)
+
 // Structures for saving data of a bucket in memory
 
 type record struct {
@@ -40,6 +44,10 @@ func (d *data) addBucket(k []byte, pointer *data) {
 // * the bucket already exists - "bucket already exists"
 // * there's a record with same key - "it's a record"
 func (db *BoltAPI) AddBucket(bucketName string) (err error) {
+	if db.readOnly {
+		return ErrNeedWriteMode
+	}
+
 	err = db.db.Update(func(tx *bolt.Tx) error {
 		b := db.getCurrentBucket(tx)
 
@@ -69,6 +77,10 @@ func (db *BoltAPI) AddBucket(bucketName string) (err error) {
 // * it's a record, not bucket - "it's a record"
 // * there's no such bucket - "there's no such bucket"
 func (db *BoltAPI) DeleteBucket(key string) (err error) {
+	if db.readOnly {
+		return ErrNeedWriteMode
+	}
+
 	err = db.db.Update(func(tx *bolt.Tx) error {
 		b := db.getCurrentBucket(tx)
 
@@ -99,6 +111,10 @@ func (db *BoltAPI) DeleteBucket(key string) (err error) {
 // * thirdly, the data from memory is copied to the new bucket.
 // Copying  works recursively.
 func (db *BoltAPI) EditBucketName(oldKey, newKey string) (err error) {
+	if db.readOnly {
+		return ErrNeedWriteMode
+	}
+
 	currentData := new(data)
 
 	return db.db.Update(func(tx *bolt.Tx) error {
@@ -169,6 +185,10 @@ func copyDataToDB(d *data, bucket *bolt.Bucket) {
 // * there's a bucket with same key - "it's a bucket"
 // * the record already exists - "record already exists"
 func (db *BoltAPI) AddRecord(key, value string) (err error) {
+	if db.readOnly {
+		return ErrNeedWriteMode
+	}
+
 	err = db.db.Update(func(tx *bolt.Tx) error {
 		b := db.getCurrentBucket(tx)
 
@@ -197,6 +217,10 @@ func (db *BoltAPI) AddRecord(key, value string) (err error) {
 // * it's a bucket, nor record - "it's a bucket"
 // * there's no such record - "there's no such record"
 func (db *BoltAPI) DeleteRecord(key string) (err error) {
+	if db.readOnly {
+		return ErrNeedWriteMode
+	}
+
 	err = db.db.Update(func(tx *bolt.Tx) error {
 		b := db.getCurrentBucket(tx)
 
@@ -228,6 +252,10 @@ func (db *BoltAPI) DeleteRecord(key string) (err error) {
 // * there's a bucket with key == newKey - "there's a bucket with key == newKey"
 // * there's a record with key == newKey - "there's a record with key == newKey"
 func (db *BoltAPI) EditRecord(oldKey, newKey, newValue string) error {
+	if db.readOnly {
+		return ErrNeedWriteMode
+	}
+
 	return db.db.Update(func(tx *bolt.Tx) error {
 		b := db.getCurrentBucket(tx)
 
