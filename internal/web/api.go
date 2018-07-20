@@ -66,7 +66,7 @@ func createDB(w http.ResponseWriter, r *http.Request) {
 		DBPath string `json:"dbPath"`
 	}{dbPath}
 	escapeRecords(&response)
-	
+
 	json.NewEncoder(w).Encode(response)
 }
 

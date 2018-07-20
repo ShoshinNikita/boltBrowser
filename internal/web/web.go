@@ -8,8 +8,8 @@ import (
 	"github.com/gobuffalo/packr"
 	"github.com/gorilla/mux"
 
-	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
 	"github.com/ShoshinNikita/boltBrowser/internal/config"
+	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
 )
 
 // For embedding files
