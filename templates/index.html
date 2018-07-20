@@ -107,16 +107,21 @@
 
 	<div id="openDbWindow" class="background">
 		<div class="modal-content" style="text-align: center;">
+			<!-- Inputs -->
 			<div style="width: 75%; display: inline-block;">
 				<input id="DBPathForCreating" style="width: 100%; margin-bottom: 15px; box-sizing: border-box;" placeholder="Path for creating" title="You can enter only a name, in this case a db will be created on the Desktop">
 				<input list="paths" id="DBPath" style="width: 100%; box-sizing: border-box;" placeholder="Path for opening a db">
 				<datalist id="paths" ></datalist>
+				<div style="text-align: left; font-size: 12px; margin-top: 5px;">
+					Read-only mode: <input type="checkbox" id="readOnly" title="Turn on read-only mode">
+				</div>
 				<div id="dbPathsList" style="margin-top: 20px; display: none;"></div>
 			</div>
+			<!-- Buttons -->
 			<div style="width: 80px; text-align: left; display: inline-block; vertical-align: top;">
 				<input type="button" value="Create" class="button" style="width: 100%; margin-bottom: 15px;" onclick="CreateDB();">
 				<input type="button" value="Open" class="button" style="width: 55px;" onclick="OpenDB();">
-				<i class="material-icons btn" style="font-size: 20px !important; vertical-align: middle; float: right;" onclick="SwitchPathsForDelete();" title="Change the list of paths">settings</i>
+				<i class="material-icons btn" style="font-size: 20px !important; vertical-align: middle; float: right;" onclick="SwitchPathsForDeleting();" title="Change the list of paths">settings</i>
 			</div>
 			<br>
 		</div>

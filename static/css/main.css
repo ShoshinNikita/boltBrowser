@@ -12,6 +12,11 @@ html * {
 	font-family: Arial;
 }
 
+input[type=checkbox]
+{
+    vertical-align:middle;
+}
+
 input[type=button] {
 	cursor: pointer;
 }
