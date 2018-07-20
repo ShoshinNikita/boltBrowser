@@ -22,6 +22,8 @@ import (
 // 				| "age" - "15"
 // 				| "name" - "TestUser"
 
+var opts Options
+
 func TestGetRoot(t *testing.T) {
 	SetOffset(100)
 
@@ -34,7 +36,7 @@ func TestGetRoot(t *testing.T) {
 		{1, []Record{Record{T: BucketTemplate, Key: "anotherUsers", Value: ""}}},
 	}
 
-	testDB, err := Open("testdata/test.db")
+	testDB, err := Open("testdata/test.db", opts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +83,7 @@ func TestNext(t *testing.T) {
 			T{"user", []Record{rcrd("age", "15")}}}},
 	}
 
-	testDB, err := Open("testdata/test.db")
+	testDB, err := Open("testdata/test.db", opts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,7 +131,7 @@ func TestBack(t *testing.T) {
 			[]Record{bckt("anotherUsers"), bckt("user")}}},
 	}
 
-	testDB, err := Open("testdata/test.db")
+	testDB, err := Open("testdata/test.db", opts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -178,7 +180,7 @@ func TestGetCurrent(t *testing.T) {
 		{2, []string{"anotherUsers", "1"}, []Record{rcrd("age", "99"), rcrd("name", "Admin")}},
 	}
 
-	testDB, err := Open("testdata/test.db")
+	testDB, err := Open("testdata/test.db", opts)
 	if err != nil {
 		t.Fatal(err)
 	}

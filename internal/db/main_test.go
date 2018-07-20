@@ -3,8 +3,6 @@ package db_test
 import (
 	"os"
 	"testing"
-
-	"github.com/ShoshinNikita/boltBrowser/internal/config"
 )
 
 func TestMain(m *testing.M) {
