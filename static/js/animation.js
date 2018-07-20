@@ -140,7 +140,7 @@ function showAddMenu(event) {
 	// Magic. Program shows addMenu only if target is dbTreeWrapper and isn't anything else
 	if ((event.target == dbTreeWrapper || event.target == dbTree) && event.which == 3) {
 		// Show menu only if db was chosen
-		if (currentDBPath != "") {
+		if (currentDB.dbPath != "") {
 			showPopupMenu(event.clientX, event.clientY, getAddMenu());
 			return false;
 		}

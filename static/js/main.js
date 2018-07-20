@@ -1,5 +1,13 @@
 /* Global variables */
-var currentDBPath = "";
+// currentDB keeps data about the current db
+// Data:
+// {
+//   "name": "",
+//   "dbPath": "",
+//   "size": 0,
+//   "readOnly": bool
+// }
+var currentDB = {}
 // Dictionary. It keeps data like "key of a record": "value of a record"
 var currentData = {};
 
@@ -195,7 +203,7 @@ window.onkeydown = function(event) {
 		}
 		// Esc
 		if (event.keyCode == 27 || event.which == 27) {
-			ChooseDB(currentDBPath);
+			ChooseDB(currentDB.dbPath);
 		}
 	}
 }
