@@ -35,7 +35,7 @@ type BoltAPI struct {
 	Name          string `json:"name"`
 	DBPath        string `json:"dbPath"`
 	Size          int64  `json:"size"`
-	readOnly      bool
+	ReadOnly      bool
 }
 
 // Record consists information about record in the db
@@ -77,7 +77,7 @@ func Open(path string, opt Options) (*BoltAPI, error) {
 	options := &bolt.Options{Timeout: time.Second}
 	if opt.ReadOnly {
 		options.ReadOnly = true
-		db.readOnly = true
+		db.ReadOnly = true
 	}
 
 	db.db, err = bolt.Open(path, 0600, options)

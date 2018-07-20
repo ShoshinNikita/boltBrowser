@@ -44,7 +44,7 @@ func (d *data) addBucket(k []byte, pointer *data) {
 // * the bucket already exists - "bucket already exists"
 // * there's a record with same key - "it's a record"
 func (db *BoltAPI) AddBucket(bucketName string) (err error) {
-	if db.readOnly {
+	if db.ReadOnly {
 		return ErrNeedWriteMode
 	}
 
@@ -77,7 +77,7 @@ func (db *BoltAPI) AddBucket(bucketName string) (err error) {
 // * it's a record, not bucket - "it's a record"
 // * there's no such bucket - "there's no such bucket"
 func (db *BoltAPI) DeleteBucket(key string) (err error) {
-	if db.readOnly {
+	if db.ReadOnly {
 		return ErrNeedWriteMode
 	}
 
@@ -111,7 +111,7 @@ func (db *BoltAPI) DeleteBucket(key string) (err error) {
 // * thirdly, the data from memory is copied to the new bucket.
 // Copying  works recursively.
 func (db *BoltAPI) EditBucketName(oldKey, newKey string) (err error) {
-	if db.readOnly {
+	if db.ReadOnly {
 		return ErrNeedWriteMode
 	}
 
@@ -185,7 +185,7 @@ func copyDataToDB(d *data, bucket *bolt.Bucket) {
 // * there's a bucket with same key - "it's a bucket"
 // * the record already exists - "record already exists"
 func (db *BoltAPI) AddRecord(key, value string) (err error) {
-	if db.readOnly {
+	if db.ReadOnly {
 		return ErrNeedWriteMode
 	}
 
@@ -217,7 +217,7 @@ func (db *BoltAPI) AddRecord(key, value string) (err error) {
 // * it's a bucket, nor record - "it's a bucket"
 // * there's no such record - "there's no such record"
 func (db *BoltAPI) DeleteRecord(key string) (err error) {
-	if db.readOnly {
+	if db.ReadOnly {
 		return ErrNeedWriteMode
 	}
 
@@ -252,7 +252,7 @@ func (db *BoltAPI) DeleteRecord(key string) (err error) {
 // * there's a bucket with key == newKey - "there's a bucket with key == newKey"
 // * there's a record with key == newKey - "there's a record with key == newKey"
 func (db *BoltAPI) EditRecord(oldKey, newKey, newValue string) error {
-	if db.readOnly {
+	if db.ReadOnly {
 		return ErrNeedWriteMode
 	}
 
