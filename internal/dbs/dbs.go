@@ -26,13 +26,13 @@ func Init() {
 }
 
 // OpenDB is a wrapper for *BoltAPI.Open()
-func OpenDB(dbPath string) (dbName string, code int, err error) {
+func OpenDB(dbPath string, readOnly bool) (dbName string, code int, err error) {
 	// Check if db was opened
 	if _, ok := allDB[dbPath]; ok {
 		return "", http.StatusBadRequest, errors.New("This DB was already opened")
 	}
 
-	newDB, err := db.Open(dbPath)
+	newDB, err := db.Open(dbPath, db.Options{ReadOnly: readOnly})
 	if err != nil {
 		return "", http.StatusInternalServerError, err
 	}

@@ -25,7 +25,8 @@ func openDB(w http.ResponseWriter, r *http.Request) {
 	reg := regexp.MustCompile(`\\\\|\\`)
 	dbPath = reg.ReplaceAllString(dbPath, "/")
 
-	dbName, code, err := dbs.OpenDB(dbPath)
+	// TODO r.FormValue("readOnly")
+	dbName, code, err := dbs.OpenDB(dbPath, false)
 	if err != nil {
 		returnError(w, err, "", code)
 		return
