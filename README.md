@@ -86,22 +86,7 @@ Flag  | Description
 
 ### Security
 
-For preventing of js-injection program changes some symbols
-
-Old symbol | New symbol
----------- | ----------
-`<` | `❮`
-`>` | `❯`
-`"` | `＂`
-`'` | `ߴ`
-
-Scheme of work:
-
-1. User sends a request
-1. Program changes all new symbols to old (backend)
-1. Program get info from a db
-1. Program sends a response
-1. Program changes all old symbols to new (frontend – function `SafeParse()`)
+Program use function `EscapeString()` from `package html` for preventing of js-injection.
 
 ### Other
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gobuffalo/packr"
 	"github.com/gorilla/mux"
@@ -72,7 +71,7 @@ func Start(port string, stopChan chan struct{}) {
 	} else {
 		handler = router
 	}
-	srv := http.Server{Addr: port, Handler: middleware(handler)}
+	srv := http.Server{Addr: port, Handler: unescapingMiddleware(handler)}
 	go srv.ListenAndServe()
 
 	// Wait for signal
@@ -97,29 +96,4 @@ func debugHandler(h http.Handler) http.Handler {
 
 		h.ServeHTTP(w, r)
 	})
-}
-
-func middleware(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r.ParseForm()
-
-		// Change all symbols
-		for key, values := range r.Form {
-			for i := range values {
-				convertForBackend(&values[i])
-			}
-			r.Form[key] = values
-		}
-
-		h.ServeHTTP(w, r)
-	})
-}
-
-func convertForBackend(origin *string) {
-	s := *origin
-	s = strings.Replace(s, "❮", "<", -1)
-	s = strings.Replace(s, "❯", ">", -1)
-	s = strings.Replace(s, "＂", "\"", -1)
-	s = strings.Replace(s, "ߴ", "'", -1)
-	*origin = s
 }

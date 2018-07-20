@@ -1,470 +1,172 @@
-/* Constants */
-const buttonTemplate = `<div>
-	<input type="button" class="db_button" value="{0}" onclick="ChooseDB('{1}')" title="Choose">
-	<i class="material-icons btn" style="float: right; margin-right: 10px; font-size: 30px !important;" title="Close" onclick="CloseDB('{1}');">close<\/i>
-<\/div>`;
-
-const recordTemplate = `<div style="display: table;">
-	<i class="material-icons" icon>assignment<\/i>
-	<span class="record" onclick="ShowFullRecord('{0}');"><b>{0}<\/b><\/span>: {1}
-<\/div>`;
-
-const bucketTemplate = `<div style="display: table;">
-	<i class="material-icons" icon>folder<\/i>
-	<span class="bucket" onclick="Next('{0}');"><b>{0}<\/b><\/span>
-<\/div>`;
-
-const backButton = `<div style="display: table;">
-	<i class="material-icons btn" icon onclick="Back();" title="Back">more_horiz<\/i>
-<\/div>`;
-
-const nextRecordsButtonTemplate = `<div style="display: table;">
-	<i class="material-icons" icon>arrow_forward_ios<\/i>
-	<span style="cursor: pointer;" onclick="NextRecords();"><b>Next page<\/b><\/span>
-<\/div>`;
-
-const prevRecordsButtonTemplate = `<div style="display: table;">
-	<i class="material-icons" icon>arrow_back_ios<\/i>
-	<span style="cursor: pointer;" onclick="PrevRecords();"><b>Previous page<\/b><\/span>
-<\/div>`;
-
-const pathForDeleting = `
-<div style="margin-bottom: 10px; text-align: left;">
-	<span>{0}</span>
-	<i class="material-icons btn" style="float: right; font-size: 22px !important; vertical-align: middle;" title="Delete" onclick="DeletePath('{0}');">close<\/i>
-<\/div>`;
-
-
 /* Global variables */
 var currentDBPath = "";
 // Dictionary. It keeps data like "key of a record": "value of a record"
 var currentData = {};
 
 
-/* Local Storage */
-function PrepareLS() {
-	if (localStorage.getItem("paths") === null) {
-		var paths = {}
-		localStorage.setItem("paths", JSON.stringify(paths));
-	}
+/* Functions for getting html elements */
+function getDbButton(dbPath, dbName) {
+	var $input = $("<input>", {type: "button", class:"db_button", title: "Choose", value: dbName}).
+		click({dbPath: dbPath}, function(event) {
+			ChooseDB(event.data.dbPath);
+		});
+
+	var $closeBtn = $("<i>", {class: "material-icons btn", style: "float: right; margin-right: 10px; font-size: 30px !important;", title: "Close"}).text("close").
+		click({dbPath: dbPath}, function(event){
+			CloseDB(event.data.dbPath);
+		});
+
+	return $("<div>").append($input).append($closeBtn);
 }
 
-function putIntoLS(dbPath) {
-	var paths = SafeParse(localStorage.getItem("paths"));
-	if (paths[dbPath] == null) {
-		paths[dbPath] = {
-			"uses": 1
-		}
-	} else {
-		paths[dbPath].uses += 1;
-	}
+function getRecordButton(key, value) {
+	var $icon = $("<i>", {class: "material-icons"}).text("assignment");
+	var $key = $("<span>", {class: "record", id: "key", style: "font-weight: bold;"}).html(key).
+		click({key: key}, function(event) {
+			ShowFullRecord(event.data.key);
+		});
+	var $value = $("<span>", {id: "value"}).html(" – " + value);
 
-	localStorage.setItem("paths", JSON.stringify(paths));
+	return $("<div>", {style: "display: table;"}).append($icon).append($key).append($value);
 }
 
-function getPaths() {
-	var paths = SafeParse(localStorage.getItem("paths"));
+function getBucketButton(key) {
+	var $icon = $("<i>", {class: "material-icons"}).text("folder");
+	var $key = $("<span>", {class: "bucket", style: "font-weight: bold;"}).html(key).
+		click({key: key}, function(event) {
+			Next(event.data.key);
+		});
 
-	// Sorting. Return only keys;
-	var sortedPaths = Object.keys(paths).sort(function(a, b){
-		if (paths[a].uses < paths[b].uses) {
-			return 1;
-		}
-		if (paths[a].uses > paths[b].uses) {
-			return -1;
-		}
-		return 0;
+	return $("<div>", {style: "display: table;"}).append($icon).append($key);
+}
+
+function getBackButton() {
+	var $icon = $("<i>", {class: "material-icons btn", title: "Back"}).text("more_horiz").
+		click(function(){
+			Back();
+		});
+
+	return $("<div>", {style: "display: table;"}).append($icon);
+}
+
+function getNextRecordsButton() {
+	var $icon = $("<i>", {class: "material-icons"}).text("arrow_forward_ios");
+	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Next page");
+		click(function() {
+			NextRecords();
+		});
+
+	return $("<div>", {style: "display: table;"}).append($icon).append($btn);
+}
+
+function getPrevRecordsButton() {
+	var $icon = $("<i>", {class: "material-icons"}).text("arrow_back_ios");
+	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Previous page");
+		click(function() {
+			NextRecords();
+		});
+
+	return $("<div>", {style: "display: table;"}).append($icon).append($btn);
+}
+
+// For creating list of paths for deleting
+function getPathForDeleting(path) {
+	var $path = $("<span>").text(path);
+	var $btn = $("<i>", {class: "material-icons btn", style: "float: right; font-size: 22px !important; vertical-align: middle;", title: "Delete"}).text("close").
+		click({path: path}, function(event) {
+			DeletePath(event.data.path);
+		});
+
+	return $("<div>", {style: "margin-bottom: 10px; text-align: left;"}).append($path).append($btn);
+}
+
+// Write mode only
+function getAddMenu() {
+	var $bucket = $("<input>", {type: "button", class: "popup_button", value: "Add bucket"}).
+		click(function() {
+			ShowAddModal("bucket");
+		});
+	var $record =  $("<input>", {type: "button", class: "popup_button", value: "Add record"}).
+	click(function() {
+		ShowAddModal("record");
 	});
 
-	return sortedPaths;
+	return $("<div>").append($bucket).append($record);
 }
 
-function DeletePath(path) {
-	var paths = SafeParse(localStorage.getItem("paths"));
-	delete paths[path];
-	localStorage.setItem("paths", JSON.stringify(paths));
-
-	showPathsForDelete();
-}
-
-
-/* API */
-function OpenDB() {
-	var dbPath = $("#DBPath").val();
-	if (dbPath == "" ) {
-		ShowErrorPopup("Error: path is empty");
-		return;
-	}
-
-	$("#DBPath").val("");
-	$.ajax({
-		url: "/api/databases",
-		type: "POST",
-		data: {
-			"dbPath": dbPath
-		},
-		success: function(result){
-			result= SafeParse(result)
-			putIntoLS(result.dbPath);
-			HideOpenDbWindow();
-			ShowDBList();
-		},
-		error: function(result) {
-			ShowErrorPopup(result.responseText);
-		}
+function getBucketMenu(bucketKey) {
+	var $editBtn = $("<input>", {type: "button", class: "popup_button", value: "Edit name"}).
+		click({key: bucketKey}, function(event) {
+			ShowEditModal("bucket", event.data.key);
+		});
+	var $delBtn =  $("<input>", {type: "button", class: "popup_button", value: "Delete", style: "margin: auto;"}).
+	click({key: bucketKey}, function(event) {
+		DeleteBucket(event.data.key);
 	});
-	;
+
+	return $("<div>").append($editBtn).append($delBtn);
 }
 
-function CreateDB() {
-	var path = $("#DBPathForCreating").val();
-	if (path == "" ) {
-		ShowErrorPopup("Error: path is empty");
-		return;
-	}
-
-	$("#DBPathForCreating").val("");
-	$.ajax({
-		url: "/api/databases/new",
-		type: "POST",
-		data: {
-			"path": path
-		},
-		success: function(result){
-			result= SafeParse(result)
-			putIntoLS(result.dbPath);
-			HideOpenDbWindow();
-			ShowDBList();
-		},
-		error: function(result) {
-			ShowErrorPopup(result.responseText);
-		}
+function getRecordMenu(recordKey) {
+	var $editBtn = $("<input>", {type: "button", class: "popup_button", value: "Edit"}).
+		click({key: recordKey}, function(event) {
+			ShowEditModal("record", event.data.key);
+		});
+	var $delBtn =  $("<input>", {type: "button", class: "popup_button", value: "Delete", style: "margin: auto;"}).
+	click({key: recordKey}, function(event) {
+		DeleteRecord(event.data.key);
 	});
-	;
+
+	return $("<div>").append($editBtn).append($delBtn);
 }
 
-function CloseDB(dbPath) {
-	$.ajax({
-		url: "/api/databases" + "?" + $.param({"dbPath": dbPath}),
-		type: "DELETE",
-		success: function(result){
-			if (dbPath == currentDBPath) {
-				$("#dbName").html("<i>Name:<\/i> ?");
-				$("#dbPath").html("<i>Path:<\/i> ?");
-				$("#dbSize").html("<i>Size:<\/i> ?");
-				$("#dbTree").html("");
-				$("#currentPath").html("");
-				$("#recordsAmount").html("");
-				$("#recordPath").html("?");
-				$("#recordValue").html("?");
-				$("#searchBox").css("visibility", "hidden");
-				currentDBPath = "";
-			}
-			ShowDBList();
-		},
-		error: function(result) {
-			ShowErrorPopup(result.responseText);
-		}
-	});
+function getAddBucketWindow() {
+	var $nameInput = $("<input>", {id: "newBucketName", "type": "text", placeholder: "Bucket", style: "margin-bottom: 5px; width: 100%;"}).prop("required", true);
+	var $btn = $("<input>", {type: "submit", "class": "button", value: "Add"}).
+		click(function() {
+			AddBucket();
+		});
+
+	return $("<div>").append($nameInput).append($btn);
 }
 
-function ShowDBList() {
-	$.ajax({
-		url: "/api/databases",
-		type: "GET",
-		success: function(result){
-			allDB = SafeParse(result);
-			var result = "";
-			for (i in allDB) {
-				result += buttonTemplate.format(allDB[i].name, allDB[i].dbPath);
-			}
-			$("#list").html(result);
-		},
-		error: function(result) {
-			ShowErrorPopup(result.responseText);
-		}
-	});
+function getEditBucketWindow(bucketName) {
+	var $title = $("<div>", {style: "margin-bottom: 10px;"}).text("The old name: " + bucketName);
+	var $nameInput = $("<input>", {id: "newName", type: "text", placeholder: "New name", style: "margin-bottom: 5px; width: 100%;"}).prop("required", true);
+	var $btn = $("<input>", {type: "submit", class: "button", value: "Edit"}).
+		click({key: bucketName}, function(event) {
+			EditBucketName(event.data.key);
+		});
+
+	return $("<div>").append($title).append($nameInput).append($("<br>")).append($btn);
 }
 
-function ChooseDB(dbPath) {
-	currentDBPath = dbPath;
-	$.ajax({
-		url: "/api/buckets/current",
-		type: "GET",
-		data: {
-			"dbPath": dbPath,
-		},
-		success: function(result){
-			result = SafeParse(result);
+function getAddRecordWindow() {
+	var $key = $("<input>", {id: "newRecordKey", type: "text", placeholder: "Key", style: "margin-bottom: 5px; width: 100%;"});
+	var $br = $("<br>");
+	var $value = $("<input>", {id: "newRecordValue", type: "text", placeholder: "Value", style: "margin-bottom: 5px; width: 100%;"});
+	var $btn = $("<input>", {type: "submit", class: "button", value: "Add"}).
+		click({key: bucketName}, function(event) {
+			AddRecord();
+		});
 
-			$("#dbName").html("<i>Name:<\/i> " + result.db.name);
-			$("#dbPath").html("<i>Path:<\/i> " + result.db.dbPath);
-			$("#dbSize").html("<i>Size:<\/i> " + result.db.size / 1024 + " Kb");
-			$("#recordPath").html("?");
-			$("#recordValue").html("?");
-			$("#searchBox").css("visibility", "visible");
-
-			ShowTree(result);
-		},
-		error: function(result) {
-			ShowErrorPopup(result.responseText);
-		}
-	});
+	return $("<div>").append($key).append($br).append($value).append($br).append($btn);
 }
 
-function Next(bucket) {
-	$.ajax({
-		url: "/api/buckets/next",
-		type: "GET",
-		data: {
-			"dbPath": currentDBPath,
-			"bucket": bucket
-		},
-		success: function(result){
-			result = SafeParse(result);
-			ShowTree(result);
-		},
-		error: function(result) {
-			ShowErrorPopup(result.responseText);
-		}
-	});
-}
-
-function Back() {
-	$.ajax({
-		url: "/api/buckets/back",
-		type: "GET",
-		data: {
-			"dbPath": currentDBPath,
-		},
-		success: function(result){
-			result = SafeParse(result);
-			ShowTree(result);
-		},
-		error: function(result) {
-			ShowErrorPopup(result.responseText);
-		}
-	});
-}
-
-function NextRecords() {
-	$.ajax({
-		url: "/api/records/next",
-		type: "GET",
-		data: {
-			"dbPath": currentDBPath,
-		},
-		success: function(result){
-			result = SafeParse(result);
-
-			ShowTree(result);
-		},
-		error: function(result) {
-			ShowErrorPopup(result.responseText);
-		}
-	});
-}
-
-function PrevRecords() {
-	$.ajax({
-		url: "/api/records/prev",
-		type: "GET",
-		data: {
-			"dbPath": currentDBPath,
-		},
-		success: function(result){
-			result = SafeParse(result);
-
-			ShowTree(result);
-		},
-		error: function(result) {
-			ShowErrorPopup(result.responseText);
-		}
-	});
-}
-
-function Search() {
-	var text = $("#searchText").val();
-	if (text == "") {
-		ChooseDB(currentDBPath);
-		return;
-	}
-
-	var mode = "plain";
-	if ($("#regexMode").prop("checked")) {
-		mode = "regex";
-	}
-	$.ajax({
-		url: "/api/search",
-		type: "GET",
-		data: {
-			"dbPath": currentDBPath,
-			"text": text,
-			"mode": mode
-		},
-		success: function(result){
-			result = SafeParse(result);
-			
-			ShowTree(result);
-		},
-		error: function(result) {
-			ShowErrorPopup(result.responseText);
-		}
-	});
-}
-
-
-/* Animation */
-function ShowDBsList() {
-	$("#dbListBackground").css("display", "block");
-	$("#dbList").addClass("db_list_animation");
-}
-
-function ShowFullRecord(key) {
-	// This 2 lines fix the bug, when #recordData disappeared after changing of #recordPath and #currentPath
-	$("#recordPath").html("");
-	$("#recordValue").html("");
-
-	$("#recordData").scrollTop(0);
-
-	$("#recordPath").html(key + " – <i>" + $("#currentPath").text() + "<\/i>");
-	$("#recordValue").html(currentData[key]);
-}
-
-function ShowTree(data) {
-	$("#currentPath").html(data.bucketsPath);
-	if (data.recordsAmount == 0) {
-		$("#recordsAmount").html("(empty)")
-	} else if (data.recordsAmount == 1) {
-		$("#recordsAmount").html("(" + data.recordsAmount + " item)")
-	} else {
-		$("#recordsAmount").html("(" + data.recordsAmount + " items)")
-	}
+function getEditRecordWindow(recordKey, recordValue) {
+	var $title = $("<div>", {style: "margin-bottom: 10px;"}).text("Editing of record \"" + recordKey + "\"");
+	var $newKey = $("<input>", {id: "newRecordKey", type: "text", placeholder: "Key (leave empty if don't want to edit key)", style: "margin-bottom: 5px; width: 100%; box-sizing: border-box;", value: recordKey});
+	var $newValue = $("<textarea>", {id: "newRecordValue", placeholder: "Value", style: "resize: none; margin-bottom: 5px; width: 100%; height: 150px; box-sizing: border-box;"}).val(recordValue);
+	var $btn = $("<input>", {type: "submit", class: "button", value: "Edit"}).
+		click({key: recordKey}, function(event) {
+			EditRecord(event.data.key);
+		});
 	
-	var result = "";
-	if (data.prevRecords) {
-		result += prevRecordsButtonTemplate;
-	} else if (data.prevBucket) {
-		result = backButton;
-	}
-
-	// Update currentData
-	var records = data.records;
-	currentData = {}
-	for (i in records) {
-		currentData[records[i].key] = records[i].value
-	}
-
-	for (i in records) {
-		if (records[i].type == "bucket") {
-			result += bucketTemplate.format(records[i].key);
-		} else if (records[i].type == "record") {
-			var value = records[i].value;
-			if (value.length > 60) {
-				value = value.substring(0, 60);
-				value += "...";
-			}
-			result += recordTemplate.format(records[i].key, value);
-		}
-	}
-
-	if (data.nextRecords) {
-		result += nextRecordsButtonTemplate;
-	}
-	$("#dbTree").html(result);
-
-	document.getElementById("dbTreeWrapper").scrollTop = 0;
-}
-
-function SwitchPathsForDelete() {
-	if ($("#dbPathsList").css("display") == "none") {
-		showPathsForDelete();
-	} else {
-		$("#dbPathsList").css("display", "none");
-	}
-}
-
-function showPathsForDelete() {
-	var paths = getPaths();
-
-	var res = ""
-	for (var i = 0; i < paths.length; i++) {
-		res += pathForDeleting.format(paths[i]);
-	}
-
-	if (res == "") {
-		res = "Empty"
-	}
-
-	$("#dbPathsList").html(res);
-	$("#dbPathsList").css("display", "block");
-}
-
-// ErrorPopup
-function ShowErrorPopup(message) {
-	$("#popupMessage").html(message);
-	$("#errorPopup").addClass("popup_animation");
-}
-
-function HideErrorPopup() {
-	$("#errorPopup").removeClass("popup_animation");
-}
-
-// OpenDbWindow
-function ShowOpenDbWindow() {
-	const template = `<option value="{0}">`;
-
-	var sortedPaths = getPaths();
-
-	var options = "";
-	for (var i = 0; i < sortedPaths.length && i < 5; i++) {
-		options += template.format(sortedPaths[i]);
-	}
-
-	$("#paths").html(options);
-	$("#openDbWindow").css("display", "block");
-	$("#DBPath").focus();
-}
-
-function HideOpenDbWindow() {
-	$("#openDbWindow").css("display", "none");
-	$("#dbPathsList").css("display", "none");
-}
-
-// DonePopup
-function ShowDonePopup() {
-	$("#donePopup").css("display", "block")
-	$("#donePopup").addClass("done_popup_animation")
-
-	setTimeout(function() {
-		$("#donePopup").css("display", "none")
-		$("#donePopup").removeClass("done_popup_animation")
-	}, 2000)
+	return $("<div>").append($title).append($newKey).append($newValue).append($btn);
 }
 
 
 /* Secondary functions */
-
-// Return parsed object with "good" symbols
-function SafeParse(text) {
-	var object = JSON.parse(text);
-	makeSafe(object);
-	return object
-}
-
-// Erase all "bad" symbols from object like '<', '>', '\'', '"'
-// Works recursively
-function makeSafe(object) {
-	if (typeof object === 'object') {
-		for (i in object) {
-			object[i] = makeSafe(object[i]);
-		}
-	} else if (typeof object === 'string') {
-		object = object.replaceAll("<", "❮").replaceAll(">", "❯").replaceAll("\"", "＂").replaceAll("'", "ߴ")
-	}
-	return object
-}
-
 window.onclick = function(event) {
     if (event.target == openDbWindow) {
 		HideOpenDbWindow();
@@ -497,16 +199,3 @@ window.onkeydown = function(event) {
 		}
 	}
 }
-
-String.prototype.format = function () {
-	var a = this;
-	for (var k in arguments) {
-		a = a.replace(new RegExp("\\{" + k + "\\}", 'g'), arguments[k]);
-	}
-	return a;
-}
-
-String.prototype.replaceAll = function(search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, 'g'), replacement);
-};

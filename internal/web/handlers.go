@@ -2,6 +2,7 @@ package web
 
 import (
 	"fmt"
+	"html"
 	"html/template"
 	"net/http"
 
@@ -31,4 +32,26 @@ func wrapper(w http.ResponseWriter, r *http.Request) {
 		"URL": "http://localhost" + config.Opts.Port,
 	}
 	t.Execute(w, data)
+}
+
+// unescapingMiddleware use html.Unescape() for every element of r.Form
+// For converting of "&lt;" into "<", "&gt;" into ">" and etc.
+func unescapingMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			fmt.Printf("[ERR] Can't parse form: %s\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		for k := range r.Form {
+			var values []string
+			for _, s := range r.Form[k] {
+				values = append(values, html.UnescapeString(s))
+			}
+			r.Form[k] = values
+		}
+
+		h.ServeHTTP(w, r)
+	})
 }
