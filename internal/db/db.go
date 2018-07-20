@@ -56,6 +56,12 @@ type Data struct {
 	Path          string
 }
 
+// Options for opening of a db
+// `Options{}` can be used for getting of default options
+type Options struct {
+	ReadOnly bool
+}
+
 // SetOffset change value of maxOffset (default – 100)
 func SetOffset(offset int) {
 	maxOffset = offset
