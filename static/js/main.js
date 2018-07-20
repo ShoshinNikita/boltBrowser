@@ -146,7 +146,7 @@ function getAddRecordWindow() {
 	var $br = $("<br>");
 	var $value = $("<input>", {id: "newRecordValue", type: "text", placeholder: "Value", style: "margin-bottom: 5px; width: 100%;"});
 	var $btn = $("<input>", {type: "submit", class: "button", value: "Add"}).
-		click({key: bucketName}, function(event) {
+		click(function() {
 			AddRecord();
 		});
 
