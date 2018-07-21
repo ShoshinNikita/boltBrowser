@@ -12,20 +12,21 @@ import (
 
 // openDB open db. It also adds db.DBApi to allDB
 //
-// Params: dbPath
+// Params: dbPath, readOnly
 // Return:
 // {
-// 	"dbPath": str
+//  "dbPath": str
 // }
 //
 func openDB(w http.ResponseWriter, r *http.Request) {
 	dbPath := r.FormValue("dbPath")
+	readOnly := (r.FormValue("readOnly") == "true")
 
 	// From C:\\users\\help (or C:\users\help) to C:/users/help
 	reg := regexp.MustCompile(`\\\\|\\`)
 	dbPath = reg.ReplaceAllString(dbPath, "/")
 
-	dbName, code, err := dbs.OpenDB(dbPath)
+	dbName, code, err := dbs.OpenDB(dbPath, readOnly)
 	if err != nil {
 		returnError(w, err, "", code)
 		return
@@ -261,6 +262,7 @@ func databasesList(w http.ResponseWriter, r *http.Request) {
 //    "name": "",
 // 	  "dbPath": "",
 //    "size": 0,
+//    "readOnly": bool
 //  },
 //  "prevBucket": bool,
 //  "prevRecords": bool,
@@ -294,11 +296,7 @@ func current(w http.ResponseWriter, r *http.Request) {
 		RecordsAmount int         `json:"recordsAmount"`
 		Records       []db.Record `json:"records"`
 	}{
-		dbs.DBInfo{
-			Name:   info.Name,
-			DBPath: info.DBPath,
-			Size:   info.Size,
-		},
+		info,
 		data.PrevBucket,
 		data.PrevRecords,
 		data.NextRecords,

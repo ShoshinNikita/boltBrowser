@@ -5,14 +5,23 @@ function OpenDB() {
 		return;
 	}
 
+	var readOnly = false;
+	if ($("#readOnlyCheckbox").prop("checked")) {
+		readOnly = true;
+	}
+
 	$("#DBPath").val("");
 	$.ajax({
 		url: "/api/databases",
 		type: "POST",
 		data: {
-			"dbPath": dbPath
+			"dbPath": dbPath,
+			"readOnly": readOnly
 		},
 		success: function(result){
+			// Uncheck the checkbox
+			$("#readOnlyCheckbox").prop("checked", false);
+
 			result= JSON.parse(result);
 			PutIntoLS(result.dbPath);
 			HideOpenDbWindow();
@@ -55,7 +64,7 @@ function CloseDB(dbPath) {
 		url: "/api/databases" + "?" + $.param({"dbPath": dbPath}),
 		type: "DELETE",
 		success: function(result){
-			if (dbPath == currentDBPath) {
+			if (dbPath == currentDB.dbPath) {
 				$("#dbName").html("<i>Name:<\/i> ?");
 				$("#dbPath").html("<i>Path:<\/i> ?");
 				$("#dbSize").html("<i>Size:<\/i> ?");
@@ -65,7 +74,7 @@ function CloseDB(dbPath) {
 				$("#recordPath").html("?");
 				$("#recordValue").html("?");
 				$("#searchBox").css("visibility", "hidden");
-				currentDBPath = "";
+				currentDB = {};
 			}
 			ShowDBList();
 		},
@@ -94,7 +103,6 @@ function ShowDBList() {
 }
 
 function ChooseDB(dbPath) {
-	currentDBPath = dbPath;
 	$.ajax({
 		url: "/api/buckets/current",
 		type: "GET",
@@ -103,10 +111,29 @@ function ChooseDB(dbPath) {
 		},
 		success: function(result){
 			result = JSON.parse(result);
+			currentDB = result.db;
 
-			$("#dbName").html("<i>Name:<\/i> " + result.db.name);
-			$("#dbPath").html("<i>Path:<\/i> " + result.db.dbPath);
-			$("#dbSize").html("<i>Size:<\/i> " + result.db.size / 1024 + " Kb");
+			var getDiv = function(field, text) {
+				var $field = $("<i>").text(field + ": ");
+				return $("<div>").append($field).append(text);
+			}
+			
+			$("#dbName").empty();
+			$("#dbName").append(getDiv("Name", result.db.name));
+
+			$("#dbPath").empty();
+			$("#dbPath").html(getDiv("Path", result.db.dbPath));
+
+			$("#dbSize").empty();
+			$("#dbSize").html(getDiv("Size", result.db.size / 1024 + " Kb"));
+
+			$("#dbMode").empty();
+			var mode = "Read & Write"
+			if (result.db.readOnly) {
+				mode = "Read-Only"
+			}
+			$("#dbMode").append(getDiv("Mode", mode));
+
 			$("#recordPath").html("?");
 			$("#recordValue").html("?");
 			$("#searchBox").css("visibility", "visible");
@@ -124,7 +151,7 @@ function Next(bucket) {
 		url: "/api/buckets/next",
 		type: "GET",
 		data: {
-			"dbPath": currentDBPath,
+			"dbPath": currentDB.dbPath,
 			"bucket": bucket
 		},
 		success: function(result){
@@ -142,7 +169,7 @@ function Back() {
 		url: "/api/buckets/back",
 		type: "GET",
 		data: {
-			"dbPath": currentDBPath,
+			"dbPath": currentDB.dbPath,
 		},
 		success: function(result){
 			result = JSON.parse(result);
@@ -159,7 +186,7 @@ function NextRecords() {
 		url: "/api/records/next",
 		type: "GET",
 		data: {
-			"dbPath": currentDBPath,
+			"dbPath": currentDB.dbPath,
 		},
 		success: function(result){
 			result = JSON.parse(result);
@@ -177,7 +204,7 @@ function PrevRecords() {
 		url: "/api/records/prev",
 		type: "GET",
 		data: {
-			"dbPath": currentDBPath,
+			"dbPath": currentDB.dbPath,
 		},
 		success: function(result){
 			result = JSON.parse(result);
@@ -193,7 +220,7 @@ function PrevRecords() {
 function Search() {
 	var text = $("#searchText").val();
 	if (text == "") {
-		ChooseDB(currentDBPath);
+		ChooseDB(currentDB.dbPath);
 		return;
 	}
 
@@ -205,7 +232,7 @@ function Search() {
 		url: "/api/search",
 		type: "GET",
 		data: {
-			"dbPath": currentDBPath,
+			"dbPath": currentDB.dbPath,
 			"text": text,
 			"mode": mode
 		},
@@ -232,7 +259,7 @@ function AddBucket() {
 		url: "/api/buckets",
 		type: "POST",
 		data: {
-			"dbPath": currentDBPath,
+			"dbPath": currentDB.dbPath,
 			"bucket": bucketName,
 		},
 		success: function(result){
@@ -253,14 +280,14 @@ function EditBucketName(oldName) {
 		url: "/api/buckets",
 		type: "PUT",
 		data: {
-			"dbPath": currentDBPath,
+			"dbPath": currentDB.dbPath,
 			"oldName": oldName,
 			"newName": newName,
 		},
 		success: function(result){
 			HideAddModal();
 			ShowDonePopup();
-			ChooseDB(currentDBPath);
+			ChooseDB(currentDB.dbPath);
 		},
 		error: function(result) {
 			ShowErrorPopup(result.responseText);
@@ -269,13 +296,13 @@ function EditBucketName(oldName) {
 }
 
 function DeleteBucket(bucket) {
-	var query = $.param({"dbPath": currentDBPath, "bucket": bucket})
+	var query = $.param({"dbPath": currentDB.dbPath, "bucket": bucket})
 	$.ajax({
 		url: "/api/buckets" + "?" + query,
 		type: "DELETE",
 		success: function(result){
 			ShowDonePopup();
-			ChooseDB(currentDBPath)
+			ChooseDB(currentDB.dbPath)
 		},
 		error: function(result) {
 			ShowErrorPopup(result.responseText);
@@ -295,14 +322,14 @@ function AddRecord() {
 		url: "/api/records",
 		type: "POST",
 		data: {
-			"dbPath": currentDBPath,
+			"dbPath": currentDB.dbPath,
 			"key": key,
 			"value": value,
 		},
 		success: function(result){
 			HideAddModal();
 			ShowDonePopup();
-			ChooseDB(currentDBPath)
+			ChooseDB(currentDB.dbPath)
 		},
 		error: function(result) {
 			ShowErrorPopup(result.responseText);
@@ -322,7 +349,7 @@ function EditRecord(oldKey) {
 		url: "/api/records",
 		type: "PUT",
 		data: {
-			"dbPath": currentDBPath,
+			"dbPath": currentDB.dbPath,
 			"oldKey": oldKey,
 			"newKey": newKey,
 			"newValue": newValue,
@@ -330,7 +357,7 @@ function EditRecord(oldKey) {
 		success: function(result){
 			HideAddModal();
 			ShowDonePopup();
-			ChooseDB(currentDBPath)
+			ChooseDB(currentDB.dbPath)
 		},
 		error: function(result) {
 			ShowErrorPopup(result.responseText);
@@ -339,13 +366,13 @@ function EditRecord(oldKey) {
 }
 
 function DeleteRecord(key) {
-	var query = $.param({"dbPath": currentDBPath, "key": key})
+	var query = $.param({"dbPath": currentDB.dbPath, "key": key})
 	$.ajax({
 		url: "/api/records" + "?" + query,
 		type: "DELETE",
 		success: function(result){
 			ShowDonePopup();
-			ChooseDB(currentDBPath)
+			ChooseDB(currentDB.dbPath)
 		},
 		error: function(result) {
 			ShowErrorPopup(result.responseText);

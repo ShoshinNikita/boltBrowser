@@ -37,7 +37,7 @@ func TestNextRecords(t *testing.T) {
 		{2, []string{"anotherUsers"}, 1, []Record{rcrd("testData", "15")}},
 	}
 
-	testDB, err := Open("testdata/test.db")
+	testDB, err := Open("testdata/test.db", opts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,7 +88,7 @@ func TestPrevRecords(t *testing.T) {
 		{3, []string{"anotherUsers"}, 1, 1, []Record{bckt("1"), bckt("2"), rcrd("testData", "15")}},
 	}
 
-	testDB, err := Open("testdata/test.db")
+	testDB, err := Open("testdata/test.db", opts)
 	if err != nil {
 		t.Fatal(err)
 	}

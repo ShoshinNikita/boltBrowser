@@ -36,7 +36,6 @@ Setting | Default value | Description
 `offset` | `100` | number of records on a single page
 `debug` | `false` | mode of debugging
 `check version` | `true` | should program check a new version
-`write mode` | `true` | can program edit databases
 `open browser` | `true` | should the program open a browser automatically
 `neat window` | `true` | should the program open a neat window
 
@@ -80,7 +79,6 @@ Flag  | Description
 `-offset` | number of records on single page
 `-debug` | mode of debugging
 `-checkVer` | should program check a new version
-`-writeMode` | can program edit databases
 `-openBrowser` | should the program open a browser automatically
 `-neatWindow` | should the program open a neat window
 

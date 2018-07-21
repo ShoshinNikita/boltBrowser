@@ -59,7 +59,7 @@ func TestBucketsEditing(t *testing.T) {
 		{[]string{"xyz"}, "byte", newErr("it's a record")},
 	}
 
-	testDB, err := Open("testdata/edit.db")
+	testDB, err := Open("testdata/edit.db", opts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -179,7 +179,7 @@ func TestRecordEditing(t *testing.T) {
 		{[]string{"hello"}, "123", newErr("there's no such record")},
 	}
 
-	testDB, err := Open("testdata/edit.db")
+	testDB, err := Open("testdata/edit.db", opts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -294,7 +294,7 @@ func TestEditRecord(t *testing.T) {
 			[]Record{rcrd("byte", "15"), rcrd("hi", "yeah")}},
 	}
 
-	testDB, err := Open("testdata/edit.db")
+	testDB, err := Open("testdata/edit.db", opts)
 	if err != nil {
 		t.Fatal(err)
 	}

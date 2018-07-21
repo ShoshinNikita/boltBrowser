@@ -16,8 +16,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "[ERR] %s\n", err.Error())
 		return
 	}
-	data := struct{ WriteMode bool }{config.Opts.IsWriteMode}
-	t.Execute(w, data)
+	t.Execute(w, nil)
 }
 
 func wrapper(w http.ResponseWriter, r *http.Request) {

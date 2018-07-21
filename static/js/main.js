@@ -1,5 +1,13 @@
 /* Global variables */
-var currentDBPath = "";
+// currentDB keeps data about the current db
+// Data:
+// {
+//   "name": "",
+//   "dbPath": "",
+//   "size": 0,
+//   "readOnly": bool
+// }
+var currentDB = {}
 // Dictionary. It keeps data like "key of a record": "value of a record"
 var currentData = {};
 
@@ -51,7 +59,7 @@ function getBackButton() {
 
 function getNextRecordsButton() {
 	var $icon = $("<i>", {class: "material-icons"}).text("arrow_forward_ios");
-	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Next page");
+	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Next page").
 		click(function() {
 			NextRecords();
 		});
@@ -61,9 +69,9 @@ function getNextRecordsButton() {
 
 function getPrevRecordsButton() {
 	var $icon = $("<i>", {class: "material-icons"}).text("arrow_back_ios");
-	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Previous page");
+	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Previous page").
 		click(function() {
-			NextRecords();
+			PrevRecords();
 		});
 
 	return $("<div>", {style: "display: table;"}).append($icon).append($btn);
@@ -80,18 +88,31 @@ function getPathForDeleting(path) {
 	return $("<div>", {style: "margin-bottom: 10px; text-align: left;"}).append($path).append($btn);
 }
 
-// Write mode only
+/* Write mode only */
+// disable disables all child elements and add a title
+function disable($htmlElem) {	
+	$htmlElem.find("*").attr("disabled", true).css("cursor", "default");
+	$htmlElem.attr("title", "\"Read & Write\" mode only");
+}
+
+// Menus
 function getAddMenu() {
 	var $bucket = $("<input>", {type: "button", class: "popup_button", value: "Add bucket"}).
 		click(function() {
 			ShowAddModal("bucket");
 		});
-	var $record =  $("<input>", {type: "button", class: "popup_button", value: "Add record"}).
-	click(function() {
-		ShowAddModal("record");
-	});
+	var $record =  $("<input>", {type: "button", class: "popup_button", value: "Add record", style: "margin: auto;"}).
+		click(function() {
+			ShowAddModal("record");
+		});
 
-	return $("<div>").append($bucket).append($record);
+	var $div = $("<div>").append($bucket).append($record);
+
+	if (currentDB.readOnly) {
+		disable($div);
+	}
+
+	return $div
 }
 
 function getBucketMenu(bucketKey) {
@@ -100,11 +121,17 @@ function getBucketMenu(bucketKey) {
 			ShowEditModal("bucket", event.data.key);
 		});
 	var $delBtn =  $("<input>", {type: "button", class: "popup_button", value: "Delete", style: "margin: auto;"}).
-	click({key: bucketKey}, function(event) {
-		DeleteBucket(event.data.key);
-	});
+		click({key: bucketKey}, function(event) {
+			DeleteBucket(event.data.key);
+		});
 
-	return $("<div>").append($editBtn).append($delBtn);
+	var $div = $("<div>").append($editBtn).append($delBtn);
+
+	if (currentDB.readOnly) {
+		disable($div);
+	}
+
+	return $div
 }
 
 function getRecordMenu(recordKey) {
@@ -117,9 +144,16 @@ function getRecordMenu(recordKey) {
 		DeleteRecord(event.data.key);
 	});
 
-	return $("<div>").append($editBtn).append($delBtn);
+	var $div = $("<div>").append($editBtn).append($delBtn);
+
+	if (currentDB.readOnly) {
+		disable($div);
+	}
+
+	return $div;
 }
 
+// Windows
 function getAddBucketWindow() {
 	var $nameInput = $("<input>", {id: "newBucketName", "type": "text", placeholder: "Bucket", style: "margin-bottom: 5px; width: 100%;"}).prop("required", true);
 	var $btn = $("<input>", {type: "submit", "class": "button", value: "Add"}).
@@ -167,8 +201,21 @@ function getEditRecordWindow(recordKey, recordValue) {
 
 
 /* Secondary functions */
-window.onclick = function(event) {
-    if (event.target == openDbWindow) {
+$(window).keydown(function(event) {
+	if (event.target == searchText) {
+		// Enter
+		if (event.keyCode == 13 || event.which == 13) {
+			Search();
+		}
+		// Esc
+		if (event.keyCode == 27 || event.which == 27) {
+			ChooseDB(currentDB.dbPath);
+		}
+	}
+})
+
+$(window).click(function(event) {
+	if (event.target == openDbWindow) {
 		HideOpenDbWindow();
 	}
 	if (event.target == dbListBackground) {
@@ -176,7 +223,6 @@ window.onclick = function(event) {
 		$("#dbList").removeClass("db_list_animation");
 	}
 
-	// From write_mode.js
 	// Hiding AddMenu
 	if (event.target == addItemWindowBackground) {
 		$("#addItemWindowBackground").css("display", "none");
@@ -185,17 +231,24 @@ window.onclick = function(event) {
 	if ($("#popupMenu").css("visibility") == "visible" && event.target != popupMenu) {
 		$("#popupMenu").css("visibility", "hidden");
 	}
-}
+})
 
-window.onkeydown = function(event) {
-	if (event.target == searchText) {
-		// Enter
-		if (event.keyCode == 13 || event.which == 13) {
-			Search();
-		}
-		// Esc
-		if (event.keyCode == 27 || event.which == 27) {
-			ChooseDB(currentDBPath);
-		}
-	}
-}
+// Binding of events
+$(document).ready(function() {
+	// For hiding default context menu
+	$("#dbTreeWrapper").attr("oncontextmenu", "return false;")
+
+	$("#dbTreeWrapper").on("mousedown", function(event) {
+		showAddMenu(event);
+	});
+
+	$("body").on("contextmenu", ".record", function(event) {
+		showRecordMenu(event);
+		return false;
+	});
+	
+	$("body").on("contextmenu", ".bucket", function(event) {
+		showBucketMenu(event);
+		return false;
+	});
+});

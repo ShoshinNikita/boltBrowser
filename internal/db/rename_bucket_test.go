@@ -44,7 +44,7 @@ func TestBucketRenaming(t *testing.T) {
 		newName = "123"
 	)
 
-	testDB, err := db.Open("testdata/rename.db")
+	testDB, err := db.Open("testdata/rename.db", opts)
 	if err != nil {
 		t.Fatal(err)
 	}
