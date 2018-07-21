@@ -59,7 +59,7 @@ function getBackButton() {
 
 function getNextRecordsButton() {
 	var $icon = $("<i>", {class: "material-icons"}).text("arrow_forward_ios");
-	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Next page");
+	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Next page").
 		click(function() {
 			NextRecords();
 		});
@@ -69,9 +69,9 @@ function getNextRecordsButton() {
 
 function getPrevRecordsButton() {
 	var $icon = $("<i>", {class: "material-icons"}).text("arrow_back_ios");
-	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Previous page");
+	var $btn = $("<span>", {style: "cursor: pointer; font-weight: bold;"}).text("Previous page").
 		click(function() {
-			NextRecords();
+			PrevRecords();
 		});
 
 	return $("<div>", {style: "display: table;"}).append($icon).append($btn);
@@ -92,7 +92,7 @@ function getPathForDeleting(path) {
 // disable disables all child elements and add a title
 function disable($htmlElem) {	
 	$htmlElem.find("*").attr("disabled", true).css("cursor", "default");
-	$htmlElem.attr("title", "Need 'Read & Write' mode");
+	$htmlElem.attr("title", "\"Read & Write\" mode only");
 }
 
 // Menus
@@ -201,27 +201,7 @@ function getEditRecordWindow(recordKey, recordValue) {
 
 
 /* Secondary functions */
-window.onclick = function(event) {
-    if (event.target == openDbWindow) {
-		HideOpenDbWindow();
-	}
-	if (event.target == dbListBackground) {
-		$("#dbListBackground").css("display", "none");
-		$("#dbList").removeClass("db_list_animation");
-	}
-
-	// From write_mode.js
-	// Hiding AddMenu
-	if (event.target == addItemWindowBackground) {
-		$("#addItemWindowBackground").css("display", "none");
-	}
-	// Hiding PopupMenu
-	if ($("#popupMenu").css("visibility") == "visible" && event.target != popupMenu) {
-		$("#popupMenu").css("visibility", "hidden");
-	}
-}
-
-window.onkeydown = function(event) {
+$(window).keydown(function(event) {
 	if (event.target == searchText) {
 		// Enter
 		if (event.keyCode == 13 || event.which == 13) {
@@ -232,4 +212,43 @@ window.onkeydown = function(event) {
 			ChooseDB(currentDB.dbPath);
 		}
 	}
-}
+})
+
+$(window).click(function(event) {
+	if (event.target == openDbWindow) {
+		HideOpenDbWindow();
+	}
+	if (event.target == dbListBackground) {
+		$("#dbListBackground").css("display", "none");
+		$("#dbList").removeClass("db_list_animation");
+	}
+
+	// Hiding AddMenu
+	if (event.target == addItemWindowBackground) {
+		$("#addItemWindowBackground").css("display", "none");
+	}
+	// Hiding PopupMenu
+	if ($("#popupMenu").css("visibility") == "visible" && event.target != popupMenu) {
+		$("#popupMenu").css("visibility", "hidden");
+	}
+})
+
+// Binding of events
+$(document).ready(function() {
+	// For hiding default context menu
+	$("#dbTreeWrapper").attr("oncontextmenu", "return false;")
+
+	$("#dbTreeWrapper").on("mousedown", function(event) {
+		showAddMenu(event);
+	});
+
+	$("body").on("contextmenu", ".record", function(event) {
+		showRecordMenu(event);
+		return false;
+	});
+	
+	$("body").on("contextmenu", ".bucket", function(event) {
+		showBucketMenu(event);
+		return false;
+	});
+});

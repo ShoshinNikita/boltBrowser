@@ -11,7 +11,7 @@ function ShowTree(data) {
 	$("#dbTree").empty();
 
 	if (data.prevRecords) {
-		result += prevRecordsButtonTemplate;
+		$("#dbTree").append(getPrevRecordsButton());
 	} else if (data.prevBucket) {
 		$("#dbTree").append(getBackButton());
 	}
@@ -35,7 +35,7 @@ function ShowTree(data) {
 		$("#dbTree").append(getNextRecordsButton());
 	}
 
-	document.getElementById("dbTreeWrapper").scrollTop = 0;
+	$("#dbTreeWrapper").scrollTop(0);
 }
 
 function ShowDBsList() {
