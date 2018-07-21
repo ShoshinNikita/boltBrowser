@@ -6,13 +6,15 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/ShoshinNikita/log"
+
 	"github.com/ShoshinNikita/boltBrowser/internal/config"
 )
 
 func index(w http.ResponseWriter, r *http.Request) {
 	t, err := template.New("").Parse(templates.String("index.html"))
 	if err != nil {
-		fmt.Printf("[ERR] %s\n", err.Error())
+		log.Errorf("%s\n", err.Error())
 		fmt.Fprintf(w, "[ERR] %s\n", err.Error())
 		return
 	}
@@ -22,7 +24,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 func wrapper(w http.ResponseWriter, r *http.Request) {
 	t, err := template.New("").Parse(templates.String("wrapper.html"))
 	if err != nil {
-		fmt.Printf("[ERR] %s\n", err.Error())
+		log.Errorf("%s\n", err.Error())
 		fmt.Fprintf(w, "[ERR] %s\n", err.Error())
 		return
 	}
@@ -38,7 +40,7 @@ func wrapper(w http.ResponseWriter, r *http.Request) {
 func unescapingMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
-			fmt.Printf("[ERR] Can't parse form: %s\n", err)
+			log.Errorf("Can't parse form: %s\n", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

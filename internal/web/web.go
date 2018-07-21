@@ -74,7 +74,6 @@ func Start(port string, stopChan chan struct{}) {
 	// Wait for signal
 	<-stopChan
 	srv.Shutdown(context.Background())
-	fmt.Println("[INFO] Website was stopped")
 }
 
 func debugHandler(h http.Handler) http.Handler {

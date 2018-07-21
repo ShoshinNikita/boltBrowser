@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/ShoshinNikita/log"
+
 	"github.com/ShoshinNikita/boltBrowser/internal/db"
 	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
 )
@@ -26,13 +28,11 @@ func openDB(w http.ResponseWriter, r *http.Request) {
 	reg := regexp.MustCompile(`\\\\|\\`)
 	dbPath = reg.ReplaceAllString(dbPath, "/")
 
-	dbName, code, err := dbs.OpenDB(dbPath, readOnly)
+	_, code, err := dbs.OpenDB(dbPath, readOnly)
 	if err != nil {
 		returnError(w, err, "", code)
 		return
 	}
-
-	fmt.Printf("[INFO] DB \"%s\" (%s) was opened\n", dbName, dbPath)
 
 	w.WriteHeader(code)
 	response := struct {
@@ -54,13 +54,11 @@ func createDB(w http.ResponseWriter, r *http.Request) {
 
 	// We shouldn't replace '\\' and '\', because we will do it in db.Create()
 
-	dbName, dbPath, code, err := dbs.CreateDB(path)
+	_, dbPath, code, err := dbs.CreateDB(path)
 	if err != nil {
 		returnError(w, err, "", code)
 		return
 	}
-
-	fmt.Printf("[INFO] DB \"%s\" (%s) was created\n", dbName, dbPath)
 
 	w.WriteHeader(code)
 	response := struct {
@@ -467,7 +465,7 @@ func returnError(w http.ResponseWriter, err error, message string, code int) {
 		text = "Nothing"
 	}
 
-	fmt.Printf("[ERR] %s\n", text)
+	log.Errorf("%s\n", text)
 
 	http.Error(w, text, code)
 }

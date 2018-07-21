@@ -4,8 +4,9 @@ package dbs
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
+
+	"github.com/ShoshinNikita/log"
 
 	"github.com/ShoshinNikita/boltBrowser/internal/db"
 )
@@ -40,6 +41,7 @@ func OpenDB(dbPath string, readOnly bool) (dbName string, code int, err error) {
 
 	allDB[dbPath] = newDB
 
+	log.Infof("DB \"%s\" (%s) was opened\n", newDB.Name, dbPath)
 	return newDB.Name, http.StatusOK, nil
 }
 
@@ -52,6 +54,7 @@ func CreateDB(path string) (dbName, dbPath string, code int, err error) {
 
 	allDB[newDB.DBPath] = newDB
 
+	log.Infof("DB \"%s\" (%s) was created\n", dbName, dbPath)
 	return newDB.Name, newDB.DBPath, http.StatusCreated, nil
 }
 
@@ -65,7 +68,7 @@ func CloseDB(dbPath string) (code int, err error) {
 	allDB[dbPath].Close()
 	delete(allDB, dbPath)
 
-	fmt.Printf("[INFO] DB \"%s\" (%s) was closed\n", dbName, dbPath)
+	log.Infof("DB \"%s\" (%s) was closed\n", dbName, dbPath)
 	return http.StatusOK, nil
 }
 
@@ -295,5 +298,6 @@ func CloseDBs() {
 		allDB[k].Close()
 		delete(allDB, k)
 	}
-	fmt.Println("[INFO] All databases were closed")
+
+	log.Infoln("All databases were closed")
 }
