@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/boltdb/bolt"
+	"github.com/ShoshinNikita/bolt"
 )
 
 // Search use bytes.Contains()

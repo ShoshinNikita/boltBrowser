@@ -3,7 +3,7 @@ package db
 import (
 	"strings"
 
-	"github.com/boltdb/bolt"
+	"github.com/ShoshinNikita/bolt"
 )
 
 // GetRoot returns records from root of db

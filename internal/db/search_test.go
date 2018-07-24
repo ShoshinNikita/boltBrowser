@@ -63,7 +63,7 @@ func TestSearch(t *testing.T) {
 			bckt("thirdBucket")}},
 	}
 
-	testDB, err := Open("testdata/search.db")
+	testDB, err := Open("testdata/search.db", opts)
 	if err != nil {
 		t.Error(err)
 	}
@@ -120,7 +120,7 @@ func TestSearchRegex(t *testing.T) {
 		{"(?<=hello)print", "error parsing regexp: invalid or unsupported Perl syntax: `(?<`", []Record{}},
 	}
 
-	testDB, err := Open("testdata/search.db")
+	testDB, err := Open("testdata/search.db", opts)
 	if err != nil {
 		t.Error(err)
 	}

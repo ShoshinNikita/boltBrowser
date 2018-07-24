@@ -59,7 +59,7 @@ func newErr(err string) error {
 
 func TestOpen(t *testing.T) {
 	// Try to open correct db
-	testDB, err := Open("testdata/test.db")
+	testDB, err := Open("testdata/test.db", opts)
 	if err != nil {
 		t.Error(err)
 	}
@@ -81,7 +81,7 @@ func TestOpen(t *testing.T) {
 	}
 
 	// Try to open wrong db
-	_, err = Open("testdata/test123.db")
+	_, err = Open("testdata/test123.db", opts)
 	if err == nil {
 		t.Error(err)
 	} else {

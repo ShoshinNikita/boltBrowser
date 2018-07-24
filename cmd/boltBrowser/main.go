@@ -6,9 +6,10 @@ import (
 	"os/exec"
 	"os/signal"
 	"runtime"
-	"strings"
 	"syscall"
 	"time"
+
+	"github.com/ShoshinNikita/log"
 
 	"github.com/ShoshinNikita/boltBrowser/internal/config"
 	"github.com/ShoshinNikita/boltBrowser/internal/db"
@@ -17,29 +18,28 @@ import (
 	"github.com/ShoshinNikita/boltBrowser/internal/web"
 )
 
-const currentVersion = "v2.3"
+const currentVersion = "v2.4"
 
 func main() {
 	err := config.ParseConfig()
 	if err != nil {
-		fmt.Printf("[ERR] Couldn't parse config: %s\n", err.Error())
+		log.Errorf("Couldn't parse config: %s\n", err)
 		os.Exit(2)
 	}
 
-	fmt.Printf("boltBrowser %s\n", currentVersion)
-	fmt.Print("[INFO] Start. flags:\n")
+	log.Printf("boltBrowser %s\n", currentVersion)
+	log.Infoln("Start. flags:")
 	showFlags()
 
 	if config.Opts.CheckVer {
 		// Checking is there a new version
 		data, err := versioning.CheckVersion(currentVersion)
 		if err != nil {
-			fmt.Printf("[ERR] Can't check is there a new version: %s", err.Error())
+			log.Errorf("Can't check is there a new version: %s\n", err)
 		} else if data.IsNewVersion {
-			changes := "+ " + strings.Join(data.Changes, "\n+ ")
-			fmt.Printf("\n[INFO] New version (%s) is available.\nChanges:\n%s\nLink: %s\n\n", data.LastVersion, changes, data.Link)
+			log.Infof("New version (%s) is available.\nChanges:\n%s\nLink: %s\n\n", data.LastVersion, data.Changes, data.Link)
 		} else {
-			fmt.Printf("[INFO] You use the last version of boltBrowser\n")
+			log.Infoln("You use the last version of boltBrowser")
 		}
 	}
 
@@ -59,7 +59,7 @@ func main() {
 
 		err := openBrowser(url)
 		if err != nil {
-			fmt.Printf("[ERR] %s\n", err.Error())
+			log.Errorf("%s\n", err.Error())
 		}
 	}
 
@@ -71,7 +71,7 @@ func main() {
 
 	// Wait just in case
 	time.Sleep(100 * time.Millisecond)
-	fmt.Println("[INFO] Program was stopped")
+	log.Infoln("Program was stopped")
 }
 
 func openBrowser(url string) (err error) {
@@ -111,8 +111,6 @@ func showFlags() {
 	fmt.Printf("* port - %s\n", config.Opts.Port)
 	printSpaces(spaces)
 	fmt.Printf("* should check version - %t\n", config.Opts.CheckVer)
-	printSpaces(spaces)
-	fmt.Printf("* write mode - %t\n", config.Opts.IsWriteMode)
 	printSpaces(spaces)
 	fmt.Printf("* offset - %d\n", config.Opts.Offset)
 	printSpaces(spaces)

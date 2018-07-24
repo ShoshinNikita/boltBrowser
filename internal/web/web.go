@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gobuffalo/packr"
 	"github.com/gorilla/mux"
 
-	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
 	"github.com/ShoshinNikita/boltBrowser/internal/config"
+	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
 )
 
 // For embedding files
@@ -21,34 +20,33 @@ var (
 )
 
 var routes = []struct {
-	url       string
-	method    string
-	handler   func(http.ResponseWriter, *http.Request)
-	writeMode bool
+	url     string
+	method  string
+	handler func(http.ResponseWriter, *http.Request)
 }{
 	{url: "/", method: "GET", handler: index},
 	{url: "/wrapper", method: "GET", handler: wrapper},
 	// databases
-	{url: "/api/databases", method: "GET", handler: databasesList, writeMode: false},
-	{url: "/api/databases", method: "POST", handler: openDB, writeMode: false},
-	{url: "/api/databases", method: "DELETE", handler: closeDB, writeMode: false},
-	{url: "/api/databases/new", method: "POST", handler: createDB, writeMode: false},
+	{url: "/api/databases", method: "GET", handler: databasesList},
+	{url: "/api/databases", method: "POST", handler: openDB},
+	{url: "/api/databases", method: "DELETE", handler: closeDB},
+	{url: "/api/databases/new", method: "POST", handler: createDB},
 	// buckets
-	{url: "/api/buckets", method: "POST", handler: addBucket, writeMode: true},
-	{url: "/api/buckets", method: "PUT", handler: editBucketName, writeMode: true},
-	{url: "/api/buckets", method: "DELETE", handler: deleteBucket, writeMode: true},
-	{url: "/api/buckets/current", method: "GET", handler: current, writeMode: false},
-	{url: "/api/buckets/root", method: "GET", handler: root, writeMode: false},
-	{url: "/api/buckets/back", method: "GET", handler: back, writeMode: false},
-	{url: "/api/buckets/next", method: "GET", handler: next, writeMode: false},
+	{url: "/api/buckets", method: "POST", handler: addBucket},
+	{url: "/api/buckets", method: "PUT", handler: editBucketName},
+	{url: "/api/buckets", method: "DELETE", handler: deleteBucket},
+	{url: "/api/buckets/current", method: "GET", handler: current},
+	{url: "/api/buckets/root", method: "GET", handler: root},
+	{url: "/api/buckets/back", method: "GET", handler: back},
+	{url: "/api/buckets/next", method: "GET", handler: next},
 	// records
-	{url: "/api/records", method: "POST", handler: addRecord, writeMode: true},
-	{url: "/api/records", method: "PUT", handler: editRecord, writeMode: true},
-	{url: "/api/records", method: "DELETE", handler: deleteRecord, writeMode: true},
-	{url: "/api/records/prev", method: "GET", handler: prevRecords, writeMode: false},
-	{url: "/api/records/next", method: "GET", handler: nextRecords, writeMode: false},
+	{url: "/api/records", method: "POST", handler: addRecord},
+	{url: "/api/records", method: "PUT", handler: editRecord},
+	{url: "/api/records", method: "DELETE", handler: deleteRecord},
+	{url: "/api/records/prev", method: "GET", handler: prevRecords},
+	{url: "/api/records/next", method: "GET", handler: nextRecords},
 	// search
-	{url: "/api/search", method: "GET", handler: search, writeMode: false},
+	{url: "/api/search", method: "GET", handler: search},
 }
 
 // Start website
@@ -58,9 +56,7 @@ func Start(port string, stopChan chan struct{}) {
 	router := mux.NewRouter().StrictSlash(false)
 	router.Path("/favicon.ico").Methods("GET").Handler(http.FileServer(http.Dir("./static/")))
 	for _, r := range routes {
-		if !r.writeMode || (r.writeMode && config.Opts.IsWriteMode) {
-			router.Path(r.url).Methods(r.method).HandlerFunc(r.handler)
-		}
+		router.Path(r.url).Methods(r.method).HandlerFunc(r.handler)
 	}
 
 	// For static files
@@ -72,13 +68,12 @@ func Start(port string, stopChan chan struct{}) {
 	} else {
 		handler = router
 	}
-	srv := http.Server{Addr: port, Handler: middleware(handler)}
+	srv := http.Server{Addr: port, Handler: unescapingMiddleware(handler)}
 	go srv.ListenAndServe()
 
 	// Wait for signal
 	<-stopChan
 	srv.Shutdown(context.Background())
-	fmt.Println("[INFO] Website was stopped")
 }
 
 func debugHandler(h http.Handler) http.Handler {
@@ -97,29 +92,4 @@ func debugHandler(h http.Handler) http.Handler {
 
 		h.ServeHTTP(w, r)
 	})
-}
-
-func middleware(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r.ParseForm()
-
-		// Change all symbols
-		for key, values := range r.Form {
-			for i := range values {
-				convertForBackend(&values[i])
-			}
-			r.Form[key] = values
-		}
-
-		h.ServeHTTP(w, r)
-	})
-}
-
-func convertForBackend(origin *string) {
-	s := *origin
-	s = strings.Replace(s, "❮", "<", -1)
-	s = strings.Replace(s, "❯", ">", -1)
-	s = strings.Replace(s, "＂", "\"", -1)
-	s = strings.Replace(s, "ߴ", "'", -1)
-	*origin = s
 }

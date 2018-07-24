@@ -4,17 +4,24 @@
 	<meta charset="utf-8" />
 	<title>boltDB web-browser</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+
 	<!-- jQuery -->
 	<script src="/static/js/jquery/jquery.min.js"></script>
+
 	<!-- Icons -->
 	<link rel="stylesheet" type="text/css" media="screen" href="/static/css/material-icons.css">
-	<!-- Custom css and js -->
-	<link rel="stylesheet" type="text/css" media="screen" href="/static/css/main.css" />
+
+	<!-- CSS files -->
+	<link rel="stylesheet" type="text/css" media="screen" href="/static/css/main.css"/>
+	<link rel="stylesheet" type="text/css" media="screen" href="/static/css/db.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="/static/css/popups.css"/>
+
+	<!-- JS files -->
 	<script src="/static/js/main.js"></script>
-	{{if .WriteMode}}
-	<!-- Add write_mode.js -->
+	<script src="/static/js/api.js"></script>
+	<script src="/static/js/animation.js"></script>
+	<script src="/static/js/local_storage.js"></script>
 	<script src="/static/js/write_mode.js"></script>
-	{{end}}
 </head>
 <body onload="ShowDBList(); PrepareLS();" style="margin: 0px 0px 0px 0px; overflow-y: hidden;">
 	<!-- Menu -->
@@ -37,7 +44,7 @@
 		<div class="db_list" id="dbList">
 			<div style="font-size: 25px; text-align: center; border-bottom: 1px solid black; margin-top: 5px;">
 				Databases
-				<i class="material-icons btn icon" style="float: right; margin-right: 10px;" onclick="ShowOpenDbWindow();" title="Open new db">add</i>
+				<i class="material-icons btn icon" style="float: right; margin-right: 10px;" onclick="ShowOpenedDBsPaths();" title="Open new db">add</i>
 			</div>
 			<br>
 			<div id="list" style="overflow-y: auto;"></div>
@@ -54,6 +61,7 @@
 					<div id="dbName"><i>Name:</i> ?</div>
 					<div id="dbPath" style="font-size: 17px;"><i>Path:</i> ?</div>
 					<div id="dbSize" style="font-size: 17px;"><i>Size:</i> ?</div>
+					<div id="dbMode" style="font-size: 17px;"><i>Mode:</i> ?</div>
 				</div>
 				<!-- Search -->
 				<div id="searchBox" style="float: right; visibility: hidden;">
@@ -66,7 +74,7 @@
 					<div style="float: right;">
 						<i class="material-icons icon btn" style="font-size: 35px !important;" title="Search" onclick="Search();">search</i>
 						<br>
-						<i class="material-icons btn" style=" font-size: 35px !important;" title="Hide results" onclick="ChooseDB(currentDBPath);">close</i>
+						<i class="material-icons btn" style=" font-size: 35px !important;" title="Hide results" onclick="ChooseDB(currentDB.dbPath);">close</i>
 					</div>
 				</div>
 			</div>
@@ -100,16 +108,21 @@
 
 	<div id="openDbWindow" class="background">
 		<div class="modal-content" style="text-align: center;">
+			<!-- Inputs -->
 			<div style="width: 75%; display: inline-block;">
 				<input id="DBPathForCreating" style="width: 100%; margin-bottom: 15px; box-sizing: border-box;" placeholder="Path for creating" title="You can enter only a name, in this case a db will be created on the Desktop">
 				<input list="paths" id="DBPath" style="width: 100%; box-sizing: border-box;" placeholder="Path for opening a db">
 				<datalist id="paths" ></datalist>
+				<div style="text-align: left; font-size: 12px; margin-top: 5px;">
+					Read-only mode: <input type="checkbox" id="readOnlyCheckbox" title="Turn on read-only mode">
+				</div>
 				<div id="dbPathsList" style="margin-top: 20px; display: none;"></div>
 			</div>
+			<!-- Buttons -->
 			<div style="width: 80px; text-align: left; display: inline-block; vertical-align: top;">
 				<input type="button" value="Create" class="button" style="width: 100%; margin-bottom: 15px;" onclick="CreateDB();">
 				<input type="button" value="Open" class="button" style="width: 55px;" onclick="OpenDB();">
-				<i class="material-icons btn" style="font-size: 20px !important; vertical-align: middle; float: right;" onclick="SwitchPathsForDelete();" title="Change the list of paths">settings</i>
+				<i class="material-icons btn" style="font-size: 20px !important; vertical-align: middle; float: right;" onclick="SwitchPathsForDeleting();" title="Change the list of paths">settings</i>
 			</div>
 			<br>
 		</div>
@@ -124,16 +137,12 @@
 		<div style="margin: auto; user-select: none;">Done</div>
 	</div>
 
-	{{if .WriteMode}}
-	<!-- Add this elements only for WriteMode -->
-	<div id="popupMenu" class="popup_menu">
-		<div id="popupMenuContent"></div>
-	</div>
+	<!-- Write mode only -->
+	<div id="popupMenu" class="popup_menu"></div>
 
 	<div id="addItemWindowBackground" class="background">
 		<div class="modal-content" id="addItemWindow">
 		</div>
 	</div>
-	{{end}}
 </body>
 </html>

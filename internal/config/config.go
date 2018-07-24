@@ -31,8 +31,6 @@ var Opts struct {
 	Offset int `default:"100" name:"offset" comment:"number of records on a single screen"`
 	// CheckVer - should the program check check is there a new version
 	CheckVer bool `default:"true" name:"should_check_version"`
-	// IsWriteMode - can program edit databases
-	IsWriteMode bool `default:"true" name:"is_write_mode"`
 	// OpenBrowser - should the program open a browser automatically
 	OpenBrowser bool `default:"true" name:"open_browser"`
 	// NeatWindow - should the program open the special neat window

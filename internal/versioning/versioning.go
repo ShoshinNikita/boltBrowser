@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"regexp"
+	"strings"
 )
 
 // Info consist information about the last release
@@ -12,23 +12,8 @@ type Info struct {
 	IsNewVersion   bool
 	CurrentVersion string
 	LastVersion    string
-	Changes        []string
+	Changes        string
 	Link           string
-}
-
-// Transform string from
-// "+ 1-st change\r\n + 2-st change\r\n + 3-st change"
-// to
-// [1-st change, 2-st change, 3-st change]
-func getChanges(text string) (changes []string) {
-	r := regexp.MustCompile(`(?:\+|\*) ?(?P<change>[\w !@#$%^&*()+/*+"№;:?*=~{}\[\],.<'>|^-]+)(?:\r\n|$)`)
-	matches := r.FindAllStringSubmatch(text, -1)
-
-	for _, match := range matches {
-		// The first group is <change>
-		changes = append(changes, match[1])
-	}
-	return changes
 }
 
 // CheckVersion check the last release on GitHub
@@ -51,7 +36,7 @@ func CheckVersion(version string) (info Info, err error) {
 		info.IsNewVersion = (response[0].TagName != version)
 		info.CurrentVersion = version
 		info.LastVersion = response[0].TagName
-		info.Changes = getChanges(response[0].Body)
+		info.Changes = strings.Replace(response[0].Body, "\r\n", "\n", -1)
 		info.Link = response[0].URL
 	} else {
 		return Info{}, errors.New("Error: list of releases is empty")

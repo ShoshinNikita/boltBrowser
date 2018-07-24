@@ -3,7 +3,7 @@ package db
 import (
 	"sort"
 
-	"github.com/boltdb/bolt"
+	"github.com/ShoshinNikita/bolt"
 
 	"github.com/ShoshinNikita/boltBrowser/internal/converters"
 )

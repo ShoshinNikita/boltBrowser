@@ -4,8 +4,9 @@ package dbs
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
+
+	"github.com/ShoshinNikita/log"
 
 	"github.com/ShoshinNikita/boltBrowser/internal/db"
 )
@@ -15,9 +16,10 @@ var allDB map[string]*db.BoltAPI
 
 // DBInfo consist main info about db
 type DBInfo struct {
-	Name   string `json:"name"`
-	DBPath string `json:"dbPath"`
-	Size   int64  `json:"size"`
+	Name     string `json:"name"`
+	DBPath   string `json:"dbPath"`
+	Size     int64  `json:"size"`
+	ReadOnly bool   `json:"readOnly"`
 }
 
 // Init – initializing allDB
@@ -26,19 +28,20 @@ func Init() {
 }
 
 // OpenDB is a wrapper for *BoltAPI.Open()
-func OpenDB(dbPath string) (dbName string, code int, err error) {
+func OpenDB(dbPath string, readOnly bool) (dbName string, code int, err error) {
 	// Check if db was opened
 	if _, ok := allDB[dbPath]; ok {
 		return "", http.StatusBadRequest, errors.New("This DB was already opened")
 	}
 
-	newDB, err := db.Open(dbPath)
+	newDB, err := db.Open(dbPath, db.Options{ReadOnly: readOnly})
 	if err != nil {
 		return "", http.StatusInternalServerError, err
 	}
 
 	allDB[dbPath] = newDB
 
+	log.Infof("DB \"%s\" (%s) was opened\n", newDB.Name, dbPath)
 	return newDB.Name, http.StatusOK, nil
 }
 
@@ -51,6 +54,7 @@ func CreateDB(path string) (dbName, dbPath string, code int, err error) {
 
 	allDB[newDB.DBPath] = newDB
 
+	log.Infof("DB \"%s\" (%s) was created\n", dbName, dbPath)
 	return newDB.Name, newDB.DBPath, http.StatusCreated, nil
 }
 
@@ -64,7 +68,7 @@ func CloseDB(dbPath string) (code int, err error) {
 	allDB[dbPath].Close()
 	delete(allDB, dbPath)
 
-	fmt.Printf("[INFO] DB \"%s\" (%s) was closed\n", dbName, dbPath)
+	log.Infof("DB \"%s\" (%s) was closed\n", dbName, dbPath)
 	return http.StatusOK, nil
 }
 
@@ -129,6 +133,7 @@ func GetCurrent(dbPath string) (info DBInfo, data db.Data, code int, err error) 
 	info.DBPath = dbPath
 	info.Name = allDB[dbPath].Name
 	info.Size = allDB[dbPath].Size
+	info.ReadOnly = allDB[dbPath].ReadOnly
 
 	data, err = allDB[dbPath].GetCurrent()
 	if err != nil {
@@ -193,6 +198,9 @@ func AddBucket(dbPath, bucketName string) (code int, err error) {
 
 	err = allDB[dbPath].AddBucket(bucketName)
 	if err != nil {
+		if err == db.ErrNeedWriteMode {
+			return http.StatusForbidden, err
+		}
 		return http.StatusInternalServerError, err
 	}
 
@@ -207,6 +215,9 @@ func EditBucketName(dbPath, oldName, newName string) (code int, err error) {
 
 	err = allDB[dbPath].EditBucketName(oldName, newName)
 	if err != nil {
+		if err == db.ErrNeedWriteMode {
+			return http.StatusForbidden, err
+		}
 		return http.StatusInternalServerError, err
 	}
 
@@ -221,6 +232,9 @@ func DeleteBucket(dbPath, bucketName string) (code int, err error) {
 
 	err = allDB[dbPath].DeleteBucket(bucketName)
 	if err != nil {
+		if err == db.ErrNeedWriteMode {
+			return http.StatusForbidden, err
+		}
 		return http.StatusInternalServerError, err
 	}
 
@@ -235,6 +249,9 @@ func AddRecord(dbPath, key, value string) (code int, err error) {
 
 	err = allDB[dbPath].AddRecord(key, value)
 	if err != nil {
+		if err == db.ErrNeedWriteMode {
+			return http.StatusForbidden, err
+		}
 		return http.StatusInternalServerError, err
 	}
 
@@ -249,6 +266,9 @@ func EditRecord(dbPath, oldKey, newKey, newValue string) (code int, err error) {
 
 	err = allDB[dbPath].EditRecord(oldKey, newKey, newValue)
 	if err != nil {
+		if err == db.ErrNeedWriteMode {
+			return http.StatusForbidden, err
+		}
 		return http.StatusInternalServerError, err
 	}
 
@@ -263,6 +283,9 @@ func DeleteRecord(dbPath, key string) (code int, err error) {
 
 	err = allDB[dbPath].DeleteRecord(key)
 	if err != nil {
+		if err == db.ErrNeedWriteMode {
+			return http.StatusForbidden, err
+		}
 		return http.StatusInternalServerError, err
 	}
 
@@ -275,5 +298,6 @@ func CloseDBs() {
 		allDB[k].Close()
 		delete(allDB, k)
 	}
-	fmt.Println("[INFO] All databases were closed")
+
+	log.Infoln("All databases were closed")
 }

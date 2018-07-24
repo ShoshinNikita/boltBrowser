@@ -9,10 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/boltdb/bolt"
+	"github.com/ShoshinNikita/bolt"
 	"github.com/mitchellh/go-homedir"
-
-	"github.com/ShoshinNikita/boltBrowser/internal/config"
 )
 
 const (
@@ -37,6 +35,7 @@ type BoltAPI struct {
 	Name          string `json:"name"`
 	DBPath        string `json:"dbPath"`
 	Size          int64  `json:"size"`
+	ReadOnly      bool
 }
 
 // Record consists information about record in the db
@@ -56,13 +55,19 @@ type Data struct {
 	Path          string
 }
 
+// Options for opening of a db
+// `Options{}` can be used for getting of default options
+type Options struct {
+	ReadOnly bool
+}
+
 // SetOffset change value of maxOffset (default – 100)
 func SetOffset(offset int) {
 	maxOffset = offset
 }
 
 // Open returns info about the file of db, wrapper for *bolt.DB
-func Open(path string) (*BoltAPI, error) {
+func Open(path string, opt Options) (*BoltAPI, error) {
 	db := new(BoltAPI)
 	var err error
 	if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -70,10 +75,9 @@ func Open(path string) (*BoltAPI, error) {
 	}
 
 	options := &bolt.Options{Timeout: time.Second}
-
-	// Check is ReadOnly mode
-	if !config.Opts.IsWriteMode {
+	if opt.ReadOnly {
 		options.ReadOnly = true
+		db.ReadOnly = true
 	}
 
 	db.db, err = bolt.Open(path, 0600, options)
@@ -135,7 +139,7 @@ func Create(path string) (*BoltAPI, error) {
 	}
 	db.Close()
 
-	return Open(path)
+	return Open(path, Options{})
 }
 
 // Close closes db
