@@ -18,7 +18,7 @@ import (
 	"github.com/ShoshinNikita/boltBrowser/internal/web"
 )
 
-const currentVersion = "v2.3"
+const currentVersion = "v2.4"
 
 func main() {
 	err := config.ParseConfig()
