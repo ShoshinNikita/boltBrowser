@@ -98,7 +98,7 @@ func (db *BoltAPI) Next(name string) (data Data, err error) {
 
 func (db *BoltAPI) getCurrentBucket(tx *bolt.Tx) (b *bolt.Bucket) {
 	if len(db.currentBucket) == 0 {
-		b = tx.Root()
+		b = tx.Cursor().Bucket()
 	} else {
 		b = tx.Bucket([]byte(db.currentBucket[0]))
 		for i := 1; i < len(db.currentBucket); i++ {
