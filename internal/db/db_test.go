@@ -86,6 +86,9 @@ func TestOpen(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
+	// TODO: don't create db on Desktop
+	t.SkipNow()
+
 	tests := []struct {
 		path            string
 		pathForDeleting string
@@ -117,6 +120,7 @@ func TestCreate(t *testing.T) {
 	}
 }
 
+//nolint:unused
 func deleteDB(path string) error {
 	return os.Remove(path)
 }
