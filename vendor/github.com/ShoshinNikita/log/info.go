@@ -4,26 +4,20 @@ import (
 	"fmt"
 )
 
-func Info(v ...interface{}) {
-	if showTime {
-		printTime()
-	}
-	printInfoMsg()
-	fmt.Print(v...)
+// Info prints info message
+// Output pattern: (?time) [INFO] msg
+func (l Logger) Info(v ...interface{}) {
+	l.printText(addPrefixes(fmt.Sprint(v...), l.getTime, l.getInfoMsg))
 }
 
-func Infof(format string, v ...interface{}) {
-	if showTime {
-		printTime()
-	}
-	printInfoMsg()
-	fmt.Printf(format, v...)
+// Infof prints info message
+// Output pattern: (?time) [INFO] msg
+func (l Logger) Infof(format string, v ...interface{}) {
+	l.printText(addPrefixes(fmt.Sprintf(format, v...), l.getTime, l.getInfoMsg))
 }
 
-func Infoln(v ...interface{}) {
-	if showTime {
-		printTime()
-	}
-	printInfoMsg()
-	fmt.Println(v...)
+// Infoln prints info message
+// Output pattern: (?time) [INFO] msg
+func (l Logger) Infoln(v ...interface{}) {
+	l.printText(addPrefixes(fmt.Sprintln(v...), l.getTime, l.getInfoMsg))
 }

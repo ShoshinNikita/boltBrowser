@@ -1,51 +1,103 @@
+// Package log provides functions for pretty print
+//
+// Patterns of functions print:
+// * Print(), Printf(), Println():
+//   (?time) msg
+// * Info(), Infof(), Infoln():
+//   (?time) [INFO] msg
+// * Warn(), Warnf(), Warnln():
+//   (?time) [WARN] warning
+// * Error(), Errorf(), Errorln():
+//   (?time) [ERR] (?file:line) error
+// * Fatal(), Fatalf(), Fatalln():
+//   (?time) [FATAL] (?file:line) error
+//
+// Time pattern: MM.dd.yyyy hh:mm:ss (01.30.2018 05:5:59)
+//
 package log
 
 import (
-	"time"
+	"fmt"
+	"io"
 
 	"github.com/fatih/color"
 )
 
-var (
-	showTime   bool
-	timeLayout = "01.02.2006 15:04:05"
-
-	// For [ERR]
-	red   = color.New(color.FgRed).PrintFunc()
-	redf  = color.New(color.FgRed).PrintfFunc()
-	redln = color.New(color.FgRed).PrintlnFunc()
-
-	// For [INFO]
-	cyan   = color.New(color.FgCyan).PrintFunc()
-	cyanf  = color.New(color.FgCyan).PrintfFunc()
-	cyanln = color.New(color.FgCyan).PrintlnFunc()
-
-	// For time
-	yellow   = color.New(color.FgYellow).PrintFunc()
-	yellowf  = color.New(color.FgYellow).PrintfFunc()
-	yellowln = color.New(color.FgYellow).PrintlnFunc()
+const (
+	DefaultTimeLayout = "01.02.2006 15:04:05"
 )
 
-// ShowTime enables showing of time
-// Time isn't printed by default
-func ShowTime() {
-	showTime = true
+type textStruct struct {
+	text string
+	ch   chan struct{}
 }
 
-// HideTime disable showing of time
-// Time isn't printed by default
-func HideTime() {
-	showTime = false
+func newText(text string) textStruct {
+	return textStruct{text: text, ch: make(chan struct{})}
 }
 
-func printTime() {
-	yellowf("%s ", time.Now().Format(timeLayout))
+func (t *textStruct) done() {
+	close(t.ch)
 }
 
-func printErrMsg() {
-	red("[ERR] ")
+type Logger struct {
+	printTime      bool
+	printColor     bool
+	printErrorLine bool
+
+	printChan chan textStruct
+	global    bool
+
+	output     io.Writer
+	timeLayout string
 }
 
-func printInfoMsg() {
-	cyan("[INFO] ")
+// NewLogger creates *Logger and run goroutine (Logger.printer())
+func NewLogger() *Logger {
+	l := new(Logger)
+	l.output = color.Output
+	l.timeLayout = DefaultTimeLayout
+	l.printChan = make(chan textStruct, 200)
+	go l.printer()
+	return l
+}
+
+func (l *Logger) printer() {
+	for text := range l.printChan {
+		fmt.Fprint(l.output, text.text)
+		text.done()
+	}
+}
+
+func (l *Logger) printText(text string) {
+	t := newText(text)
+	l.printChan <- t
+	<-t.ch
+}
+
+// PrintTime sets Logger.printTime to b
+func (l *Logger) PrintTime(b bool) {
+	l.printTime = b
+}
+
+// PrintColor sets Logger.printColor to b
+func (l *Logger) PrintColor(b bool) {
+	l.printColor = b
+}
+
+// PrintErrorLine sets Logger.printErrorLine to b
+func (l *Logger) PrintErrorLine(b bool) {
+	l.printErrorLine = b
+}
+
+// ChangeOutput changes Logger.output writer.
+// Default Logger.output is github.com/fatih/color.Output
+func (l *Logger) ChangeOutput(w io.Writer) {
+	l.output = w
+}
+
+// ChangeTimeLayout changes Logger.timeLayout
+// Default Logger.timeLayout is DefaultTimeLayout
+func (l *Logger) ChangeTimeLayout(layout string) {
+	l.timeLayout = layout
 }

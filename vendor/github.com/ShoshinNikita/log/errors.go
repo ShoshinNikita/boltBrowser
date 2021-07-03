@@ -4,26 +4,20 @@ import (
 	"fmt"
 )
 
-func Error(v ...interface{}) {
-	if showTime {
-		printTime()
-	}
-	printErrMsg()
-	fmt.Print(v...)
+// Error prints error
+// Output pattern: (?time) [ERR] (?file:line) error
+func (l Logger) Error(v ...interface{}) {
+	l.printText(addPrefixes(fmt.Sprint(v...), l.getTime, l.getErrMsg, l.getCaller))
 }
 
-func Errorf(format string, v ...interface{}) {
-	if showTime {
-		printTime()
-	}
-	printErrMsg()
-	fmt.Printf(format, v...)
+// Errorf prints error
+// Output pattern: (?time) [ERR] (?file:line) error
+func (l Logger) Errorf(format string, v ...interface{}) {
+	l.printText(addPrefixes(fmt.Sprintf(format, v...), l.getTime, l.getErrMsg, l.getCaller))
 }
 
-func Errorln(v ...interface{}) {
-	if showTime {
-		printTime()
-	}
-	printErrMsg()
-	fmt.Println(v...)
+// Errorln prints error
+// Output pattern: (?time) [ERR] (?file:line) error
+func (l Logger) Errorln(v ...interface{}) {
+	l.printText(addPrefixes(fmt.Sprintln(v...), l.getTime, l.getErrMsg, l.getCaller))
 }
