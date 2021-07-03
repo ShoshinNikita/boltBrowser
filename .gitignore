@@ -1,5 +1,9 @@
-.vscode
-app
+# Dirs
+.vscode/
+app/
+bin/
+
+# Files
 *.ini
 *.bat
 jsconfig.json
