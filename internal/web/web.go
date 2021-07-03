@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/gobuffalo/packr"
@@ -47,7 +48,7 @@ var routes = []struct {
 }
 
 // Start website
-func Start(port string, stopChan chan struct{}) {
+func Start(port int, stopChan chan struct{}) {
 	dbs.Init()
 
 	router := mux.NewRouter().StrictSlash(false)
@@ -59,7 +60,7 @@ func Start(port string, stopChan chan struct{}) {
 	// For static files
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(static)))
 
-	srv := http.Server{Addr: port, Handler: unescapingMiddleware(router)}
+	srv := http.Server{Addr: fmt.Sprintf(":%d", port), Handler: unescapingMiddleware(router)}
 	go srv.ListenAndServe()
 
 	// Wait for signal

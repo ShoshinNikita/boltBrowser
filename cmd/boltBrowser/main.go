@@ -39,7 +39,7 @@ func main() {
 	go web.Start(config.Opts.Port, stopSite)
 
 	if config.Opts.OpenBrowser {
-		url := "http://localhost" + config.Opts.Port
+		url := fmt.Sprintf("http://localhost:%d", config.Opts.Port)
 
 		err := openBrowser(url)
 		if err != nil {
@@ -92,7 +92,7 @@ func showFlags() {
 	const spaces = 14
 
 	printSpaces(spaces)
-	fmt.Printf("* port - %s\n", config.Opts.Port)
+	fmt.Printf("* port - %d\n", config.Opts.Port)
 	printSpaces(spaces)
 	fmt.Printf("* offset - %d\n", config.Opts.Offset)
 	printSpaces(spaces)
