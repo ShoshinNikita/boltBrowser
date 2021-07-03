@@ -36,31 +36,50 @@ func TestSearch(t *testing.T) {
 		request string
 		answer  []Record
 	}{
-		{"1", []Record{
-			bckt("B1ucket"),
-			rcrd("1", "hello"),
-			rcrd("151", "hello"),
-			rcrd("1561", "hello"),
-			rcrd("31", "hello"),
-			rcrd("351", "hello"),
-			rcrd("51", "hello"),
-			rcrd("61", "hello"),
-			rcrd("651", "hello")}},
-		{"12", []Record{}},
-		{"51", []Record{
-			rcrd("151", "hello"),
-			rcrd("351", "hello"),
-			rcrd("51", "hello"),
-			rcrd("651", "hello")}},
-		{"Bucket", []Record{
-			bckt("firstBucket"),
-			bckt("secondBucket"),
-			bckt("thirdBucket")}},
-		{"cket", []Record{
-			bckt("B1ucket"),
-			bckt("firstBucket"),
-			bckt("secondBucket"),
-			bckt("thirdBucket")}},
+		{
+			"1",
+			[]Record{
+				bckt("B1ucket"),
+				rcrd("1", "hello"),
+				rcrd("151", "hello"),
+				rcrd("1561", "hello"),
+				rcrd("31", "hello"),
+				rcrd("351", "hello"),
+				rcrd("51", "hello"),
+				rcrd("61", "hello"),
+				rcrd("651", "hello"),
+			},
+		},
+		{
+			"12",
+			[]Record{},
+		},
+		{
+			"51",
+			[]Record{
+				rcrd("151", "hello"),
+				rcrd("351", "hello"),
+				rcrd("51", "hello"),
+				rcrd("651", "hello"),
+			},
+		},
+		{
+			"Bucket",
+			[]Record{
+				bckt("firstBucket"),
+				bckt("secondBucket"),
+				bckt("thirdBucket"),
+			},
+		},
+		{
+			"cket",
+			[]Record{
+				bckt("B1ucket"),
+				bckt("firstBucket"),
+				bckt("secondBucket"),
+				bckt("thirdBucket"),
+			},
+		},
 	}
 
 	testDB, err := Open("testdata/search.db", opts)
@@ -104,20 +123,43 @@ func TestSearchRegex(t *testing.T) {
 		err     string
 		answer  []Record
 	}{
-		{"^1", "", []Record{
-			rcrd("1", "hello"),
-			rcrd("151", "hello"),
-			rcrd("1561", "hello")}},
-		{"12", "", []Record{}},
-		{"51$", "", []Record{
-			rcrd("151", "hello"),
-			rcrd("351", "hello"),
-			rcrd("51", "hello"),
-			rcrd("651", "hello")}},
-		{"^[seconthird]+Bucket", "", []Record{
-			bckt("secondBucket"),
-			bckt("thirdBucket")}},
-		{"(?<=hello)print", "error parsing regexp: invalid or unsupported Perl syntax: `(?<`", []Record{}},
+		{
+			"^1",
+			"",
+			[]Record{
+				rcrd("1", "hello"),
+				rcrd("151", "hello"),
+				rcrd("1561", "hello"),
+			},
+		},
+		{
+			"12",
+			"",
+			[]Record{},
+		},
+		{
+			"51$",
+			"",
+			[]Record{
+				rcrd("151", "hello"),
+				rcrd("351", "hello"),
+				rcrd("51", "hello"),
+				rcrd("651", "hello"),
+			},
+		},
+		{
+			"^[seconthird]+Bucket",
+			"",
+			[]Record{
+				bckt("secondBucket"),
+				bckt("thirdBucket"),
+			},
+		},
+		{
+			"(?<=hello)print",
+			"error parsing regexp: invalid or unsupported Perl syntax: `(?<`",
+			[]Record{},
+		},
 	}
 
 	testDB, err := Open("testdata/search.db", opts)

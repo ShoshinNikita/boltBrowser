@@ -31,7 +31,7 @@ func Init() {
 func OpenDB(dbPath string, readOnly bool) (dbName string, code int, err error) {
 	// Check if db was opened
 	if _, ok := allDB[dbPath]; ok {
-		return "", http.StatusBadRequest, errors.New("This DB was already opened")
+		return "", http.StatusBadRequest, errors.New("this DB is already opened")
 	}
 
 	newDB, err := db.Open(dbPath, db.Options{ReadOnly: readOnly})
@@ -198,7 +198,7 @@ func AddBucket(dbPath, bucketName string) (code int, err error) {
 
 	err = allDB[dbPath].AddBucket(bucketName)
 	if err != nil {
-		if err == db.ErrNeedWriteMode {
+		if errors.Is(err, db.ErrNeedWriteMode) {
 			return http.StatusForbidden, err
 		}
 		return http.StatusInternalServerError, err
@@ -215,7 +215,7 @@ func EditBucketName(dbPath, oldName, newName string) (code int, err error) {
 
 	err = allDB[dbPath].EditBucketName(oldName, newName)
 	if err != nil {
-		if err == db.ErrNeedWriteMode {
+		if errors.Is(err, db.ErrNeedWriteMode) {
 			return http.StatusForbidden, err
 		}
 		return http.StatusInternalServerError, err
@@ -232,7 +232,7 @@ func DeleteBucket(dbPath, bucketName string) (code int, err error) {
 
 	err = allDB[dbPath].DeleteBucket(bucketName)
 	if err != nil {
-		if err == db.ErrNeedWriteMode {
+		if errors.Is(err, db.ErrNeedWriteMode) {
 			return http.StatusForbidden, err
 		}
 		return http.StatusInternalServerError, err
@@ -249,7 +249,7 @@ func AddRecord(dbPath, key, value string) (code int, err error) {
 
 	err = allDB[dbPath].AddRecord(key, value)
 	if err != nil {
-		if err == db.ErrNeedWriteMode {
+		if errors.Is(err, db.ErrNeedWriteMode) {
 			return http.StatusForbidden, err
 		}
 		return http.StatusInternalServerError, err
@@ -266,7 +266,7 @@ func EditRecord(dbPath, oldKey, newKey, newValue string) (code int, err error) {
 
 	err = allDB[dbPath].EditRecord(oldKey, newKey, newValue)
 	if err != nil {
-		if err == db.ErrNeedWriteMode {
+		if errors.Is(err, db.ErrNeedWriteMode) {
 			return http.StatusForbidden, err
 		}
 		return http.StatusInternalServerError, err
@@ -283,7 +283,7 @@ func DeleteRecord(dbPath, key string) (code int, err error) {
 
 	err = allDB[dbPath].DeleteRecord(key)
 	if err != nil {
-		if err == db.ErrNeedWriteMode {
+		if errors.Is(err, db.ErrNeedWriteMode) {
 			return http.StatusForbidden, err
 		}
 		return http.StatusInternalServerError, err

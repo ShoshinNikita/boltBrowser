@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -82,8 +83,8 @@ func Open(path string, opt Options) (*BoltAPI, error) {
 
 	db.db, err = bolt.Open(path, 0600, options)
 	if err != nil {
-		if err == bolt.ErrTimeout {
-			return nil, fmt.Errorf("The database is already opened")
+		if errors.Is(err, bolt.ErrTimeout) {
+			return nil, fmt.Errorf("database is already opened")
 		}
 
 		return nil, err
@@ -130,7 +131,7 @@ func Create(path string) (*BoltAPI, error) {
 
 	// Check if a db already exists
 	if _, err := os.Stat(path); err == nil {
-		return nil, fmt.Errorf("Database with path\"%s\" already exists", path)
+		return nil, fmt.Errorf("database with path %q already exists", path)
 	}
 
 	db, err := bolt.Open(path, 0600, nil)

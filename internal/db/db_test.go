@@ -50,11 +50,7 @@ func rcrd(key, value string) Record {
 }
 
 func newErr(err string) error {
-	if err == "" {
-		return nil
-	} else {
-		return errors.New(err)
-	}
+	return errors.New(err)
 }
 
 func TestOpen(t *testing.T) {

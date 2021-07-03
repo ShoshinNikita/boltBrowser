@@ -1,9 +1,11 @@
 package db
 
-var BucketTemplate = bucketTemplate
-var RecordTemplate = recordTemplate
+var (
+	BucketTemplate = bucketTemplate
+	RecordTemplate = recordTemplate
 
-var SortRecords = sortRecords
+	SortRecords = sortRecords
+)
 
 func (db *BoltAPI) GetCurrentBucketsPath() []string {
 	return db.currentBucket

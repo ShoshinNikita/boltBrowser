@@ -32,17 +32,25 @@ func test1(t *testing.T) {
 		"Hello world Some <script>alert(5);</script>",
 		"Hello world Some &lt;script&gt;alert(5);&lt;/script&gt;",
 		[]record{
-			record{"bucket", "Some key", "Some key", "Some value", "Some value"},
-			record{"bucket",
+			{
+				"bucket",
+				"Some key", "Some key",
+				"Some value", "Some value",
+			},
+			{
+				"bucket",
 				"Some <script>alert(5);</script>", "Some &lt;script&gt;alert(5);&lt;/script&gt;",
-				"Some <body></body>", "Some &lt;body&gt;&lt;/body&gt;"},
-			record{"bucket", "Some key!\"#$%^:)", "Some key!&#34;#$%^:)",
-				"value", "value"},
+				"Some <body></body>", "Some &lt;body&gt;&lt;/body&gt;",
+			},
+			{
+				"bucket",
+				"Some key!\"#$%^:)", "Some key!&#34;#$%^:)",
+				"value", "value",
+			},
 		},
 	}
 
-	err := web.EscapeRecords(&tt)
-	if err != nil {
+	if err := web.EscapeRecords(&tt); err != nil {
 		t.Error(err)
 		return
 	}
@@ -70,17 +78,20 @@ func test2(t *testing.T) {
 		48,
 		[]int64{56, 28},
 		[]record{
-			record{"bucket",
+			{
+				"bucket",
 				"Some <script>alert(Hello, World!);</script>", "Some &lt;script&gt;alert(Hello, World!);&lt;/script&gt;",
-				"Some <body></body>", "Some &lt;body&gt;&lt;/body&gt;"},
-			record{"record",
+				"Some <body></body>", "Some &lt;body&gt;&lt;/body&gt;",
+			},
+			{
+				"record",
 				"Some ()&^%@ke`~y!\"#$%^:)", "Some ()&amp;^%@ke`~y!&#34;#$%^:)",
-				"VaLuE", "VaLuE"},
+				"VaLuE", "VaLuE",
+			},
 		},
 	}
 
-	err := web.EscapeRecords(&tt)
-	if err != nil {
+	if err := web.EscapeRecords(&tt); err != nil {
 		t.Error(err)
 		return
 	}

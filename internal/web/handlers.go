@@ -10,7 +10,7 @@ import (
 )
 
 func index(w http.ResponseWriter, r *http.Request) {
-	t, err := template.New("").Parse(templates.String("index.html"))
+	t, err := template.New("").Parse(templates.String("index.html")) //nolint:staticcheck
 	if err != nil {
 		log.Errorf("%s\n", err.Error())
 		fmt.Fprintf(w, "[ERR] %s\n", err.Error())

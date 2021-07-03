@@ -135,20 +135,30 @@ func TestSortRecords(t *testing.T) {
 		result []Record
 	}{
 		{
-			[]Record{Record{Key: "a", T: RecordTemplate}, Record{Key: "b", T: BucketTemplate}},
-			[]Record{Record{Key: "b", T: BucketTemplate}, Record{Key: "a", T: RecordTemplate}},
+			[]Record{{Key: "a", T: RecordTemplate}, {Key: "b", T: BucketTemplate}},
+			[]Record{{Key: "b", T: BucketTemplate}, {Key: "a", T: RecordTemplate}},
 		},
 		{
-			[]Record{Record{Key: "abc", T: BucketTemplate}, Record{Key: "acd", T: BucketTemplate}},
-			[]Record{Record{Key: "abc", T: BucketTemplate}, Record{Key: "acd", T: BucketTemplate}},
+			[]Record{{Key: "abc", T: BucketTemplate}, {Key: "acd", T: BucketTemplate}},
+			[]Record{{Key: "abc", T: BucketTemplate}, {Key: "acd", T: BucketTemplate}},
 		},
 		{
-			[]Record{Record{Key: "abc", T: RecordTemplate}, Record{Key: "acd", T: BucketTemplate}, Record{Key: "hello", T: BucketTemplate}},
-			[]Record{Record{Key: "acd", T: BucketTemplate}, Record{Key: "hello", T: BucketTemplate}, Record{Key: "abc", T: RecordTemplate}},
+			[]Record{{Key: "abc", T: RecordTemplate}, {Key: "acd", T: BucketTemplate}, {Key: "hello", T: BucketTemplate}},
+			[]Record{{Key: "acd", T: BucketTemplate}, {Key: "hello", T: BucketTemplate}, {Key: "abc", T: RecordTemplate}},
 		},
 		{
-			[]Record{Record{Key: "abc", T: RecordTemplate}, Record{Key: "t", T: RecordTemplate}, Record{Key: "acd", T: BucketTemplate}, Record{Key: "hello", T: BucketTemplate}},
-			[]Record{Record{Key: "acd", T: BucketTemplate}, Record{Key: "hello", T: BucketTemplate}, Record{Key: "abc", T: RecordTemplate}, Record{Key: "t", T: RecordTemplate}},
+			[]Record{
+				{Key: "abc", T: RecordTemplate},
+				{Key: "t", T: RecordTemplate},
+				{Key: "acd", T: BucketTemplate},
+				{Key: "hello", T: BucketTemplate},
+			},
+			[]Record{
+				{Key: "acd", T: BucketTemplate},
+				{Key: "hello", T: BucketTemplate},
+				{Key: "abc", T: RecordTemplate},
+				{Key: "t", T: RecordTemplate},
+			},
 		},
 	}
 

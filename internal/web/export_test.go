@@ -1,5 +1,3 @@
 package web
 
-var (
-	EscapeRecords = escapeRecords
-)
+var EscapeRecords = escapeRecords

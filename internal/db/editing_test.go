@@ -36,16 +36,21 @@ func TestBucketsEditing(t *testing.T) {
 		err     error
 		records []Record
 	}{
-		{[]string{}, "123", newErr(""),
-			[]Record{bckt("123"), bckt("hello"), bckt("xyz")}},
-		{[]string{"hello"}, "546", newErr(""),
-			[]Record{bckt("546")}},
-		{[]string{"hello", "546"}, "1", newErr(""),
-			[]Record{bckt("1")}},
-		{[]string{"xyz"}, "byte", newErr("it's a record"),
-			[]Record{rcrd("byte", "15"), rcrd("hi", "yeah")}},
-		{[]string{}, "hello", newErr("bucket already exists"),
-			[]Record{bckt("123"), bckt("hello"), bckt("xyz")}},
+		{
+			[]string{}, "123", nil, []Record{bckt("123"), bckt("hello"), bckt("xyz")},
+		},
+		{
+			[]string{"hello"}, "546", nil, []Record{bckt("546")},
+		},
+		{
+			[]string{"hello", "546"}, "1", nil, []Record{bckt("1")},
+		},
+		{
+			[]string{"xyz"}, "byte", newErr("it's a record"), []Record{rcrd("byte", "15"), rcrd("hi", "yeah")},
+		},
+		{
+			[]string{}, "hello", newErr("bucket already exists"), []Record{bckt("123"), bckt("hello"), bckt("xyz")},
+		},
 	}
 
 	deletingTests := []struct {
@@ -53,9 +58,9 @@ func TestBucketsEditing(t *testing.T) {
 		name string
 		err  error
 	}{
-		{[]string{}, "123", newErr("")},
-		{[]string{"hello", "546"}, "1", newErr("")},
-		{[]string{"hello"}, "546", newErr("")},
+		{[]string{}, "123", nil},
+		{[]string{"hello", "546"}, "1", nil},
+		{[]string{"hello"}, "546", nil},
 		{[]string{"xyz"}, "byte", newErr("it's a record")},
 	}
 
@@ -158,14 +163,18 @@ func TestRecordEditing(t *testing.T) {
 		err     error
 		records []Record
 	}{
-		{[]string{}, "123", "15", newErr(""),
-			[]Record{bckt("hello"), bckt("xyz"), rcrd("123", "15")}},
-		{[]string{}, "123", "16", newErr("record already exists"),
-			[]Record{bckt("hello"), bckt("xyz"), rcrd("123", "15")}},
-		{[]string{}, "hello", "5", newErr("it's a bucket"),
-			[]Record{bckt("hello"), bckt("xyz"), rcrd("123", "15")}},
-		{[]string{"xyz"}, "hello", "1", newErr(""),
-			[]Record{rcrd("byte", "15"), rcrd("hello", "1"), rcrd("hi", "yeah")}},
+		{
+			[]string{}, "123", "15", nil, []Record{bckt("hello"), bckt("xyz"), rcrd("123", "15")},
+		},
+		{
+			[]string{}, "123", "16", newErr("record already exists"), []Record{bckt("hello"), bckt("xyz"), rcrd("123", "15")},
+		},
+		{
+			[]string{}, "hello", "5", newErr("it's a bucket"), []Record{bckt("hello"), bckt("xyz"), rcrd("123", "15")},
+		},
+		{
+			[]string{"xyz"}, "hello", "1", nil, []Record{rcrd("byte", "15"), rcrd("hello", "1"), rcrd("hi", "yeah")},
+		},
 	}
 
 	deletingTests := []struct {
@@ -173,8 +182,8 @@ func TestRecordEditing(t *testing.T) {
 		key  string
 		err  error
 	}{
-		{[]string{}, "123", newErr("")},
-		{[]string{"xyz"}, "hello", newErr("")},
+		{[]string{}, "123", nil},
+		{[]string{"xyz"}, "hello", nil},
 		{[]string{}, "hello", newErr("it's a bucket")},
 		{[]string{"hello"}, "123", newErr("there's no such record")},
 	}
@@ -279,19 +288,25 @@ func TestEditRecord(t *testing.T) {
 	}{
 		// 	{byte 15} -> {byte 35}
 		// 	[hi yeah] -> {hello 88}
-		{[]string{"xyz"}, "byte", "byte", "35", newErr(""),
-			[]Record{rcrd("byte", "35"), rcrd("hi", "yeah")}},
-		{[]string{"xyz"}, "hi", "hello", "88", newErr(""),
-			[]Record{rcrd("byte", "35"), rcrd("hello", "88")}},
-		{[]string{}, "hello", "hi", "35", newErr("it's a bucket"),
-			[]Record{bckt("hello"), bckt("xyz")}},
-		{[]string{}, "test", "test1", "15", newErr("there's no such record"),
-			[]Record{bckt("hello"), bckt("xyz")}},
+		{
+			[]string{"xyz"}, "byte", "byte", "35", nil, []Record{rcrd("byte", "35"), rcrd("hi", "yeah")},
+		},
+		{
+			[]string{"xyz"}, "hi", "hello", "88", nil, []Record{rcrd("byte", "35"), rcrd("hello", "88")},
+		},
+		{
+			[]string{}, "hello", "hi", "35", newErr("it's a bucket"), []Record{bckt("hello"), bckt("xyz")},
+		},
+		{
+			[]string{}, "test", "test1", "15", newErr("there's no such record"), []Record{bckt("hello"), bckt("xyz")},
+		},
 		// return default values
-		{[]string{"xyz"}, "byte", "byte", "15", newErr(""),
-			[]Record{rcrd("byte", "15"), rcrd("hello", "88")}},
-		{[]string{"xyz"}, "hello", "hi", "yeah", newErr(""),
-			[]Record{rcrd("byte", "15"), rcrd("hi", "yeah")}},
+		{
+			[]string{"xyz"}, "byte", "byte", "15", nil, []Record{rcrd("byte", "15"), rcrd("hello", "88")},
+		},
+		{
+			[]string{"xyz"}, "hello", "hi", "yeah", nil, []Record{rcrd("byte", "15"), rcrd("hi", "yeah")},
+		},
 	}
 
 	testDB, err := Open("testdata/edit.db", opts)

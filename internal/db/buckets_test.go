@@ -31,9 +31,26 @@ func TestGetRoot(t *testing.T) {
 		offset int
 		answer []Record
 	}{
-		{100, []Record{Record{T: BucketTemplate, Key: "anotherUsers", Value: ""}, Record{T: BucketTemplate, Key: "user", Value: ""}}},
-		{2, []Record{Record{T: BucketTemplate, Key: "anotherUsers", Value: ""}, Record{T: BucketTemplate, Key: "user", Value: ""}}},
-		{1, []Record{Record{T: BucketTemplate, Key: "anotherUsers", Value: ""}}},
+		{
+			100,
+			[]Record{
+				{T: BucketTemplate, Key: "anotherUsers", Value: ""},
+				{T: BucketTemplate, Key: "user", Value: ""},
+			},
+		},
+		{
+			2,
+			[]Record{
+				{T: BucketTemplate, Key: "anotherUsers", Value: ""},
+				{T: BucketTemplate, Key: "user", Value: ""},
+			},
+		},
+		{
+			1,
+			[]Record{
+				{T: BucketTemplate, Key: "anotherUsers", Value: ""},
+			},
+		},
 	}
 
 	testDB, err := Open("testdata/test.db", opts)
@@ -70,17 +87,33 @@ func TestNext(t *testing.T) {
 		offset int
 		data   []T
 	}{
-		{100, []T{
-			T{"anotherUsers", []Record{bckt("1"), bckt("2"), rcrd("testData", "15")}},
-			T{"1", []Record{rcrd("age", "99"), rcrd("name", "Admin")}}}},
-		{1, []T{
-			T{"anotherUsers", []Record{bckt("1")}},
-			T{"1", []Record{rcrd("age", "99")}}}},
-		{2, []T{
-			T{"anotherUsers", []Record{bckt("1"), bckt("2")}},
-			T{"2", []Record{rcrd("name", "hi!!!!"), rcrd("prof", "tester")}}}},
-		{1, []T{
-			T{"user", []Record{rcrd("age", "15")}}}},
+		{
+			100,
+			[]T{
+				{"anotherUsers", []Record{bckt("1"), bckt("2"), rcrd("testData", "15")}},
+				{"1", []Record{rcrd("age", "99"), rcrd("name", "Admin")}},
+			},
+		},
+		{
+			1,
+			[]T{
+				{"anotherUsers", []Record{bckt("1")}},
+				{"1", []Record{rcrd("age", "99")}},
+			},
+		},
+		{
+			2,
+			[]T{
+				{"anotherUsers", []Record{bckt("1"), bckt("2")}},
+				{"2", []Record{rcrd("name", "hi!!!!"), rcrd("prof", "tester")}},
+			},
+		},
+		{
+			1,
+			[]T{
+				{"user", []Record{rcrd("age", "15")}},
+			},
+		},
 	}
 
 	testDB, err := Open("testdata/test.db", opts)
@@ -120,15 +153,30 @@ func TestBack(t *testing.T) {
 		next   []string
 		answer [][]Record
 	}{
-		{100, []string{"anotherUsers", "1"}, [][]Record{
-			[]Record{bckt("1"), bckt("2"), rcrd("testData", "15")},
-			[]Record{bckt("anotherUsers"), bckt("user")}}},
-		{1, []string{"anotherUsers", "1"}, [][]Record{
-			[]Record{bckt("1")},
-			[]Record{bckt("anotherUsers")}}},
-		{2, []string{"anotherUsers", "2"}, [][]Record{
-			[]Record{bckt("1"), bckt("2")},
-			[]Record{bckt("anotherUsers"), bckt("user")}}},
+		{
+			100,
+			[]string{"anotherUsers", "1"},
+			[][]Record{
+				{bckt("1"), bckt("2"), rcrd("testData", "15")},
+				{bckt("anotherUsers"), bckt("user")},
+			},
+		},
+		{
+			1,
+			[]string{"anotherUsers", "1"},
+			[][]Record{
+				{bckt("1")},
+				{bckt("anotherUsers")},
+			},
+		},
+		{
+			2,
+			[]string{"anotherUsers", "2"},
+			[][]Record{
+				{bckt("1"), bckt("2")},
+				{bckt("anotherUsers"), bckt("user")},
+			},
+		},
 	}
 
 	testDB, err := Open("testdata/test.db", opts)

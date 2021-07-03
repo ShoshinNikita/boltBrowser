@@ -5,6 +5,7 @@ import (
 )
 
 // TODO: don't use global options
+
 var Opts struct {
 	// Port for website
 	Port int

@@ -74,7 +74,7 @@ func (db *BoltAPI) getRecords(c *bolt.Cursor) (records []Record) {
 }
 
 func (db *BoltAPI) getNextRecords(c *bolt.Cursor) (records []Record, canMoveNext bool) {
-	var i = 0
+	var i int
 	// [ maxOffset * db.offset; maxOffset * (db.offset + 1) )
 	for k, v := c.First(); k != nil && i < maxOffset*(db.pages.top()+1); k, v = c.Next() {
 		if maxOffset*db.pages.top() <= i {
@@ -102,7 +102,7 @@ func (db *BoltAPI) getNextRecords(c *bolt.Cursor) (records []Record, canMoveNext
 func (db *BoltAPI) getPrevRecords(c *bolt.Cursor) (records []Record, canMoveBack bool) {
 	db.pages.dec()
 
-	var i = 0
+	var i int
 	// [ maxOffset * (db.offset - 1); maxOffset * db.offset )
 	for k, v := c.First(); k != nil && i < maxOffset*db.pages.top(); k, v = c.Next() {
 		if maxOffset*(db.pages.top()-1) <= i {

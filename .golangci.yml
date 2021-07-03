@@ -1,0 +1,60 @@
+run:
+  concurrency: 4
+  build-tags:
+    - integration
+  modules-download-mode: vendor
+
+linters:
+  enable-all: true
+  disable:
+    # TODO: requires major refactoring
+    - gochecknoglobals
+    # TODO: add error checks, use github.com/stretchr/testify for tests
+    - errcheck
+    # Deprecated
+    - maligned
+    - golint
+    - interfacer
+    - scopelint
+    # Useless
+    - cyclop
+    - dupl
+    - exhaustivestruct
+    - forbidigo
+    - godot
+    - godox
+    - gomnd
+    - nlreturn
+    - paralleltest
+    - testpackage
+    - tparallel
+    - thelper
+    - whitespace
+    - wrapcheck
+    - wsl
+
+linters-settings:
+  gci:
+    local-prefixes: github.com/ShoshinNikita/boltBrowser
+  funlen:
+    lines: 80
+
+issues:
+  exclude:
+    # Ignore underscores in test functions
+    - "use underscores in Go names; (?:func|type) (?:T|t)est"
+
+  exclude-rules:
+    - linters:
+        - goerr113
+      text: "do not define dynamic errors"
+
+    - linters:
+        - funlen
+        - gocognit
+        - prealloc
+      path: _test\.go
+
+  # Display all issues
+  max-issues-per-linter: 0
+  max-same-issues: 0

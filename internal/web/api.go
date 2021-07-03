@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"regexp"
 
@@ -30,7 +29,7 @@ func openDB(w http.ResponseWriter, r *http.Request) {
 
 	_, code, err := dbs.OpenDB(dbPath, readOnly)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -56,7 +55,7 @@ func createDB(w http.ResponseWriter, r *http.Request) {
 
 	_, dbPath, code, err := dbs.CreateDB(path)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -77,7 +76,7 @@ func closeDB(w http.ResponseWriter, r *http.Request) {
 
 	code, err := dbs.CloseDB(dbPath)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 	}
 
 	w.WriteHeader(code)
@@ -108,7 +107,7 @@ func next(w http.ResponseWriter, r *http.Request) {
 
 	data, code, err := dbs.NextBucket(dbPath, nextBucket)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -157,7 +156,7 @@ func back(w http.ResponseWriter, r *http.Request) {
 
 	data, code, err := dbs.PrevBucket(dbPath)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -180,7 +179,6 @@ func back(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(response)
-
 }
 
 // root returns records from root of db
@@ -207,7 +205,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 
 	data, code, err := dbs.GetRoot(dbPath)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -281,7 +279,7 @@ func current(w http.ResponseWriter, r *http.Request) {
 
 	info, data, code, err := dbs.GetCurrent(dbPath)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -331,7 +329,7 @@ func nextRecords(w http.ResponseWriter, r *http.Request) {
 
 	data, code, err := dbs.GetNextRecords(dbPath)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -378,7 +376,7 @@ func prevRecords(w http.ResponseWriter, r *http.Request) {
 
 	data, code, err := dbs.GetPrevRecrods(dbPath)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -427,7 +425,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 
 	records, path, recordsAmount, code, err := dbs.Search(dbPath, mode, text)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -453,21 +451,10 @@ func search(w http.ResponseWriter, r *http.Request) {
 }
 
 // returnError writes error into http.ResponseWriter and into terminal
-func returnError(w http.ResponseWriter, err error, message string, code int) {
-	var text string
-	if message != "" && err != nil {
-		text = fmt.Sprintf("Error: %s Message: %s", err.Error(), message)
-	} else if message != "" {
-		text = fmt.Sprintf("Message: %s", message)
-	} else if err != nil {
-		text = fmt.Sprintf("Error: %s", err.Error())
-	} else {
-		text = "Nothing"
-	}
+func returnError(w http.ResponseWriter, err error, code int) {
+	log.Errorf("%s\n", err)
 
-	log.Errorf("%s\n", text)
-
-	http.Error(w, text, code)
+	http.Error(w, err.Error(), code)
 }
 
 // addBucket
@@ -481,7 +468,7 @@ func addBucket(w http.ResponseWriter, r *http.Request) {
 
 	code, err := dbs.AddBucket(dbPath, bucket)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -500,7 +487,7 @@ func editBucketName(w http.ResponseWriter, r *http.Request) {
 
 	code, err := dbs.EditBucketName(dbPath, oldName, newName)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -518,7 +505,7 @@ func deleteBucket(w http.ResponseWriter, r *http.Request) {
 
 	code, err := dbs.DeleteBucket(dbPath, bucket)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -537,7 +524,7 @@ func addRecord(w http.ResponseWriter, r *http.Request) {
 
 	code, err := dbs.AddRecord(dbPath, key, value)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -557,7 +544,7 @@ func editRecord(w http.ResponseWriter, r *http.Request) {
 
 	code, err := dbs.EditRecord(dbPath, oldKey, newKey, newValue)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 
@@ -575,7 +562,7 @@ func deleteRecord(w http.ResponseWriter, r *http.Request) {
 
 	code, err := dbs.DeleteRecord(dbPath, key)
 	if err != nil {
-		returnError(w, err, "", code)
+		returnError(w, err, code)
 		return
 	}
 

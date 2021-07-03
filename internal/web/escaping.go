@@ -68,11 +68,11 @@ func escape(s string) string {
 // checkString checks is v valid and is v.Kind() reflect.String
 func checkString(v reflect.Value) error {
 	if !v.IsValid() {
-		return errors.New("Field isn't valid")
+		return errors.New("field isn't valid")
 	}
 
 	if v.Kind() != reflect.String {
-		return errors.New("Field's kind isn't a string")
+		return errors.New("field's kind isn't a string")
 	}
 
 	return nil

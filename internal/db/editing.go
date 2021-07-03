@@ -6,9 +6,7 @@ import (
 	"github.com/ShoshinNikita/bolt"
 )
 
-var (
-	ErrNeedWriteMode = errors.New("Need WriteMode. Mode of the db is ReadOnly")
-)
+var ErrNeedWriteMode = errors.New("WriteMode is required")
 
 // Structures for saving data of a bucket in memory
 
