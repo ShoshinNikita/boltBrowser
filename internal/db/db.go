@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ShoshinNikita/bolt"
 	"github.com/mitchellh/go-homedir"
+	bolt "go.etcd.io/bbolt"
 )
 
 const (

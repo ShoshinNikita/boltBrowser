@@ -1,11 +1,6 @@
-# github.com/ShoshinNikita/bolt v1.3.2-0.20180718110148-d86ecd6cf0d5
-## explicit
-github.com/ShoshinNikita/bolt
 # github.com/ShoshinNikita/log v1.6.0
 ## explicit
 github.com/ShoshinNikita/log
-# github.com/boltdb/bolt v1.3.1
-## explicit
 # github.com/fatih/color v1.7.0
 github.com/fatih/color
 # github.com/gobuffalo/envy v1.7.0
@@ -32,5 +27,9 @@ github.com/mitchellh/go-homedir
 github.com/rogpeppe/go-internal/modfile
 github.com/rogpeppe/go-internal/module
 github.com/rogpeppe/go-internal/semver
-# golang.org/x/sys v0.0.0-20190515120540-06a5c4944438
+# go.etcd.io/bbolt v1.3.6
+## explicit
+go.etcd.io/bbolt
+# golang.org/x/sys v0.0.0-20200923182605-d9f96fdee20d
+golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix

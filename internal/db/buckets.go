@@ -3,7 +3,7 @@ package db
 import (
 	"strings"
 
-	"github.com/ShoshinNikita/bolt"
+	bolt "go.etcd.io/bbolt"
 )
 
 // GetRoot returns records from root of db
@@ -96,15 +96,14 @@ func (db *BoltAPI) Next(name string) (data Data, err error) {
 	return data, err
 }
 
-func (db *BoltAPI) getCurrentBucket(tx *bolt.Tx) (b *bolt.Bucket) {
+func (db *BoltAPI) getCurrentBucket(tx *bolt.Tx) *bolt.Bucket {
 	if len(db.currentBucket) == 0 {
-		b = tx.Root()
-	} else {
-		b = tx.Bucket([]byte(db.currentBucket[0]))
-		for i := 1; i < len(db.currentBucket); i++ {
-			b = b.Bucket([]byte(db.currentBucket[i]))
-		}
+		return tx.Cursor().Bucket()
 	}
 
+	b := tx.Bucket([]byte(db.currentBucket[0]))
+	for i := 1; i < len(db.currentBucket); i++ {
+		b = b.Bucket([]byte(db.currentBucket[i]))
+	}
 	return b
 }

@@ -3,7 +3,7 @@ package db
 import (
 	"errors"
 
-	"github.com/ShoshinNikita/bolt"
+	bolt "go.etcd.io/bbolt"
 )
 
 var ErrNeedWriteMode = errors.New("WriteMode is required")

@@ -3,7 +3,7 @@ package db
 import (
 	"sort"
 
-	"github.com/ShoshinNikita/bolt"
+	bolt "go.etcd.io/bbolt"
 
 	"github.com/ShoshinNikita/boltBrowser/internal/converters"
 )
