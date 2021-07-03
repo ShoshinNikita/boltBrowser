@@ -8,7 +8,6 @@ func parseFlags() {
 	flag.StringVar(&Opts.Port, "port", Opts.Port, "port for website (with ':')")
 	flag.IntVar(&Opts.Offset, "offset", Opts.Offset, "number of records on single page")
 	flag.BoolVar(&Opts.OpenBrowser, "openBrowser", Opts.OpenBrowser, "should the program open a browser automatically")
-	flag.BoolVar(&Opts.NeatWindow, "neatWindow", Opts.NeatWindow, "should the program open a neat window")
 	flag.Parse()
 
 	// Checking of ':' before port

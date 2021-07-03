@@ -29,8 +29,6 @@ var Opts struct {
 	Offset int `default:"100" name:"offset" comment:"number of records on a single screen"`
 	// OpenBrowser - should the program open a browser automatically
 	OpenBrowser bool `default:"true" name:"open_browser"`
-	// NeatWindow - should the program open the special neat window
-	NeatWindow bool `default:"true" name:"open_neat_window" comment:"has effect only if 'open browser' is true"`
 }
 
 type field struct {

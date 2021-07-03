@@ -7,8 +7,6 @@ import (
 	"net/http"
 
 	"github.com/ShoshinNikita/log"
-
-	"github.com/ShoshinNikita/boltBrowser/internal/config"
 )
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -19,20 +17,6 @@ func index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	t.Execute(w, nil)
-}
-
-func wrapper(w http.ResponseWriter, r *http.Request) {
-	t, err := template.New("").Parse(templates.String("wrapper.html"))
-	if err != nil {
-		log.Errorf("%s\n", err.Error())
-		fmt.Fprintf(w, "[ERR] %s\n", err.Error())
-		return
-	}
-
-	data := map[string]interface{}{
-		"URL": "http://localhost" + config.Opts.Port,
-	}
-	t.Execute(w, data)
 }
 
 // unescapingMiddleware use html.Unescape() for every element of r.Form

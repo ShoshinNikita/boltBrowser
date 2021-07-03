@@ -2,7 +2,6 @@ package web
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/gobuffalo/packr"
@@ -24,7 +23,6 @@ var routes = []struct {
 	handler func(http.ResponseWriter, *http.Request)
 }{
 	{url: "/", method: "GET", handler: index},
-	{url: "/wrapper", method: "GET", handler: wrapper},
 	// databases
 	{url: "/api/databases", method: "GET", handler: databasesList},
 	{url: "/api/databases", method: "POST", handler: openDB},
@@ -67,22 +65,4 @@ func Start(port string, stopChan chan struct{}) {
 	// Wait for signal
 	<-stopChan
 	srv.Shutdown(context.Background())
-}
-
-func debugHandler(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r.ParseForm()
-
-		fmt.Printf("%s – %s\n", r.Method, r.URL.Path)
-		if len(r.Form) > 0 {
-			fmt.Print("Form:\n")
-		}
-		for key, values := range r.Form {
-			fmt.Printf("* %s: %v\n", key, values)
-		}
-
-		fmt.Print("\n")
-
-		h.ServeHTTP(w, r)
-	})
 }

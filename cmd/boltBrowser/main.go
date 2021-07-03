@@ -40,9 +40,6 @@ func main() {
 
 	if config.Opts.OpenBrowser {
 		url := "http://localhost" + config.Opts.Port
-		if config.Opts.NeatWindow {
-			url += "/wrapper"
-		}
 
 		err := openBrowser(url)
 		if err != nil {
@@ -100,6 +97,4 @@ func showFlags() {
 	fmt.Printf("* offset - %d\n", config.Opts.Offset)
 	printSpaces(spaces)
 	fmt.Printf("* should open a browser - %t\n", config.Opts.OpenBrowser)
-	printSpaces(spaces)
-	fmt.Printf("* should open a neat window - %t\n", config.Opts.NeatWindow)
 }
