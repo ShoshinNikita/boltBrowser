@@ -8,7 +8,6 @@ import (
 	"github.com/gobuffalo/packr"
 	"github.com/gorilla/mux"
 
-	"github.com/ShoshinNikita/boltBrowser/internal/config"
 	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
 )
 
@@ -62,13 +61,7 @@ func Start(port string, stopChan chan struct{}) {
 	// For static files
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(static)))
 
-	var handler http.Handler
-	if config.Opts.Debug {
-		handler = debugHandler(router)
-	} else {
-		handler = router
-	}
-	srv := http.Server{Addr: port, Handler: unescapingMiddleware(handler)}
+	srv := http.Server{Addr: port, Handler: unescapingMiddleware(router)}
 	go srv.ListenAndServe()
 
 	// Wait for signal

@@ -102,6 +102,4 @@ func showFlags() {
 	fmt.Printf("* should open a browser - %t\n", config.Opts.OpenBrowser)
 	printSpaces(spaces)
 	fmt.Printf("* should open a neat window - %t\n", config.Opts.NeatWindow)
-	printSpaces(spaces)
-	fmt.Printf("* debug - %t\n", config.Opts.Debug)
 }

@@ -25,8 +25,6 @@ import (
 var Opts struct {
 	// Port for website (with ':')
 	Port string `default:":500" name:"port" comment:"Port for website"`
-	// Debug mode
-	Debug bool `default:"false" name:"debug"`
 	// Offset - number of records on single screen
 	Offset int `default:"100" name:"offset" comment:"number of records on a single screen"`
 	// OpenBrowser - should the program open a browser automatically
