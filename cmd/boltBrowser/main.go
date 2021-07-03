@@ -14,7 +14,6 @@ import (
 	"github.com/ShoshinNikita/boltBrowser/internal/config"
 	"github.com/ShoshinNikita/boltBrowser/internal/db"
 	"github.com/ShoshinNikita/boltBrowser/internal/dbs"
-	"github.com/ShoshinNikita/boltBrowser/internal/versioning"
 	"github.com/ShoshinNikita/boltBrowser/internal/web"
 )
 
@@ -30,18 +29,6 @@ func main() {
 	log.Printf("boltBrowser %s\n", currentVersion)
 	log.Infoln("Start. flags:")
 	showFlags()
-
-	if config.Opts.CheckVer {
-		// Checking is there a new version
-		data, err := versioning.CheckVersion(currentVersion)
-		if err != nil {
-			log.Errorf("Can't check is there a new version: %s\n", err)
-		} else if data.IsNewVersion {
-			log.Infof("New version (%s) is available.\nChanges:\n%s\nLink: %s\n\n", data.LastVersion, data.Changes, data.Link)
-		} else {
-			log.Infoln("You use the last version of boltBrowser")
-		}
-	}
 
 	// Init of channels
 	stopSite := make(chan struct{})
@@ -109,8 +96,6 @@ func showFlags() {
 
 	printSpaces(spaces)
 	fmt.Printf("* port - %s\n", config.Opts.Port)
-	printSpaces(spaces)
-	fmt.Printf("* should check version - %t\n", config.Opts.CheckVer)
 	printSpaces(spaces)
 	fmt.Printf("* offset - %d\n", config.Opts.Offset)
 	printSpaces(spaces)

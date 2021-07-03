@@ -29,8 +29,6 @@ var Opts struct {
 	Debug bool `default:"false" name:"debug"`
 	// Offset - number of records on single screen
 	Offset int `default:"100" name:"offset" comment:"number of records on a single screen"`
-	// CheckVer - should the program check check is there a new version
-	CheckVer bool `default:"true" name:"should_check_version"`
 	// OpenBrowser - should the program open a browser automatically
 	OpenBrowser bool `default:"true" name:"open_browser"`
 	// NeatWindow - should the program open the special neat window
